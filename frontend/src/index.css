@@ -1,0 +1,724 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --canvas-bg: #080c14;
+    --surface-panel: #0d1424;
+    --surface-card: #131e33;
+    --surface-card-hover: #192742;
+    --border-hairline: #1c2b46;
+    --border-strong: #273b5e;
+    --brand-blue: #2563eb;
+    --brand-sky: #38bdf8;
+    --accent-amber: #f59e0b;
+    --signal-emerald: #10b981;
+    --signal-coral: #f43f5e;
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+  }
+
+  body {
+    background-color: var(--canvas-bg);
+    color: var(--text-primary);
+    min-height: 100vh;
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    selection-background-color: #2563eb;
+    selection-color: #ffffff;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  img {
+    -webkit-user-drag: none;
+    -khtml-user-drag: none;
+    -moz-user-drag: none;
+    -o-user-drag: none;
+    user-drag: none;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+  }
+}
+
+/* 3D Perspective & Hardware Acceleration */
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.perspective-1200 {
+  perspective: 1200px;
+}
+
+.transform-style-3d {
+  transform-style: preserve-3d;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.rotate-y-180 {
+  transform: rotateY(180deg);
+}
+
+/* Tactile Physical Elevation (Deep Ink Navy Tinted, No AI Slop Pure Black) */
+.shadow-tactile {
+  box-shadow: 4px 4px 0px 0px #04060a;
+}
+
+.shadow-tactile-sm {
+  box-shadow: 2px 2px 0px 0px #04060a;
+}
+
+.shadow-tactile-blue {
+  box-shadow: 4px 4px 0px 0px #1d4ed8;
+}
+
+.shadow-tactile-amber {
+  box-shadow: 4px 4px 0px 0px #d97706;
+}
+
+.shadow-tactile-emerald {
+  box-shadow: 4px 4px 0px 0px #059669;
+}
+
+.shadow-tactile-coral {
+  box-shadow: 4px 4px 0px 0px #e11d48;
+}
+
+/* Backward compatibility classes */
+.shadow-brutal {
+  box-shadow: 4px 4px 0px 0px #04060a;
+}
+
+.shadow-brutal-sm {
+  box-shadow: 2px 2px 0px 0px #04060a;
+}
+
+.shadow-brutal-blue {
+  box-shadow: 4px 4px 0px 0px #1d4ed8;
+}
+
+.shadow-brutal-amber {
+  box-shadow: 4px 4px 0px 0px #d97706;
+}
+
+.shadow-brutal-emerald {
+  box-shadow: 4px 4px 0px 0px #059669;
+}
+
+.shadow-brutal-rose {
+  box-shadow: 4px 4px 0px 0px #e11d48;
+}
+
+/* Card Bevel & High-End Inset Specular */
+.card-specular-bevel {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 4px 4px 0px 0px #04060a;
+}
+
+/* Official Identity Card Security Micro-Grid Pattern */
+.idcard-security-bg,
+.dossier-security-bg {
+  background-color: #0c121f;
+  background-image: 
+    linear-gradient(rgba(37, 99, 235, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(37, 99, 235, 0.06) 1px, transparent 1px);
+  background-size: 16px 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Guilloche Texture Simulation */
+.guilloche-pattern {
+  background: repeating-radial-gradient(
+    circle at 50% 50%,
+    transparent 0,
+    transparent 10px,
+    rgba(37, 99, 235, 0.04) 10px,
+    rgba(37, 99, 235, 0.04) 11px
+  );
+}
+
+/* Silky Smooth Biometric Laser Scanner */
+@keyframes laserSweepSmooth {
+  0% {
+    top: 4%;
+    opacity: 0.85;
+  }
+  50% {
+    top: 94%;
+    opacity: 1;
+  }
+  100% {
+    top: 4%;
+    opacity: 0.85;
+  }
+}
+
+.animate-laser {
+  animation: laserSweepSmooth 2.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+/* Silky Smooth Radar Sonar Sweep */
+@keyframes radarSweepSmooth {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-radar {
+  animation: radarSweepSmooth 4s linear infinite;
+  transform-origin: center center;
+}
+
+@keyframes sonarPingSmooth {
+  0% {
+    transform: scale(0.2);
+    opacity: 0.7;
+  }
+  80% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1.8);
+    opacity: 0;
+  }
+}
+
+.animate-sonar {
+  animation: sonarPingSmooth 2.8s cubic-bezier(0.2, 0.8, 0.2, 1) infinite;
+}
+
+/* Silky Smooth Hologram Chromatic Prism */
+@keyframes holoPrismSmooth {
+  0%, 100% {
+    filter: drop-shadow(1.5px 0px 0px rgba(37, 99, 235, 0.5)) drop-shadow(-1.5px 0px 0px rgba(244, 63, 94, 0.5));
+    transform: translate(0, 0);
+  }
+  25% {
+    filter: drop-shadow(2px 0.5px 0px rgba(37, 99, 235, 0.6)) drop-shadow(-2px -0.5px 0px rgba(244, 63, 94, 0.6));
+    transform: translate(-0.5px, 0.5px);
+  }
+  50% {
+    filter: drop-shadow(-1.5px 0px 0px rgba(37, 99, 235, 0.5)) drop-shadow(1.5px 0px 0px rgba(244, 63, 94, 0.5));
+    transform: translate(0.5px, -0.5px);
+  }
+  75% {
+    filter: drop-shadow(-2px 0.5px 0px rgba(37, 99, 235, 0.6)) drop-shadow(2px -0.5px 0px rgba(244, 63, 94, 0.6));
+    transform: translate(0, 0.5px);
+  }
+}
+
+.animate-holo-smooth {
+  animation: holoPrismSmooth 3s ease-in-out infinite;
+}
+
+/* Analog VHS Soft Scanlines */
+@keyframes scanlineScroll {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 0 60px;
+  }
+}
+
+.vhs-scanlines {
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(4, 6, 10, 0.35) 0px,
+    rgba(4, 6, 10, 0.35) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  animation: scanlineScroll 6s linear infinite;
+  pointer-events: none;
+}
+
+/* Camera Shutter Aperture */
+@keyframes apertureSpinSmooth {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(30deg) scale(0.98);
+  }
+  100% {
+    transform: rotate(60deg) scale(1);
+  }
+}
+
+.animate-shutter {
+  animation: apertureSpinSmooth 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* Holographic Iridescent Foil Sheen Sweep (Clean, Seamless Optical Ray) */
+@keyframes holoSheenClean {
+  0% {
+    background-position: -150% -150%;
+  }
+  100% {
+    background-position: 250% 250%;
+  }
+}
+
+.holo-sheen-sweep {
+  background: linear-gradient(
+    135deg,
+    transparent 25%,
+    rgba(255, 255, 255, 0.08) 38%,
+    rgba(56, 189, 248, 0.28) 46%,
+    rgba(244, 63, 94, 0.24) 50%,
+    rgba(168, 85, 247, 0.28) 54%,
+    rgba(255, 255, 255, 0.08) 62%,
+    transparent 75%
+  );
+  background-size: 300% 300%;
+  animation: holoSheenClean 4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  pointer-events: none;
+}
+
+/* Architect Blueprint CAD Lines & Sweeps */
+.cad-blueprint-grid {
+  background-image: 
+    linear-gradient(rgba(56, 189, 248, 0.15) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(56, 189, 248, 0.15) 1px, transparent 1px),
+    linear-gradient(rgba(56, 189, 248, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(56, 189, 248, 0.05) 1px, transparent 1px);
+  background-size: 32px 32px, 32px 32px, 8px 8px, 8px 8px;
+}
+
+@keyframes cadRulerSweep {
+  0% { top: 2%; opacity: 0.8; }
+  50% { top: 96%; opacity: 1; }
+  100% { top: 2%; opacity: 0.8; }
+}
+
+.animate-cad-ruler {
+  animation: cadRulerSweep 3.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+/* Cosmic Nebula Orbit & Starlight */
+@keyframes cosmicOrbitSpin {
+  0% { transform: rotate(0deg) scale(1); }
+  50% { transform: rotate(180deg) scale(1.04); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+
+.animate-cosmic-orbit {
+  animation: cosmicOrbitSpin 9s linear infinite;
+}
+
+@keyframes starlightTwinkle {
+  0%, 100% { opacity: 0.3; transform: scale(0.9); }
+  50% { opacity: 0.95; transform: scale(1.15); }
+}
+
+.animate-starlight {
+  animation: starlightTwinkle 2.2s ease-in-out infinite alternate;
+}
+
+/* Synthwave 80s Wireframe Horizon */
+@keyframes synthwaveGridMove {
+  0% { background-position: 0 0; }
+  100% { background-position: 0 32px; }
+}
+
+.synthwave-wireframe-grid {
+  background-image: 
+    linear-gradient(rgba(236, 72, 153, 0.22) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(6, 182, 212, 0.22) 1px, transparent 1px);
+  background-size: 20px 20px;
+  animation: synthwaveGridMove 2.4s linear infinite;
+}
+
+@keyframes sunsetGlowPulse {
+  0%, 100% { opacity: 0.45; }
+  50% { opacity: 0.8; }
+}
+
+.animate-sunset-pulse {
+  animation: sunsetGlowPulse 2.8s ease-in-out infinite;
+}
+
+/* Overclock Voltage Surge & Electrical Arc */
+@keyframes voltageBorderPulse {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(37, 99, 235, 0.35), inset 0 0 6px rgba(56, 189, 248, 0.25);
+    border-color: #2563eb;
+  }
+  25% {
+    box-shadow: 0 0 16px rgba(56, 189, 248, 0.65), inset 0 0 12px rgba(37, 99, 235, 0.45);
+    border-color: #38bdf8;
+  }
+  50% {
+    box-shadow: 0 0 6px rgba(37, 99, 235, 0.25), inset 0 0 6px rgba(56, 189, 248, 0.2);
+    border-color: #1d4ed8;
+  }
+  75% {
+    box-shadow: 0 0 20px rgba(56, 189, 248, 0.75), inset 0 0 16px rgba(37, 99, 235, 0.55);
+    border-color: #60a5fa;
+  }
+}
+
+.animate-voltage-border {
+  animation: voltageBorderPulse 1.8s ease-in-out infinite;
+}
+
+/* 13. Liquid Magnetic Spring Levitation */
+@keyframes liquidMagneticLevitate {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  35% {
+    transform: translateY(-8px) rotate(-0.6deg);
+  }
+  70% {
+    transform: translateY(-4px) rotate(0.6deg);
+  }
+}
+
+.animate-liquid-levitate {
+  animation: liquidMagneticLevitate 4.5s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+
+.liquid-glass-refract {
+  background: radial-gradient(
+    circle at 50% 20%,
+    rgba(56, 189, 248, 0.15) 0%,
+    rgba(37, 99, 235, 0.08) 45%,
+    transparent 70%
+  );
+}
+
+/* 14. Holographic Foil Hyper-Shimmer Diffraction (Clean, Seamless Spectrum Beam) */
+@keyframes hyperDiffractionClean {
+  0% {
+    background-position: -160% -160%;
+  }
+  100% {
+    background-position: 260% 260%;
+  }
+}
+
+.hyper-diffraction-sweep {
+  background: linear-gradient(
+    135deg,
+    transparent 22%,
+    rgba(56, 189, 248, 0.25) 36%,
+    rgba(168, 85, 247, 0.32) 43%,
+    rgba(244, 63, 94, 0.32) 50%,
+    rgba(234, 179, 8, 0.28) 57%,
+    rgba(34, 197, 94, 0.25) 64%,
+    transparent 78%
+  );
+  background-size: 300% 300%;
+  animation: hyperDiffractionClean 3.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  pointer-events: none;
+}
+
+@keyframes chromaticBorderPulse {
+  0%, 100% {
+    border-color: #38bdf8;
+    box-shadow: 0 0 10px rgba(56, 189, 248, 0.4), inset 0 0 6px rgba(168, 85, 247, 0.3);
+  }
+  50% {
+    border-color: #c084fc;
+    box-shadow: 0 0 16px rgba(192, 132, 252, 0.6), inset 0 0 8px rgba(244, 63, 94, 0.35);
+  }
+}
+
+.animate-chromatic-border {
+  animation: chromaticBorderPulse 2.4s ease-in-out infinite;
+}
+
+/* 15. Smooth Cyberpunk Kinetic Glitch (Subtle, Refined, Intermittent) */
+@keyframes cyberGlitchSmooth {
+  0%, 100% {
+    transform: translate(0, 0);
+    filter: none;
+  }
+  38% {
+    transform: translate(0, 0);
+    filter: none;
+  }
+  40% {
+    transform: translate(-1.5px, 0.5px);
+    filter: drop-shadow(1.5px 0 0 rgba(6, 182, 212, 0.6)) drop-shadow(-1.5px 0 0 rgba(244, 63, 94, 0.6));
+  }
+  42% {
+    transform: translate(1.5px, -0.5px);
+    filter: drop-shadow(-1.5px 0 0 rgba(6, 182, 212, 0.6)) drop-shadow(1.5px 0 0 rgba(244, 63, 94, 0.6));
+  }
+  44% {
+    transform: translate(0, 0);
+    filter: none;
+  }
+  84% {
+    transform: translate(0, 0);
+    filter: none;
+  }
+  85% {
+    transform: translate(1px, 0.5px);
+    filter: drop-shadow(1px 0 0 rgba(6, 182, 212, 0.5)) drop-shadow(-1px 0 0 rgba(244, 63, 94, 0.5));
+  }
+  87% {
+    transform: translate(0, 0);
+    filter: none;
+  }
+}
+
+.animate-cyber-glitch-subtle {
+  animation: cyberGlitchSmooth 3.2s ease-in-out infinite;
+}
+
+@keyframes cyberScanlineGlide {
+  0% {
+    top: -5%;
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.5;
+  }
+  80% {
+    opacity: 0.5;
+  }
+  100% {
+    top: 105%;
+    opacity: 0;
+  }
+}
+
+.animate-cyber-scanline {
+  animation: cyberScanlineGlide 3.6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.cyber-telemetry-stream {
+  background: repeating-linear-gradient(
+    180deg,
+    rgba(6, 182, 212, 0.05) 0px,
+    rgba(6, 182, 212, 0.05) 1px,
+    transparent 1px,
+    transparent 5px
+  );
+}
+
+/* 16. Isometric Frosted Glass & 3D Physical Card Slab Thickness */
+.frosted-glass-surface {
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.08) 0%,
+    rgba(22, 34, 56, 0.65) 40%,
+    rgba(8, 12, 22, 0.85) 100%
+  );
+}
+
+/* Acrylic / PVC 3D Slab with Physical 4-Layer Cut-Edge Thickness */
+.card-3d-slab {
+  position: relative;
+  transform-style: preserve-3d;
+  border-radius: 6px;
+  box-shadow:
+    /* Specular light catch on top & left perimeter bevel */
+    -0.5px -0.5px 0 0.5px rgba(255, 255, 255, 0.22),
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.25),
+    inset 1px 0 1px 0 rgba(255, 255, 255, 0.15),
+    inset 0 -1px 1.5px 0 rgba(0, 0, 0, 0.5),
+    inset -1px 0 1.5px 0 rgba(0, 0, 0, 0.3),
+    /* 4-Layer Solid Acrylic Slab Rim (Physical Thickness) */
+    1px 1px 0 0 #223555,
+    2px 2px 0 0 #1b2a44,
+    3px 3px 0 0 #142034,
+    4px 4px 0 0 #0d1524,
+    /* Ambient Floor Shadow */
+    5px 6px 16px -2px rgba(0, 0, 0, 0.42),
+    0 10px 22px -4px rgba(0, 0, 0, 0.32);
+  transition: box-shadow 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.2s ease;
+}
+
+.card-3d-slab:hover {
+  box-shadow:
+    -0.5px -0.5px 0 0.5px rgba(255, 255, 255, 0.35),
+    inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.35),
+    inset 1px 0 1px 0 rgba(255, 255, 255, 0.25),
+    inset 0 -1px 1.5px 0 rgba(0, 0, 0, 0.4),
+    inset -1px 0 1.5px 0 rgba(0, 0, 0, 0.25),
+    /* Enhanced physical slab rim on hover */
+    1px 2px 0 0 #2d436a,
+    2px 3px 0 0 #223454,
+    3px 4px 0 0 #18263e,
+    4px 5px 0 0 #10192a,
+    5px 6px 0 0 #090e18,
+    6px 8px 20px -2px rgba(0, 0, 0, 0.50),
+    0 14px 28px -4px rgba(0, 0, 0, 0.35);
+}
+
+/* Refractive 3D Glass Slab with Physical 4-Layer Rim & Specular Glint */
+.glass-3d-slab,
+.frosted-glass-depth {
+  position: relative;
+  transform-style: preserve-3d;
+  border-radius: 6px;
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.12) 0%,
+    rgba(22, 34, 56, 0.68) 40%,
+    rgba(8, 12, 22, 0.88) 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow:
+    /* Specular glass edge glint on top-left */
+    -0.5px -0.5px 0 0.5px rgba(255, 255, 255, 0.35),
+    inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.4),
+    inset 1px 0 1px 0 rgba(255, 255, 255, 0.25),
+    inset 0 -1px 1.5px 0 rgba(0, 0, 0, 0.4),
+    inset -1px 0 1.5px 0 rgba(0, 0, 0, 0.25),
+    /* 4-Layer Translucent Cyan/Navy Glass Slab Rim (4mm Glass Slab Core) */
+    1px 1px 0 0 rgba(56, 189, 248, 0.35),
+    2px 2px 0 0 rgba(37, 99, 235, 0.28),
+    3px 3px 0 0 rgba(15, 23, 42, 0.65),
+    4px 4px 0 0 rgba(8, 12, 22, 0.85),
+    /* Clean soft ambient depth (not muddy) */
+    5px 6px 16px -2px rgba(0, 0, 0, 0.42),
+    0 10px 22px -4px rgba(0, 0, 0, 0.32),
+    0 0 16px 0 rgba(56, 189, 248, 0.12);
+  transition: box-shadow 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.2s ease;
+}
+
+.glass-3d-slab-hover,
+.frosted-glass-depth-hover {
+  border-color: rgba(147, 197, 253, 0.65) !important;
+  box-shadow:
+    -0.5px -0.5px 0 0.5px rgba(255, 255, 255, 0.5),
+    inset 0 2px 1.5px 0 rgba(255, 255, 255, 0.5),
+    inset 1.5px 0 1.5px 0 rgba(255, 255, 255, 0.35),
+    inset 0 -1.5px 1.5px 0 rgba(0, 0, 0, 0.35),
+    inset -1.5px 0 1.5px 0 rgba(0, 0, 0, 0.2),
+    /* Dynamic Glass Slab Rim on Hover */
+    1px 2px 0 0 rgba(56, 189, 248, 0.45),
+    2px 3px 0 0 rgba(37, 99, 235, 0.35),
+    3px 4px 0 0 rgba(15, 23, 42, 0.72),
+    4px 5px 0 0 rgba(8, 12, 22, 0.90),
+    5px 6px 0 0 rgba(4, 7, 13, 0.98),
+    6px 8px 20px -2px rgba(0, 0, 0, 0.48),
+    0 14px 28px -4px rgba(0, 0, 0, 0.35),
+    0 0 24px 0 rgba(56, 189, 248, 0.20) !important;
+}
+
+/* Clean Specular Glass Sheen Sweep (Seamless Diagonal Optical Ray, No Box Seams) */
+@keyframes glassSheenClean {
+  0% {
+    background-position: -150% -150%;
+  }
+  100% {
+    background-position: 250% 250%;
+  }
+}
+
+.glass-sheen-sweep {
+  background: linear-gradient(
+    135deg,
+    transparent 28%,
+    rgba(255, 255, 255, 0.04) 40%,
+    rgba(255, 255, 255, 0.22) 48%,
+    rgba(56, 189, 248, 0.35) 50%,
+    rgba(255, 255, 255, 0.22) 52%,
+    rgba(255, 255, 255, 0.04) 60%,
+    transparent 72%
+  );
+  background-size: 300% 300%;
+  animation: glassSheenClean 4.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  pointer-events: none;
+}
+
+@keyframes crystalDustFloat {
+  0%, 100% {
+    transform: translateY(0px) scale(1);
+    opacity: 0.3;
+  }
+  50% {
+    transform: translateY(-14px) scale(1.2);
+    opacity: 0.85;
+  }
+}
+
+.animate-crystal-dust {
+  animation: crystalDustFloat 3.5s ease-in-out infinite alternate;
+}
+
+/* Back Card Interactive Breathing & Dynamic Motion */
+@keyframes stampAlive {
+  0%, 100% {
+    transform: scale(1) rotate(-7deg);
+  }
+  50% {
+    transform: scale(1.03) rotate(-6.5deg);
+  }
+}
+
+.animate-stamp-alive {
+  animation: stampAlive 3.2s ease-in-out infinite;
+}
+
+@keyframes backSheenDrift {
+  0% {
+    background-position: -100% -100%;
+  }
+  100% {
+    background-position: 200% 200%;
+  }
+}
+
+.back-sheen-drift {
+  background: linear-gradient(
+    135deg,
+    transparent 30%,
+    rgba(56, 189, 248, 0.08) 48%,
+    rgba(255, 255, 255, 0.12) 50%,
+    rgba(56, 189, 248, 0.08) 52%,
+    transparent 70%
+  );
+  background-size: 250% 250%;
+  animation: backSheenDrift 6s ease-in-out infinite;
+}
+
+/* Custom Cyberpunk / Tactical Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #080c14;
+  border-left: 1px solid #1c2b46;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1e2b46;
+  border-radius: 0px;
+  border: 1px solid #273b5e;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #38bdf8;
+  box-shadow: 0 0 8px rgba(56, 189, 248, 0.5);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #273b5e #080c14;
+}
+
+
+

@@ -1,0 +1,20 @@
+{
+  "name": "minigames-hima-ti",
+  "version": "1.0.0",
+  "description": "Website Minigames Flashcard HIMA TI untuk Stand Ospek Mahasiswa Baru",
+  "scripts": {
+    "start": "node backend/server.js",
+    "build": "cd frontend && npm run build",
+    "dev:backend": "node --watch backend/server.js",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev": "node backend/server.js & cd frontend && npm run dev"
+  },
+  "keywords": [
+    "hima-ti",
+    "minigames",
+    "flashcard",
+    "ospek"
+  ],
+  "author": "HIMA TI",
+  "license": "ISC"
+}

@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+    <defs>
+      <linearGradient id="grad_ZA" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#db2777" />
+        <stop offset="100%" stop-color="#0f172a" />
+      </linearGradient>
+      <linearGradient id="cyberGlow" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#06b6d4" />
+        <stop offset="50%" stop-color="#3b82f6" />
+        <stop offset="100%" stop-color="#10b981" />
+      </linearGradient>
+    </defs>
+    <!-- Background Frame -->
+    <rect width="400" height="400" fill="url(#grad_ZA)" rx="32" />
+    <rect x="12" y="12" width="376" height="376" fill="none" stroke="url(#cyberGlow)" stroke-width="3" rx="24" opacity="0.6" stroke-dasharray="16 8"/>
+    
+    <!-- Cyber Crosshairs / Grid -->
+    <circle cx="200" cy="180" r="110" fill="#1e293b" stroke="#38bdf8" stroke-width="4" opacity="0.9" />
+    <circle cx="200" cy="180" r="125" fill="none" stroke="#06b6d4" stroke-width="1.5" stroke-dasharray="6 6" opacity="0.5" />
+    
+    <!-- Head & Shoulders Silhouette -->
+    <circle cx="200" cy="155" r="45" fill="#f8fafc" opacity="0.95" />
+    <path d="M125,275 Q200,215 275,275 Z" fill="#f8fafc" opacity="0.9" />
+    
+    <!-- Initials Badge -->
+    <circle cx="200" cy="180" r="48" fill="#db2777" opacity="0.9" />
+    <text x="200" y="195" font-family="'Courier New', monospace, sans-serif" font-weight="900" font-size="44" fill="#ffffff" text-anchor="middle" letter-spacing="2">ZA</text>
+    
+    <!-- Tag Bar Bottom -->
+    <rect x="35" y="325" width="330" height="42" rx="10" fill="#0f172a" stroke="#38bdf8" stroke-width="1.5" opacity="0.9" />
+    <text x="200" y="352" font-family="'Segoe UI', Roboto, sans-serif" font-weight="700" font-size="14" fill="#38bdf8" text-anchor="middle" letter-spacing="1">HIMA TI // KADIV MEDINFO (KREATIF)</text>
+  </svg>

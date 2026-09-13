@@ -1,0 +1,479 @@
+import express from 'express';
+import cors from 'cors';
+import multer from 'multer';
+import path from 'node:path';
+import fs from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { db } from './db.js';
+import { seedInitialData } from './seedData.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const uploadsDir = path.join(__dirname, 'uploads');
+
+// Jalankan seed data awal
+seedInitialData();
+
+const app = express();
+const PORT = process.env.PORT || 3001;
+
+app.use(cors());
+app.use(express.json({ limit: '20mb' }));
+app.use('/uploads', express.static(uploadsDir));
+
+// Konfigurasi Multer untuk Upload Foto
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, uploadsDir);
+  },
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname) || '.jpg';
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    cb(null, 'pengurus-' + uniqueSuffix + ext);
+  }
+});
+const upload = multer({ storage });
+
+// Helper untuk mengambil settings
+function getSettingsMap() {
+  const rows = db.prepare('SELECT key, value FROM settings').all();
+  const map = {};
+  for (const row of rows) {
+    map[row.key] = row.value;
+  }
+  return map;
+}
+
+// -------------------------------------------------------------
+// 1. ENDPOINTS SETTINGS
+// -------------------------------------------------------------
+app.get('/api/settings', (req, res) => {
+  try {
+    const settings = getSettingsMap();
+    res.json({ success: true, data: settings });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+app.post('/api/settings', (req, res) => {
+  try {
+    const { adminPin, ...newSettings } = req.body;
+    const currentSettings = getSettingsMap();
+
+    // Verifikasi PIN jika diberikan
+    if (adminPin && adminPin !== currentSettings.adminPin) {
+      return res.status(401).json({ success: false, message: 'PIN Admin salah!' });
+    }
+
+    const updateStmt = db.prepare(`
+      INSERT INTO settings (key, value) VALUES (?, ?)
+      ON CONFLICT(key) DO UPDATE SET value = excluded.value
+    `);
+
+    for (const [key, value] of Object.entries(newSettings)) {
+      updateStmt.run(key, String(value));
+    }
+
+    res.json({ success: true, message: 'Pengaturan berhasil diperbarui!', data: getSettingsMap() });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// -------------------------------------------------------------
+// 2. ENDPOINTS PENGURUS (CRUD)
+// -------------------------------------------------------------
+app.get('/api/pengurus', (req, res) => {
+  try {
+    const { all } = req.query;
+    const query = all === 'true' 
+      ? 'SELECT * FROM pengurus ORDER BY id ASC' 
+      : 'SELECT * FROM pengurus WHERE is_active = 1 ORDER BY id ASC';
+    const rows = db.prepare(query).all();
+    res.json({ success: true, data: rows });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+app.post('/api/pengurus', upload.single('foto'), (req, res) => {
+  try {
+    const { nama, divisi } = req.body;
+    if (!nama || !divisi) {
+      return res.status(400).json({ success: false, message: 'Nama dan divisi wajib diisi!' });
+    }
+
+    let foto_url = '/uploads/default-avatar.svg';
+    if (req.file) {
+      foto_url = `/uploads/${req.file.filename}`;
+    } else if (req.body.foto_url) {
+      foto_url = req.body.foto_url;
+    }
+
+    const insertStmt = db.prepare('INSERT INTO pengurus (nama, divisi, foto_url, is_active) VALUES (?, ?, ?, 1)');
+    const result = insertStmt.run(nama, divisi, foto_url);
+
+    res.json({
+      success: true,
+      message: 'Pengurus berhasil ditambahkan!',
+      data: { id: result.lastInsertRowid, nama, divisi, foto_url, is_active: 1 }
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+app.put('/api/pengurus/:id', upload.single('foto'), (req, res) => {
+  try {
+    const { id } = req.params;
+    const { nama, divisi, is_active } = req.body;
+
+    const existing = db.prepare('SELECT * FROM pengurus WHERE id = ?').get(id);
+    if (!existing) {
+      return res.status(404).json({ success: false, message: 'Data pengurus tidak ditemukan' });
+    }
+
+    let foto_url = existing.foto_url;
+    if (req.file) {
+      foto_url = `/uploads/${req.file.filename}`;
+    }
+
+    const updateStmt = db.prepare(`
+      UPDATE pengurus 
+      SET nama = ?, divisi = ?, foto_url = ?, is_active = ? 
+      WHERE id = ?
+    `);
+
+    updateStmt.run(
+      nama !== undefined ? nama : existing.nama,
+      divisi !== undefined ? divisi : existing.divisi,
+      foto_url,
+      is_active !== undefined ? Number(is_active) : existing.is_active,
+      id
+    );
+
+    res.json({ success: true, message: 'Data pengurus berhasil diupdate!' });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+app.delete('/api/pengurus/:id', (req, res) => {
+  try {
+    const { id } = req.params;
+    db.prepare('DELETE FROM pengurus WHERE id = ?').run(id);
+    res.json({ success: true, message: 'Pengurus berhasil dihapus!' });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// -------------------------------------------------------------
+// 3. GENERATE QUIZ SESSION (AUTO-DISTRACTOR & RANDOMIZER)
+// -------------------------------------------------------------
+function shuffleArray(arr) {
+  const copy = [...arr];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
+
+// Smart Depletion Pool & Cooldown Tracker to minimize question repetition across consecutive sessions
+let recentPengurusHistory = [];
+
+app.get('/api/quiz-session', (req, res) => {
+  try {
+    const settings = getSettingsMap();
+    const soalPerSesi = Math.max(1, parseInt(settings.soalPerSesi) || 5);
+    const modeKuis = settings.modeKuis || 'tebak_nama';
+    const timerDetik = parseInt(settings.timerDetik) || 10;
+    const minBenarCap = parseInt(settings.minBenarCap) || 4;
+    const animasiStyle = settings.animasiStyle || 'combo';
+    const misiCapText = settings.misiCapText || 'Follow IG HIMA TI & Sapa Pengurus Stand!';
+    const fotoFokus = settings.fotoFokus || 'tengah_atas';
+
+    const allPengurus = db.prepare('SELECT * FROM pengurus WHERE is_active = 1').all();
+
+    if (allPengurus.length < 4) {
+      return res.status(400).json({
+        success: false,
+        message: 'Minimal butuh 4 data pengurus aktif di database untuk membuat kuis ABCD!'
+      });
+    }
+
+    // Algoritma Smart Cooldown Randomizer:
+    // Pisahkan pengurus menjadi coldPool (belum muncul di sesi terakhir) dan warmPool (baru saja muncul)
+    const recentSet = new Set(recentPengurusHistory);
+    const coldPool = shuffleArray(allPengurus.filter(p => !recentSet.has(p.id)));
+    const warmPool = shuffleArray(allPengurus.filter(p => recentSet.has(p.id)));
+
+    let selectedQuestions = [];
+    if (coldPool.length >= soalPerSesi) {
+      // Prioritaskan 100% pengurus yang belum muncul di sesi-sesi sebelumnya
+      selectedQuestions = coldPool.slice(0, soalPerSesi);
+    } else {
+      // Jika coldPool tersisa kurang dari kebutuhan sesi (siklus hampir selesai),
+      // ambil sisa coldPool lalu tambahkan dari warmPool yang paling lama tidak muncul
+      selectedQuestions = [...coldPool];
+      const needed = soalPerSesi - selectedQuestions.length;
+      selectedQuestions = selectedQuestions.concat(warmPool.slice(0, needed));
+    }
+
+    // Catat ID terpilih ke antrean riwayat cooldown
+    selectedQuestions.forEach(p => {
+      recentPengurusHistory = recentPengurusHistory.filter(id => id !== p.id);
+      recentPengurusHistory.push(p.id);
+    });
+
+    // Batasi riwayat cooldown (misal maksimal 24 dari 34 pengurus agar rotasi berulang secara sehat)
+    const maxTrack = Math.min(24, Math.max(5, allPengurus.length - soalPerSesi));
+    if (recentPengurusHistory.length > maxTrack) {
+      recentPengurusHistory = recentPengurusHistory.slice(recentPengurusHistory.length - maxTrack);
+    }
+
+    // Siapkan soal dengan smart auto-distractor
+    const questions = selectedQuestions.map((target, idx) => {
+      // Tentukan tipe pertanyaan (nama / divisi)
+      let questionType = modeKuis;
+      if (modeKuis === 'campuran') {
+        questionType = Math.random() > 0.5 ? 'tebak_nama' : 'tebak_divisi';
+      }
+
+      const isNameQuestion = questionType === 'tebak_nama';
+      const questionText = isNameQuestion
+        ? 'Siapakah nama pengurus HIMA TI pada foto di atas?'
+        : 'Pengurus pada foto di atas memegang amanah/divisi apa?';
+
+      const correctAnswer = isNameQuestion ? target.nama : target.divisi;
+
+      // Ambil distractor dari pengurus lain
+      const otherPengurus = allPengurus.filter(p => p.id !== target.id);
+      const shuffledOthers = shuffleArray(otherPengurus);
+
+      // Kumpulkan distractor unik agar tidak ada opsi duplikat
+      const distractorSet = new Set();
+      for (const p of shuffledOthers) {
+        const optionVal = isNameQuestion ? p.nama : p.divisi;
+        if (optionVal !== correctAnswer) {
+          distractorSet.add(optionVal);
+        }
+        if (distractorSet.size >= 3) break;
+      }
+
+      // Jika distractor kurang dari 3 (misal nama divisi ada yang sama), tambahkan opsi fallback
+      const distractors = Array.from(distractorSet);
+      while (distractors.length < 3) {
+        distractors.push(isNameQuestion ? `Pengurus Tambahan ${distractors.length + 1}` : `Divisi ${distractors.length + 1}`);
+      }
+
+      // Gabungkan dan acak posisi ABCD
+      const allOptions = shuffleArray([
+        { text: correctAnswer, isCorrect: true },
+        { text: distractors[0], isCorrect: false },
+        { text: distractors[1], isCorrect: false },
+        { text: distractors[2], isCorrect: false },
+      ]);
+
+      return {
+        id: target.id,
+        nomor: idx + 1,
+        foto_url: target.foto_url,
+        questionText,
+        questionType,
+        correctNama: target.nama,
+        correctDivisi: target.divisi,
+        options: allOptions.map((opt, oIdx) => ({
+          key: ['A', 'B', 'C', 'D'][oIdx],
+          text: opt.text,
+          isCorrect: opt.isCorrect
+        }))
+      };
+    });
+
+    res.json({
+      success: true,
+      config: {
+        totalSoal: questions.length,
+        timerDetik,
+        minBenarCap,
+        animasiStyle,
+        misiCapText,
+        fotoFokus
+      },
+      questions
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// -------------------------------------------------------------
+// 4. LEADERBOARD
+// -------------------------------------------------------------
+app.get('/api/check-name', (req, res) => {
+  try {
+    const { name } = req.query;
+    if (!name || !name.trim()) {
+      return res.status(400).json({ available: false, message: 'Nama peserta tidak boleh kosong!' });
+    }
+    const cleanName = name.trim();
+    const existing = db.prepare('SELECT id, nama_peserta FROM leaderboard WHERE LOWER(TRIM(nama_peserta)) = LOWER(?)').get(cleanName);
+    if (existing) {
+      return res.json({
+        available: false,
+        message: `Nama "${existing.nama_peserta}" sudah terdaftar di leaderboard! Gunakan nama tim/peserta lain.`
+      });
+    }
+    res.json({ available: true, message: 'Nama tersedia' });
+  } catch (err) {
+    res.status(500).json({ available: false, message: err.message });
+  }
+});
+
+app.get('/api/leaderboard', (req, res) => {
+  try {
+    const rows = db.prepare(`
+      SELECT * FROM leaderboard 
+      ORDER BY skor DESC, waktu_detik ASC, id ASC 
+      LIMIT 100
+    `).all();
+    res.json({ success: true, data: rows });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+app.post('/api/leaderboard', (req, res) => {
+  try {
+    const { nama_peserta, skor, total_soal, waktu_detik, status_cap } = req.body;
+    if (!nama_peserta || !nama_peserta.trim()) {
+      return res.status(400).json({ success: false, message: 'Nama peserta wajib diisi!' });
+    }
+
+    const cleanName = nama_peserta.trim();
+    const existing = db.prepare('SELECT id, nama_peserta FROM leaderboard WHERE LOWER(TRIM(nama_peserta)) = LOWER(?)').get(cleanName);
+    if (existing) {
+      return res.status(400).json({ 
+        success: false, 
+        message: `Nama peserta "${existing.nama_peserta}" sudah pernah bermain dan tercatat di leaderboard!` 
+      });
+    }
+
+    const insertStmt = db.prepare(`
+      INSERT INTO leaderboard (nama_peserta, skor, total_soal, waktu_detik, status_cap)
+      VALUES (?, ?, ?, ?, ?)
+    `);
+
+    const result = insertStmt.run(
+      cleanName,
+      Number(skor) || 0,
+      Number(total_soal) || 5,
+      Number(waktu_detik) || 0,
+      status_cap || 'misi'
+    );
+
+    res.json({
+      success: true,
+      message: 'Skor berhasil dicatat ke leaderboard!',
+      data: { id: result.lastInsertRowid }
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+app.post('/api/leaderboard/reset', (req, res) => {
+  try {
+    const { adminPin } = req.body;
+    const settings = getSettingsMap();
+    if (adminPin !== settings.adminPin) {
+      return res.status(401).json({ success: false, message: 'PIN Admin salah!' });
+    }
+
+    db.prepare('DELETE FROM leaderboard').run();
+    res.json({ success: true, message: 'Papan peringkat berhasil direset!' });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// -------------------------------------------------------------
+// 5. EXPORT & IMPORT BACKUP JSON
+// -------------------------------------------------------------
+app.get('/api/backup/export', (req, res) => {
+  try {
+    const pengurus = db.prepare('SELECT * FROM pengurus').all();
+    const settings = getSettingsMap();
+    const leaderboard = db.prepare('SELECT * FROM leaderboard').all();
+
+    const backupData = {
+      app: 'HIMA_TI_FLASHCARD_MINIGAMES',
+      exportedAt: new Date().toISOString(),
+      settings,
+      pengurus,
+      leaderboard
+    };
+
+    res.setHeader('Content-Disposition', 'attachment; filename="hima_games_backup.json"');
+    res.setHeader('Content-Type', 'application/json');
+    res.send(JSON.stringify(backupData, null, 2));
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+app.post('/api/backup/import', (req, res) => {
+  try {
+    const { adminPin, backupData } = req.body;
+    const settings = getSettingsMap();
+    if (adminPin !== settings.adminPin) {
+      return res.status(401).json({ success: false, message: 'PIN Admin salah!' });
+    }
+
+    if (!backupData || !backupData.pengurus) {
+      return res.status(400).json({ success: false, message: 'Format file backup tidak valid!' });
+    }
+
+    // Import Pengurus
+    if (Array.isArray(backupData.pengurus)) {
+      db.prepare('DELETE FROM pengurus').run();
+      const insertPengurus = db.prepare('INSERT INTO pengurus (id, nama, divisi, foto_url, is_active) VALUES (?, ?, ?, ?, ?)');
+      for (const p of backupData.pengurus) {
+        insertPengurus.run(p.id, p.nama, p.divisi, p.foto_url, p.is_active ?? 1);
+      }
+    }
+
+    // Import Settings
+    if (backupData.settings && typeof backupData.settings === 'object') {
+      const updateStmt = db.prepare(`
+        INSERT INTO settings (key, value) VALUES (?, ?)
+        ON CONFLICT(key) DO UPDATE SET value = excluded.value
+      `);
+      for (const [k, v] of Object.entries(backupData.settings)) {
+        updateStmt.run(k, String(v));
+      }
+    }
+
+    res.json({ success: true, message: 'Data backup berhasil di-restore!' });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// -------------------------------------------------------------
+// 6. SERVE FRONTEND (STATIC BUILD) JIKA ADA
+// -------------------------------------------------------------
+const frontendDist = path.join(__dirname, '..', 'frontend', 'dist');
+if (fs.existsSync(frontendDist)) {
+  app.use(express.static(frontendDist));
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(frontendDist, 'index.html'));
+  });
+}
+
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 Server Minigames HIMA TI berjalan di http://localhost:${PORT}`);
+});

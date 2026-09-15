@@ -115,9 +115,9 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
   }, [inspectingIndex, result.answers.length]);
 
   return (
-    <div className="w-full min-h-[100dvh] md:h-[100dvh] md:max-h-[100dvh] flex flex-col justify-between max-w-6xl mx-auto p-2.5 sm:p-4 md:p-6 overflow-y-auto md:overflow-hidden select-none">
+    <div className="w-full min-h-[100dvh] md:h-[100dvh] md:max-h-[100dvh] flex flex-col justify-between max-w-[1700px] 2xl:max-w-[1880px] mx-auto px-3 sm:px-6 md:px-8 py-2 sm:py-3.5 overflow-y-auto md:overflow-hidden select-none">
       {/* Top Header Tag */}
-      <header className="flex items-center justify-between gap-1.5 sm:gap-2 pb-2 sm:pb-2.5 border-b-2 border-[#1c2b46] shrink-0">
+      <header className="flex items-center justify-between gap-1.5 sm:gap-2 pb-2 sm:pb-2.5 border-b-2 border-[#1e2b46] shrink-0">
         <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
           <span className={`w-2 h-2 shrink-0 ${isLolos ? 'bg-[#10b981]' : 'bg-[#f59e0b]'}`} />
           <span className="text-[10px] sm:text-xs font-mono uppercase text-[#cbd5e1] font-bold tracking-wider sm:tracking-widest truncate">
@@ -189,15 +189,15 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
       </header>
 
       {/* Main Content Area: 2-Column Desktop Viewport */}
-      <main className="flex-1 min-h-0 py-3 sm:py-4 flex items-center justify-center">
-        <div className="w-full grid grid-cols-1 md:grid-cols-12 gap-4 lg:gap-6 items-stretch min-h-0 md:min-h-[500px]">
-          {/* Left Column: Big Cap Status Box (7 cols) */}
-          <div className="md:col-span-7 flex flex-col justify-between">
+      <main className="flex-1 min-h-0 py-2 sm:py-3 flex items-center justify-center w-full">
+        <div className="w-full max-w-6xl xl:max-w-7xl 2xl:max-w-[1520px] mx-auto grid grid-cols-1 md:grid-cols-12 gap-4 lg:gap-6 xl:gap-8 items-stretch min-h-0 md:min-h-[500px]">
+          {/* Left Column: Cap Status Box (50:50 split) */}
+          <div className="md:col-span-6 xl:col-span-6 flex flex-col justify-between">
             <motion.div
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ type: 'spring', stiffness: 280, damping: 20 }}
-              className={`p-5 md:p-6 border-2 text-center shadow-tactile flex flex-col justify-between h-full relative ${
+              className={`p-4 sm:p-5 border-2 text-center shadow-tactile flex flex-col justify-between h-full relative ${
                 isLolos
                   ? 'bg-[#0d1424] border-[#10b981] shadow-tactile-emerald'
                   : 'bg-[#0d1424] border-[#f59e0b] shadow-tactile-amber'
@@ -300,8 +300,8 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
             </motion.div>
           </div>
 
-          {/* Right Column: Stats & Zero-Scroll Recap (5 cols) */}
-          <div className="md:col-span-5 flex flex-col justify-between space-y-3">
+          {/* Right Column: Stats & Zero-Scroll Recap (50:50 split) */}
+          <div className="md:col-span-6 xl:col-span-6 flex flex-col justify-between space-y-3">
             {/* Quick Stats Grid */}
             <div className="grid grid-cols-3 gap-2 shrink-0">
               <div className="bg-[#0d1424] border border-[#1e2b46] p-2 text-center shadow-tactile-sm">
@@ -407,11 +407,11 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
 
                       {/* Detail Pilihan Peserta vs Kunci Jawaban Resmi */}
                       <div className="pl-7 pt-1 border-t border-[#162238] flex flex-col sm:flex-row sm:items-center justify-between text-[10px] font-mono gap-0.5">
-                        <span className={`truncate max-w-[200px] ${ans.isCorrect ? 'text-[#10b981]' : 'text-[#f43f5e]'}`}>
+                        <span className={`truncate max-w-[280px] sm:max-w-[340px] md:max-w-[380px] ${ans.isCorrect ? 'text-[#10b981]' : 'text-[#f43f5e]'}`}>
                           Pilihan: {isTimeout ? '[WAKTU HABIS]' : `[${ans.selectedKey}] ${selectedOpt?.text || ''}`}
                         </span>
                         {!ans.isCorrect && correctOpt && (
-                          <span className="text-[#38bdf8] font-bold truncate max-w-[200px]">
+                          <span className="text-[#38bdf8] font-bold truncate max-w-[280px] sm:max-w-[340px] md:max-w-[380px]">
                             Kunci: [{correctOpt.key}] {correctOpt.text}
                           </span>
                         )}
@@ -426,7 +426,7 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
       </main>
 
       {/* Footer Info */}
-      <footer className="pt-2 border-t-2 border-[#1c2b46] text-center text-[10px] font-mono text-[#64748b] shrink-0">
+      <footer className="pt-2 sm:pt-2.5 border-t-2 border-[#1e2b46] text-center text-[10px] sm:text-[11px] font-mono text-[#64748b] shrink-0">
         HIMA TI // GEMA MAHASISWA TEKNOLOGI INFORMASI 2026
       </footer>
 
@@ -461,7 +461,7 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
                 animate={{ scale: 1, y: 0, opacity: 1 }}
                 exit={{ scale: 0.94, y: 15, opacity: 0 }}
                 transition={{ type: 'spring', stiffness: 350, damping: 26 }}
-                className="relative w-full max-w-lg md:max-w-4xl lg:max-w-5xl bg-[#080c14] border-2 border-[#1e2b46] shadow-tactile p-3 sm:p-4 md:p-5 my-auto max-h-[96dvh] md:max-h-[640px] flex flex-col overflow-hidden"
+                className="relative w-full max-w-xl md:max-w-5xl lg:max-w-6xl xl:max-w-[1240px] bg-[#080c14] border-2 border-[#1e2b46] shadow-tactile p-3.5 sm:p-5 md:p-6 my-auto max-h-[95dvh] md:max-h-[720px] flex flex-col overflow-hidden"
                 onClick={(e) => e.stopPropagation()}
               >
                 {/* Modal Top Header Bar */}
@@ -490,10 +490,10 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
                 </div>
 
                 {/* Main Body Area: 2 Columns on Desktop (md:grid), Stacked on Mobile */}
-                <div className="flex-1 min-h-0 flex flex-col md:grid md:grid-cols-12 gap-3 sm:gap-4 md:gap-6 items-center md:items-stretch overflow-y-auto md:overflow-hidden py-0.5">
+                <div className="flex-1 min-h-0 flex flex-col md:grid md:grid-cols-12 gap-3 sm:gap-5 md:gap-6 items-center md:items-stretch overflow-y-auto md:overflow-visible py-1 sm:py-2">
                   {/* Left Column: 3D Flashcard Showcase + Flip Button */}
-                  <div className="w-full md:col-span-5 flex flex-col items-center justify-center shrink-0">
-                    <div className="w-full flex items-center justify-center">
+                  <div className="w-full md:col-span-5 flex flex-col items-center justify-center shrink-0 overflow-visible pt-3 sm:pt-5 pb-1">
+                    <div className="w-full flex items-center justify-center overflow-visible">
                       <FlashcardCard
                         key={`inspect-${inspectingIndex}`}
                         question={currentAns.question}
@@ -512,7 +512,7 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
                     </div>
 
                     {/* Dedicated 3D Flip Action Button */}
-                    <div className="w-full max-w-[240px] xs:max-w-[255px] sm:max-w-[270px] md:max-w-[285px] mt-2 flex flex-col items-center gap-1 shrink-0">
+                    <div className="w-full max-w-[260px] xs:max-w-[285px] sm:max-w-[310px] md:max-w-[335px] mt-2.5 sm:mt-3 flex flex-col items-center gap-1 shrink-0">
                       <button
                         type="button"
                         onClick={() => setInspectFlipped(prev => !prev)}
@@ -528,7 +528,7 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
                   </div>
 
                   {/* Right Column: Carousel Navigator + Answer Evaluation + Profile */}
-                  <div className="w-full md:col-span-7 flex flex-col justify-between space-y-2.5 sm:space-y-3 min-w-0">
+                  <div className="w-full md:col-span-7 flex flex-col justify-between gap-2.5 sm:gap-3 min-w-0">
                     {/* Carousel Navigator Strip (Pills & Prev/Next) */}
                     <div className="flex items-center justify-between w-full p-1.5 bg-[#0d1424] border border-[#1e2b46] shadow-tactile-sm shrink-0">
                       <button
@@ -579,7 +579,7 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
                     </div>
 
                     {/* Detail Evaluasi Jawaban Peserta vs Kunci Resmi */}
-                    <div className="w-full bg-[#0d1424] border-2 border-[#1e2b46] p-2.5 sm:p-3.5 space-y-2 font-mono shadow-tactile relative flex-1 flex flex-col justify-between">
+                    <div className="w-full bg-[#0d1424] border-2 border-[#1e2b46] p-3 sm:p-4 font-mono shadow-tactile relative flex-1 flex flex-col justify-center gap-2.5 sm:gap-3">
                       {/* Tech Corner Accents */}
                       <div className="absolute top-1 left-1 text-[8px] font-mono text-[#273b5e] font-bold pointer-events-none">+</div>
                       <div className="absolute top-1 right-1 text-[8px] font-mono text-[#273b5e] font-bold pointer-events-none">+</div>
@@ -587,7 +587,7 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
                       <div className="absolute bottom-1 right-1 text-[8px] font-mono text-[#273b5e] font-bold pointer-events-none">+</div>
 
                       {/* Header Status */}
-                      <div className="flex items-center justify-between border-b border-[#1e2b46] pb-1.5">
+                      <div className="flex items-center justify-between border-b border-[#1e2b46] pb-2">
                         <span className="text-[10px] sm:text-[11px] text-[#94a3b8] uppercase tracking-wider font-bold">
                           STATUS JAWABAN KARTU #{inspectingIndex + 1}:
                         </span>
@@ -603,8 +603,8 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
                       </div>
 
                       {/* Soal Prompt */}
-                      <div className="bg-[#080c14] border border-[#1e2b46] p-2">
-                        <div className="text-[9px] uppercase text-[#38bdf8] font-bold flex items-center gap-1 mb-0.5">
+                      <div className="bg-[#080c14] border border-[#1e2b46] p-2.5 sm:p-3">
+                        <div className="text-[9px] sm:text-[10px] uppercase text-[#38bdf8] font-bold flex items-center gap-1 mb-1">
                           <Shield className="w-2.5 h-2.5 text-[#38bdf8]" />
                           {currentAns.question.questionType === 'tebak_nama' ? 'MISI // TEBAK NAMA PENGURUS' : 'MISI // TEBAK AMANAH & DIVISI'}
                         </div>
@@ -613,41 +613,89 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
                         </p>
                       </div>
 
-                      {/* Jawaban Comparison */}
-                      <div className="grid grid-cols-1 gap-1.5 text-xs">
-                        <div className={`p-1.5 sm:p-2 border flex items-center justify-between ${
-                          currentAns.isCorrect
-                            ? 'bg-[#052e16]/70 border-[#10b981]/50 text-[#10b981]'
-                            : 'bg-[#4c0519]/70 border-[#f43f5e]/50 text-[#f43f5e]'
-                        }`}>
-                          <span className="text-[9.5px] uppercase text-[#94a3b8] font-bold">Pilihan Kamu:</span>
-                          <span className="font-bold truncate max-w-[240px] text-right">
-                            {isTimeout ? '[WAKTU HABIS]' : `[${currentAns.selectedKey}] ${selectedOpt?.text || ''}`}
+                      {/* Format Pilihan ABCD Lengkap dengan Highlight Pilihan Peserta & Kunci Resmi */}
+                      <div className="space-y-1.5">
+                        <div className="flex items-center justify-between text-[9px] sm:text-[10px] text-[#94a3b8] uppercase font-bold px-0.5">
+                          <span className="flex items-center gap-1">
+                            <span>OPSI PILIHAN KUIS (A / B / C / D):</span>
                           </span>
+                          {isTimeout && (
+                            <span className="text-[#f43f5e] bg-[#4c0519] border border-[#f43f5e]/50 px-1.5 py-0.5">
+                              [WAKTU HABIS SEBELUM MEMILIH]
+                            </span>
+                          )}
                         </div>
 
-                        {!currentAns.isCorrect && correctOpt && (
-                          <div className="p-1.5 sm:p-2 border bg-[#0c1e3d]/70 border-[#38bdf8]/50 text-[#38bdf8] flex items-center justify-between">
-                            <span className="text-[9.5px] uppercase text-[#94a3b8] font-bold">Kunci Jawaban Resmi:</span>
-                            <span className="font-bold truncate max-w-[240px] text-right">
-                              [{correctOpt.key}] {correctOpt.text}
-                            </span>
-                          </div>
-                        )}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-xs">
+                          {currentAns.question.options.map((opt) => {
+                            const isSelected = currentAns.selectedKey === opt.key;
+                            const isCorrect = opt.isCorrect;
+
+                            return (
+                              <div
+                                key={opt.key}
+                                className={`p-2 sm:p-2.5 border flex items-center justify-between gap-2 transition-all ${
+                                  isCorrect
+                                    ? 'bg-[#052e16]/85 border-[#10b981] text-[#10b981] shadow-tactile-emerald'
+                                    : isSelected
+                                    ? 'bg-[#4c0519]/85 border-[#f43f5e] text-[#f43f5e] shadow-tactile-coral'
+                                    : 'bg-[#080c14]/75 border-[#1e2b46] text-[#94a3b8]'
+                                }`}
+                              >
+                                <div className="flex items-center gap-2 min-w-0">
+                                  <span
+                                    className={`w-5 h-5 font-mono font-bold text-[10px] flex items-center justify-center shrink-0 border ${
+                                      isCorrect
+                                        ? 'bg-[#10b981] text-[#080c14] border-[#34d399]'
+                                        : isSelected
+                                        ? 'bg-[#f43f5e] text-white border-[#fb7185]'
+                                        : 'bg-[#0d1424] text-[#64748b] border-[#1e2b46]'
+                                    }`}
+                                  >
+                                    {opt.key}
+                                  </span>
+                                  <span className={`font-semibold truncate text-[11px] sm:text-xs ${
+                                    isCorrect ? 'text-[#f8fafc] font-bold' : isSelected ? 'text-white font-bold' : 'text-[#cbd5e1]'
+                                  }`}>
+                                    {opt.text}
+                                  </span>
+                                </div>
+
+                                <div className="shrink-0 flex items-center gap-1 font-mono text-[9px]">
+                                  {isCorrect && isSelected && (
+                                    <span className="px-1.5 py-0.5 bg-[#10b981] text-[#080c14] font-bold flex items-center gap-0.5">
+                                      <Check className="w-2.5 h-2.5 stroke-[3]" /> PILIHANMU ✓
+                                    </span>
+                                  )}
+                                  {isCorrect && !isSelected && (
+                                    <span className="px-1.5 py-0.5 bg-[#052e16] border border-[#10b981] text-[#10b981] font-bold flex items-center gap-0.5">
+                                      <Check className="w-2.5 h-2.5 stroke-[3]" /> KUNCI BENAR
+                                    </span>
+                                  )}
+                                  {!isCorrect && isSelected && (
+                                    <span className="px-1.5 py-0.5 bg-[#f43f5e] text-white font-bold flex items-center gap-0.5">
+                                      <X className="w-2.5 h-2.5 stroke-[3]" /> PILIHANMU ✕
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
                       </div>
 
                       {/* Identitas Pengurus Info Strip */}
-                      <div className="bg-[#080c14] border border-[#1e2b46] p-2 flex items-center justify-between text-xs">
+                      <div className="bg-[#080c14] border border-[#1e2b46] p-2.5 sm:p-3 flex items-center justify-between text-xs">
                         <div className="min-w-0 pr-2">
-                          <div className="text-[8.5px] uppercase text-[#64748b]">IDENTITAS PENGURUS:</div>
+                          <div className="text-[8.5px] sm:text-[9px] uppercase text-[#64748b]">IDENTITAS PENGURUS:</div>
                           <div className="font-bold text-[#f8fafc] truncate text-xs sm:text-sm">{currentAns.question.correctNama}</div>
-                          <div className="text-[10px] text-[#38bdf8] font-mono truncate">{currentAns.question.correctDivisi}</div>
+                          <div className="text-[10px] sm:text-[11px] text-[#38bdf8] font-mono truncate">{currentAns.question.correctDivisi}</div>
                         </div>
                         <div className="text-right shrink-0">
-                          <span className="px-2 py-0.5 bg-[#0c1e3d] text-[#38bdf8] border border-[#2563eb]/50 text-[9px] font-mono font-bold block">
+                          <span className="px-2 py-0.5 bg-[#0c1e3d] text-[#38bdf8] border border-[#2563eb]/50 text-[9px] sm:text-[10px] font-mono font-bold block">
                             ID: TI-{currentAns.question.nomor.toString().padStart(2, '0')}
                           </span>
-                          <span className="text-[8px] text-[#10b981] font-mono block mt-0.5">
+                          <span className="text-[8px] sm:text-[9px] text-[#10b981] font-mono block mt-0.5">
                             TERDAFTAR RESMI
                           </span>
                         </div>

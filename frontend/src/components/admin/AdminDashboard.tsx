@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Users, Trophy, Download, Upload, Plus, Trash2, 
   Check, X, Shield, Lock, Sliders, RefreshCw, AlertCircle, Eye, EyeOff, 
-  ArrowLeft, ArrowRight, CheckCircle, XCircle, Search, Focus, Sparkles
+  ArrowLeft, ArrowRight, CheckCircle, XCircle, Search, Focus, Sparkles, Pencil
 } from 'lucide-react';
 import type { Pengurus, QuizConfig, AnimationStyle, FotoFokus } from '../../types';
 import { FlashcardCard } from '../game/FlashcardCard';
@@ -168,6 +168,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onRefre
   const [newNama, setNewNama] = useState('');
   const [newDivisi, setNewDivisi] = useState('');
   const [newFotoFile, setNewFotoFile] = useState<File | null>(null);
+
+  // Edit Pengurus Modal State
+  const [editingPengurus, setEditingPengurus] = useState<Pengurus | null>(null);
+  const [editNama, setEditNama] = useState('');
+  const [editDivisi, setEditDivisi] = useState('');
+  const [editFotoFile, setEditFotoFile] = useState<File | null>(null);
+  const [editPengurusBtnState, setEditPengurusBtnState] = useState<'idle' | 'saving' | 'saved'>('idle');
 
   // Leaderboard State
   const [isResettingLeaderboard, setIsResettingLeaderboard] = useState(false);
@@ -335,6 +342,62 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onRefre
     } catch (err) {
       setAddPengurusBtnState('idle');
       alert('Gagal mengunggah foto pengurus');
+    }
+  };
+
+  const handleStartEditPengurus = (p: Pengurus) => {
+    setEditingPengurus(p);
+    setEditNama(p.nama);
+    setEditDivisi(p.divisi);
+    setEditFotoFile(null);
+    setEditPengurusBtnState('idle');
+  };
+
+  const handleSaveEditPengurus = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingPengurus || !editNama.trim() || !editDivisi.trim()) return;
+
+    setEditPengurusBtnState('saving');
+    try {
+      let res;
+      if (editFotoFile) {
+        const formData = new FormData();
+        formData.append('nama', editNama.trim());
+        formData.append('divisi', editDivisi.trim());
+        formData.append('foto', editFotoFile);
+        formData.append('is_active', String(editingPengurus.is_active));
+        res = await fetch(`/api/pengurus/${editingPengurus.id}`, {
+          method: 'PUT',
+          body: formData
+        });
+      } else {
+        res = await fetch(`/api/pengurus/${editingPengurus.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            nama: editNama.trim(),
+            divisi: editDivisi.trim(),
+            is_active: editingPengurus.is_active
+          })
+        });
+      }
+
+      const data = await res.json();
+      if (data.success) {
+        setEditPengurusBtnState('saved');
+        loadPengurus();
+        onRefreshGameConfig();
+        setTimeout(() => {
+          setEditingPengurus(null);
+          setEditPengurusBtnState('idle');
+        }, 700);
+      } else {
+        setEditPengurusBtnState('idle');
+        alert(data.message || 'Gagal mengubah data pengurus');
+      }
+    } catch (err) {
+      setEditPengurusBtnState('idle');
+      alert('Terjadi kesalahan saat mengupdate data pengurus');
     }
   };
 
@@ -815,7 +878,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onRefre
                     </div>
 
                     {/* RIGHT PANEL: SPACIOUS LIVE INTERACTIVE CARD SIMULATION STUDIO (5 Cols) */}
-                    <div className="lg:col-span-5 flex flex-col">
+                    <div className="lg:col-span-5 flex flex-col lg:sticky lg:top-0">
                       <div className="bg-[#080c14] border-2 border-[#1e2b46] p-4 flex flex-col justify-between shadow-tactile relative">
                         <div className="absolute top-1 left-1 text-[8px] font-mono text-zinc-700 font-bold">+</div>
                         <div className="absolute top-1 right-1 text-[8px] font-mono text-zinc-700 font-bold">+</div>
@@ -1098,6 +1161,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onRefre
                           <div className="flex items-center gap-1 mt-auto pt-1 border-t border-zinc-900 w-full justify-center">
                             <button
                               type="button"
+                              onClick={() => handleStartEditPengurus(p)}
+                              title="Edit Nama / Jabatan / Foto"
+                              className="p-1 bg-[#0d1424] border border-[#1e2b46] hover:border-[#38bdf8] text-zinc-400 hover:text-[#38bdf8] cursor-pointer"
+                            >
+                              <Pencil className="w-3 h-3" />
+                            </button>
+                            <button
+                              type="button"
                               onClick={() => handleTogglePengurusActive(p)}
                               title={p.is_active ? 'Nonaktifkan Kartu' : 'Aktifkan Kartu'}
                               className="p-1 bg-[#0d1424] border border-[#1e2b46] hover:border-[#273b5e] text-zinc-400 hover:text-white cursor-pointer"
@@ -1180,6 +1251,141 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onRefre
           </div>
         )}
       </motion.div>
+
+      {/* Modal Edit Pengurus */}
+      <AnimatePresence>
+        {editingPengurus && (
+          <div className="fixed inset-0 z-60 flex items-center justify-center p-3 sm:p-4 bg-[#050811]/90 backdrop-blur-md select-none">
+            <div className="absolute inset-0" onClick={() => setEditingPengurus(null)} />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              transition={{ type: 'spring', stiffness: 350, damping: 26 }}
+              className="relative w-full max-w-md bg-[#080c14] border-2 border-[#1e2b46] p-4 sm:p-5 shadow-tactile text-[#f8fafc] z-10 my-auto"
+            >
+              {/* Decorative Corner Marks */}
+              <div className="absolute top-1.5 left-1.5 text-[8px] font-mono text-[#273b5e] font-bold pointer-events-none">+</div>
+              <div className="absolute top-1.5 right-1.5 text-[8px] font-mono text-[#273b5e] font-bold pointer-events-none">+</div>
+              <div className="absolute bottom-1.5 left-1.5 text-[8px] font-mono text-[#273b5e] font-bold pointer-events-none">+</div>
+              <div className="absolute bottom-1.5 right-1.5 text-[8px] font-mono text-[#273b5e] font-bold pointer-events-none">+</div>
+
+              <div className="flex items-center justify-between pb-2 mb-3 border-b-2 border-[#1e2b46]">
+                <div className="flex items-center gap-2">
+                  <div className="p-1.5 bg-[#0c182c] border border-[#38bdf8] text-[#38bdf8]">
+                    <Pencil className="w-3.5 h-3.5" />
+                  </div>
+                  <div>
+                    <h4 className="font-mono text-xs sm:text-sm font-bold uppercase tracking-wider text-white">
+                      EDIT PENGURUS #{editingPengurus.id}
+                    </h4>
+                    <span className="text-[9.5px] font-mono text-[#64748b]">Perbarui nama, jabatan, atau ganti foto</span>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setEditingPengurus(null)}
+                  className="p-1 text-zinc-400 hover:text-white bg-[#0d1424] border border-[#1e2b46] hover:border-[#f43f5e] cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <form onSubmit={handleSaveEditPengurus} className="space-y-3 font-mono text-xs">
+                <div className="flex items-center gap-3 p-2.5 bg-[#0d1424] border border-[#1e2b46]">
+                  <img
+                    src={editingPengurus.foto_url}
+                    alt={editingPengurus.nama}
+                    className="w-11 h-14 object-cover object-[center_18%] bg-[#080c14] border border-[#1e2b46] shrink-0"
+                  />
+                  <div className="min-w-0">
+                    <span className="text-[9px] text-[#38bdf8] block font-bold uppercase tracking-wider">DATA AKTIF DI DATABASE</span>
+                    <p className="font-bold text-white truncate text-xs">{editingPengurus.nama}</p>
+                    <p className="text-[#94a3b8] text-[10px] truncate">{editingPengurus.divisi}</p>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-[10px] text-zinc-300 mb-1 uppercase font-bold">
+                    Nama Lengkap Pengurus:
+                  </label>
+                  <input
+                    type="text"
+                    value={editNama}
+                    onChange={(e) => setEditNama(e.target.value)}
+                    required
+                    className="w-full px-3 py-2 bg-[#0d1424] border border-[#273b5e] text-white text-xs focus:outline-none focus:border-[#38bdf8] font-sans"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[10px] text-zinc-300 mb-1 uppercase font-bold">
+                    Divisi / Jabatan Pengurus:
+                  </label>
+                  <input
+                    type="text"
+                    value={editDivisi}
+                    onChange={(e) => setEditDivisi(e.target.value)}
+                    required
+                    className="w-full px-3 py-2 bg-[#0d1424] border border-[#273b5e] text-white text-xs focus:outline-none focus:border-[#38bdf8] font-sans"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[10px] text-zinc-300 mb-1 uppercase font-bold">
+                    Ganti Foto Pengurus (Opsional):
+                  </label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => setEditFotoFile(e.target.files?.[0] || null)}
+                    className="w-full text-xs text-zinc-400 file:mr-2 file:py-1 file:px-2.5 file:border file:border-[#273b5e] file:text-[10px] file:bg-[#131e33] file:text-[#38bdf8] hover:file:bg-zinc-800 cursor-pointer"
+                  />
+                  <span className="text-[9px] text-zinc-500 block mt-0.5">Biarkan kosong jika tidak ingin mengubah foto.</span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 pt-2.5 border-t border-[#1e2b46]">
+                  <button
+                    type="button"
+                    onClick={() => setEditingPengurus(null)}
+                    className="py-2.5 bg-[#0d1424] border border-[#1e2b46] hover:border-zinc-500 text-zinc-300 hover:text-white text-xs font-bold transition-all cursor-pointer"
+                  >
+                    BATAL
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={editPengurusBtnState === 'saving'}
+                    className={`py-2.5 text-xs font-bold flex items-center justify-center gap-1.5 shadow-tactile transition-all cursor-pointer ${
+                      editPengurusBtnState === 'saved'
+                        ? 'bg-emerald-500 text-zinc-950 shadow-tactile-emerald'
+                        : editPengurusBtnState === 'saving'
+                        ? 'bg-zinc-700 text-zinc-300 cursor-wait'
+                        : 'bg-blue-600 hover:bg-blue-500 text-white shadow-tactile hover:translate-x-[-1px] hover:translate-y-[-1px] active:translate-x-[1px] active:translate-y-[1px]'
+                    }`}
+                  >
+                    {editPengurusBtnState === 'saved' ? (
+                      <>
+                        <Check className="w-3.5 h-3.5 stroke-[3]" />
+                        <span>TERSAMPAN!</span>
+                      </>
+                    ) : editPengurusBtnState === 'saving' ? (
+                      <>
+                        <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                        <span>Menyimpan...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Check className="w-3.5 h-3.5 stroke-[3]" />
+                        <span>SIMPAN PERUBAHAN</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* Audio Mixer Modal */}
       <AudioMixerModal isOpen={showAudioMixer} onClose={() => setShowAudioMixer(false)} />

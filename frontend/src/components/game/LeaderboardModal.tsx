@@ -163,9 +163,8 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = ({ onClose }) =
         </div>
 
         {/* Footer */}
-        <div className="pt-2 border-t border-[#1e2b46] flex items-center justify-between text-[10px] font-mono text-[#64748b]">
+        <div className="pt-2 border-t border-[#1e2b46] flex items-center justify-center text-[10px] font-mono text-[#64748b]">
           <span>HIMA TI // GMTI STAND 2026</span>
-          <span>SINKRONISASI REAL-TIME LOCAL SQLITE</span>
         </div>
       </motion.div>
     </div>

@@ -97,12 +97,18 @@ export const AudioMixerModal: React.FC<AudioMixerModalProps> = ({ isOpen, onClos
     }
   };
 
-  // Quick Preset Handlers
+  // Quick Preset Handlers (Exact Synchronized Percentages)
   const applyPresetQuiet = () => {
+    soundFx.setVolume(0);
+    setSfxVolume(0);
     soundFx.setMuted(true);
     setIsSfxMuted(true);
-    if (isBgmEnabled) bgm.toggle();
-    setIsBgmEnabled(false);
+    bgm.setVolume(0);
+    setBgmVolume(0);
+    if (isBgmEnabled) {
+      bgm.toggle();
+      setIsBgmEnabled(false);
+    }
   };
 
   const applyPresetBalanced = () => {
@@ -114,10 +120,10 @@ export const AudioMixerModal: React.FC<AudioMixerModalProps> = ({ isOpen, onClos
       bgm.toggle();
       setIsBgmEnabled(true);
     }
-    soundFx.setVolume(0.65);
-    setSfxVolume(65);
-    bgm.setVolume(0.45);
-    setBgmVolume(45);
+    soundFx.setVolume(0.5);
+    setSfxVolume(50);
+    bgm.setVolume(0.5);
+    setBgmVolume(50);
     soundFx.playCardHover(false);
   };
 
@@ -132,8 +138,8 @@ export const AudioMixerModal: React.FC<AudioMixerModalProps> = ({ isOpen, onClos
     }
     soundFx.setVolume(1.0);
     setSfxVolume(100);
-    bgm.setVolume(0.85);
-    setBgmVolume(85);
+    bgm.setVolume(1.0);
+    setBgmVolume(100);
     soundFx.playCardHover(false);
   };
 
@@ -211,10 +217,10 @@ export const AudioMixerModal: React.FC<AudioMixerModalProps> = ({ isOpen, onClos
 
             {/* SECTION 1: BGM (Musik Latar) Control */}
             <div className="bg-[#0d1424] border border-[#1e2b46] p-3 sm:p-3.5 mb-3 shadow-tactile-sm">
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2">
+              <div className="flex items-center justify-between gap-2 mb-2">
+                <div className="flex items-center gap-2 min-w-0">
                   <div
-                    className={`p-1 border ${
+                    className={`p-1 border shrink-0 ${
                       isBgmEnabled
                         ? 'border-[#38bdf8] bg-[#0c182c] text-[#38bdf8]'
                         : 'border-[#1e2b46] bg-[#080c14] text-[#64748b]'
@@ -222,17 +228,17 @@ export const AudioMixerModal: React.FC<AudioMixerModalProps> = ({ isOpen, onClos
                   >
                     <Music className={`w-3.5 h-3.5 ${isBgmEnabled ? 'animate-pulse' : ''}`} />
                   </div>
-                  <div>
-                    <span className="font-mono text-xs font-bold text-white tracking-wider">
+                  <div className="min-w-0">
+                    <span className="font-mono text-xs font-bold text-white tracking-wider block">
                       MUSIK LATAR (BGM)
                     </span>
-                    <span className="font-mono text-[10px] text-[#38bdf8] block truncate max-w-[180px] sm:max-w-none">
+                    <span className="font-mono text-[10px] text-[#38bdf8] block truncate max-w-[150px] xs:max-w-[190px] sm:max-w-[220px]">
                       {isBgmEnabled ? bgmThemeName : 'DINONAKTIFKAN'}
                     </span>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 shrink-0">
                   <span className="font-mono text-xs font-bold px-2 py-0.5 bg-[#080c14] border border-[#1e2b46] text-[#38bdf8]">
                     {isBgmEnabled ? `${bgmVolume}%` : '0% (MUTE)'}
                   </span>
@@ -338,47 +344,56 @@ export const AudioMixerModal: React.FC<AudioMixerModalProps> = ({ isOpen, onClos
 
             {/* SECTION 2: SFX (Efek Suara) Control */}
             <div className="bg-[#0d1424] border border-[#1e2b46] p-3 sm:p-3.5 mb-3 shadow-tactile-sm">
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  <div
-                    className={`p-1 border ${
-                      !isSfxMuted
-                        ? 'border-[#10b981] bg-[#052e16] text-[#10b981]'
-                        : 'border-[#1e2b46] bg-[#080c14] text-[#64748b]'
-                    }`}
-                  >
-                    {!isSfxMuted ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5 text-[#f43f5e]" />}
-                  </div>
-                  <div>
-                    <span className="font-mono text-xs font-bold text-white tracking-wider">
-                      EFEK SUARA (SFX)
-                    </span>
-                    <span className="font-mono text-[10px] text-[#10b981] block truncate max-w-[210px] sm:max-w-none">
-                      {!isSfxMuted ? `PROFIL: ${CARD_SOUND_STYLES.find((s) => s.id === cardSoundStyle)?.name || cardSoundStyle.toUpperCase()}` : 'DIBISUKAN (MUTED)'}
-                    </span>
-                  </div>
-                </div>
+              {(() => {
+                const sfxProfile = CARD_SOUND_STYLES.find((s) => s.id === cardSoundStyle);
+                const sfxCleanTitle = sfxProfile ? sfxProfile.name.split('(')[0].trim() : cardSoundStyle.toUpperCase();
+                return (
+                  <div className="flex items-center justify-between gap-2 mb-2">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <div
+                        className={`p-1 border shrink-0 ${
+                          !isSfxMuted
+                            ? 'border-[#10b981] bg-[#052e16] text-[#10b981]'
+                            : 'border-[#1e2b46] bg-[#080c14] text-[#64748b]'
+                        }`}
+                      >
+                        {!isSfxMuted ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5 text-[#f43f5e]" />}
+                      </div>
+                      <div className="min-w-0">
+                        <span className="font-mono text-xs font-bold text-white tracking-wider block">
+                          EFEK SUARA (SFX)
+                        </span>
+                        <span 
+                          className="font-mono text-[10px] text-[#10b981] block truncate max-w-[150px] xs:max-w-[190px] sm:max-w-[220px]"
+                          title={!isSfxMuted ? `PROFIL: ${sfxProfile?.name || sfxCleanTitle}` : 'DIBISUKAN (MUTED)'}
+                        >
+                          {!isSfxMuted ? `PROFIL: ${sfxCleanTitle}` : 'DIBISUKAN (MUTED)'}
+                        </span>
+                      </div>
+                    </div>
 
-                <div className="flex items-center gap-2">
-                  <span className="font-mono text-xs font-bold px-2 py-0.5 bg-[#080c14] border border-[#1e2b46] text-[#10b981]">
-                    {!isSfxMuted ? `${sfxVolume}%` : '0% (MUTE)'}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const muted = soundFx.toggleMute();
-                      setIsSfxMuted(muted);
-                    }}
-                    className={`px-2 py-1 font-mono text-[10px] sm:text-xs font-bold border transition-all cursor-pointer ${
-                      !isSfxMuted
-                        ? 'bg-[#052e16] border-[#10b981] text-[#10b981]'
-                        : 'bg-[#080c14] border-[#1e2b46] text-[#64748b]'
-                    }`}
-                  >
-                    {!isSfxMuted ? 'NYALA' : 'BISU'}
-                  </button>
-                </div>
-              </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <span className="font-mono text-xs font-bold px-2 py-0.5 bg-[#080c14] border border-[#1e2b46] text-[#10b981]">
+                        {!isSfxMuted ? `${sfxVolume}%` : '0% (MUTE)'}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const muted = soundFx.toggleMute();
+                          setIsSfxMuted(muted);
+                        }}
+                        className={`px-2 py-1 font-mono text-[10px] sm:text-xs font-bold border transition-all cursor-pointer ${
+                          !isSfxMuted
+                            ? 'bg-[#052e16] border-[#10b981] text-[#10b981]'
+                            : 'bg-[#080c14] border-[#1e2b46] text-[#64748b]'
+                        }`}
+                      >
+                        {!isSfxMuted ? 'NYALA' : 'BISU'}
+                      </button>
+                    </div>
+                  </div>
+                );
+              })()}
 
               {/* SFX Volume Slider */}
               <div className="flex items-center gap-2.5 my-2">
@@ -499,32 +514,52 @@ export const AudioMixerModal: React.FC<AudioMixerModalProps> = ({ isOpen, onClos
             </div>
 
             {/* SECTION 3: Quick Presets */}
-            <div className="flex items-center justify-between gap-1.5 pt-1 mb-3.5">
-              <span className="font-mono text-[10px] text-[#64748b] uppercase shrink-0">PRESET STAND:</span>
-              <div className="flex items-center gap-1 sm:gap-1.5 flex-wrap justify-end">
-                <button
-                  type="button"
-                  onClick={applyPresetQuiet}
-                  className="px-2 py-1 font-mono text-[9.5px] sm:text-[10px] font-bold bg-[#0d1424] border border-[#1e2b46] hover:border-[#f43f5e] text-[#94a3b8] hover:text-[#f43f5e] transition-colors cursor-pointer"
-                >
-                  SENYAP (0%)
-                </button>
-                <button
-                  type="button"
-                  onClick={applyPresetBalanced}
-                  className="px-2 py-1 font-mono text-[9.5px] sm:text-[10px] font-bold bg-[#0d1424] border border-[#1e2b46] hover:border-[#38bdf8] text-[#94a3b8] hover:text-[#38bdf8] transition-colors cursor-pointer"
-                >
-                  SANTAI (50%)
-                </button>
-                <button
-                  type="button"
-                  onClick={applyPresetLoud}
-                  className="px-2 py-1 font-mono text-[9.5px] sm:text-[10px] font-bold bg-[#0c182c] border border-[#38bdf8] text-[#38bdf8] hover:bg-[#112544] transition-colors cursor-pointer shadow-tactile-sm"
-                >
-                  RAMAI (100%)
-                </button>
-              </div>
-            </div>
+            {(() => {
+              const isQuietActive = (!isBgmEnabled || bgmVolume === 0) && (isSfxMuted || sfxVolume === 0);
+              const isBalancedActive = isBgmEnabled && !isSfxMuted && bgmVolume === 50 && sfxVolume === 50;
+              const isLoudActive = isBgmEnabled && !isSfxMuted && bgmVolume === 100 && sfxVolume === 100;
+
+              return (
+                <div className="flex items-center justify-between gap-1.5 pt-1 mb-3.5">
+                  <span className="font-mono text-[10px] text-[#64748b] uppercase shrink-0">PRESET STAND:</span>
+                  <div className="flex items-center gap-1 sm:gap-1.5 flex-wrap justify-end">
+                    <button
+                      type="button"
+                      onClick={applyPresetQuiet}
+                      className={`px-2 py-1 font-mono text-[9.5px] sm:text-[10px] font-bold border transition-all cursor-pointer ${
+                        isQuietActive
+                          ? 'bg-[#4c0519]/70 border-[#f43f5e] text-[#f43f5e] shadow-tactile-sm'
+                          : 'bg-[#0d1424] border-[#1e2b46] hover:border-[#f43f5e] text-[#94a3b8] hover:text-[#f43f5e]'
+                      }`}
+                    >
+                      SENYAP (0%)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={applyPresetBalanced}
+                      className={`px-2 py-1 font-mono text-[9.5px] sm:text-[10px] font-bold border transition-all cursor-pointer ${
+                        isBalancedActive
+                          ? 'bg-[#0c182c] border-[#38bdf8] text-[#38bdf8] shadow-tactile-sm'
+                          : 'bg-[#0d1424] border-[#1e2b46] hover:border-[#38bdf8] text-[#94a3b8] hover:text-[#38bdf8]'
+                      }`}
+                    >
+                      SANTAI (50%)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={applyPresetLoud}
+                      className={`px-2 py-1 font-mono text-[9.5px] sm:text-[10px] font-bold border transition-all cursor-pointer ${
+                        isLoudActive
+                          ? 'bg-[#0c182c] border-[#38bdf8] text-[#38bdf8] shadow-tactile-sm'
+                          : 'bg-[#0d1424] border-[#1e2b46] hover:border-[#38bdf8] text-[#94a3b8] hover:text-[#38bdf8]'
+                      }`}
+                    >
+                      RAMAI (100%)
+                    </button>
+                  </div>
+                </div>
+              );
+            })()}
 
             {/* Footer Close Button */}
             <div className="pt-2.5 border-t-2 border-[#1c2b46] flex items-center justify-between">

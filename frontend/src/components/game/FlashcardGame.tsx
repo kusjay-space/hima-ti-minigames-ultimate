@@ -335,7 +335,7 @@ export const FlashcardGame: React.FC<FlashcardGameProps> = ({
   }, [isAnswered, handleSelectOption, goToNextQuestion]);
 
   return (
-    <div className="w-full h-[100dvh] max-h-[100dvh] flex flex-col justify-between max-w-6xl mx-auto p-1.5 xs:p-2 sm:p-3 md:p-6 overflow-hidden select-none">
+    <div className="w-full h-[100dvh] max-h-[100dvh] flex flex-col justify-between max-w-[1700px] 2xl:max-w-[1880px] mx-auto px-3 sm:px-6 md:px-8 py-2 sm:py-3.5 overflow-hidden select-none">
       {/* Top Header Bar */}
       <header className="flex items-center justify-between gap-1.5 sm:gap-2 pb-1.5 sm:pb-2.5 border-b-2 border-[#1c2b46] shrink-0">
         <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
@@ -358,7 +358,7 @@ export const FlashcardGame: React.FC<FlashcardGameProps> = ({
         </div>
 
         {/* Center Timer */}
-        <div className="flex-1 min-w-0 mx-1.5 sm:mx-3 md:max-w-sm">
+        <div className="flex-1 min-w-0 mx-2 sm:mx-4 max-w-xs sm:max-w-md md:max-w-xl lg:max-w-2xl">
           <TimerBar timeLeft={timeLeft} totalTime={config.timerDetik} />
         </div>
 
@@ -428,11 +428,11 @@ export const FlashcardGame: React.FC<FlashcardGameProps> = ({
 
       {/* Main Play Arena: Dynamic Adaptive Mobile Layout, Zero Scroll, Original Desktop Layout */}
       <main className="flex-1 min-h-0 py-1 xs:py-1.5 sm:py-2 md:py-3 flex flex-col justify-center w-full overflow-visible">
-        <div className="w-full h-full flex flex-col md:grid md:grid-cols-12 gap-1.5 xs:gap-2 sm:gap-3 md:gap-6 lg:gap-8 items-center justify-between md:justify-center min-h-0 overflow-visible">
+        <div className="w-full h-full flex flex-col md:grid md:grid-cols-12 gap-2 sm:gap-4 md:gap-6 lg:gap-8 xl:gap-10 items-center justify-between md:justify-center min-h-0 overflow-visible">
           {/* Left/Top Column: The Portrait Flashcard (Fills available vertical space on mobile, original fixed height on desktop) */}
-          <div className="flex-1 min-h-0 w-full flex items-center justify-center md:flex-none md:col-span-5 md:h-auto py-2 xs:py-2.5 md:py-2 overflow-visible relative">
+          <div className="flex-1 min-h-0 w-full flex items-center justify-center md:flex-none md:col-span-5 xl:col-span-5 md:h-auto py-2 xs:py-2.5 md:py-2 overflow-visible relative">
             <div className="relative w-full h-full flex items-center justify-center">
-              {/* Sibling Background Next Card in Deck (Continuously sitting underneath, blurred photo, never unmounts prematurely) */}
+              {/* Sibling Background Next Card in Deck (Continuously sitting underneath, locked design, never unmounts prematurely) */}
               {currentIdx + 1 < totalQuestions && (
                 <div 
                   className="absolute inset-0 pointer-events-none z-0 select-none flex items-center justify-center translate-x-2.5 translate-y-3 scale-[0.94] rotate-[2.5deg] md:translate-x-5 md:translate-y-6 md:scale-[0.93] md:rotate-[3deg] opacity-85 transition-all duration-300"
@@ -445,6 +445,7 @@ export const FlashcardGame: React.FC<FlashcardGameProps> = ({
                     isAnswered={false}
                     isCorrect={true}
                     totalQuestions={totalQuestions}
+                    minBenarCap={config.minBenarCap}
                     currentNumber={currentIdx + 2}
                     isBackgroundCard={true}
                     compactOnMobile={true}
@@ -480,7 +481,7 @@ export const FlashcardGame: React.FC<FlashcardGameProps> = ({
                   transition={{ 
                     type: 'spring', 
                     stiffness: 260, 
-                    damping: 24,
+                    damping: 24, 
                     mass: 0.8
                   }}
                 >
@@ -491,6 +492,7 @@ export const FlashcardGame: React.FC<FlashcardGameProps> = ({
                     isAnswered={isAnswered}
                     isCorrect={isCorrect}
                     totalQuestions={totalQuestions}
+                    minBenarCap={config.minBenarCap}
                     currentNumber={currentIdx + 1}
                     compactOnMobile={true}
                     spillJawaban={config.spillJawaban || 'akhir'}
@@ -501,7 +503,7 @@ export const FlashcardGame: React.FC<FlashcardGameProps> = ({
           </div>
 
           {/* Right/Bottom Column: Question Box & ABCD 2x2 Options Grid (Guaranteed zero-scroll shrink-0 on mobile) */}
-          <div className="shrink-0 w-full md:flex-none md:col-span-7 flex flex-col justify-center space-y-2 xs:space-y-2.5 sm:space-y-3 min-w-0 pb-0.5 md:pb-0">
+          <div className="shrink-0 w-full md:flex-none md:col-span-7 xl:col-span-7 flex flex-col justify-center space-y-2 xs:space-y-2.5 sm:space-y-3 min-w-0 pb-0.5 md:pb-0">
             {/* Question Card Box */}
             <div className="bg-[#0d1424] border-2 border-[#1e2b46] p-2.5 xs:p-3 sm:p-3.5 md:p-5 shadow-tactile relative">
               <div className="absolute top-1 left-1 text-[9px] font-mono text-[#273b5e] font-bold pointer-events-none">+</div>

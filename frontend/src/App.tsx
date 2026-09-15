@@ -259,6 +259,26 @@ export function App() {
 
   return (
     <div className="min-h-screen bg-[#080c14] text-[#f8fafc] flex flex-col justify-between selection:bg-[#2563eb] selection:text-white relative overflow-x-hidden">
+      {/* Ambient Modern Developer Background: Elegant, Clean, High Craft, Non-Slop */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden="true">
+        {/* Soft subtle ambient top-center illumination for focal depth */}
+        <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[850px] sm:w-[1100px] h-[450px] bg-gradient-to-b from-[#1e3a8a]/12 via-[#0284c7]/05 to-transparent blur-[120px] rounded-full opacity-75" />
+        
+        {/* Modern micro-dot grid matrix with radial mask that gracefully fades outward */}
+        <div 
+          className="absolute inset-0 opacity-[0.035]"
+          style={{
+            backgroundImage: 'radial-gradient(circle at 1px 1px, #38bdf8 1px, transparent 0)',
+            backgroundSize: '32px 32px',
+            maskImage: 'radial-gradient(ellipse 75% 65% at 50% 50%, black 40%, transparent 85%)',
+            WebkitMaskImage: 'radial-gradient(ellipse 75% 65% at 50% 50%, black 40%, transparent 85%)',
+          }}
+        />
+
+        {/* Soft edge vignette to focus attention on central interface */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_55%,#080c14_98%)]" />
+      </div>
+
       {/* Main Game Screens */}
       <main className="relative z-10 flex-1 flex flex-col justify-center w-full items-center">
         {isLoadingSession && (

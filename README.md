@@ -1,87 +1,127 @@
-# ⚡ Website Minigames Flashcard HIMA TI
-**Stand Booth HIMA TI: Masa Orientasi Mahasiswa Baru (Ospek Maba) 2026**
+# ⚡ Minigames Flashcard HIMA TI // Stand GMTI 2026
 
-Website minigames tebak foto pengurus Himpunan Mahasiswa Program Studi Teknik Informatika (HIMA TI) yang berjalan **100% lokal dan offline**, didukung database **SQLite**, animasi modern **Framer Motion**, desain neo-brutalist teknikal, dan sistem penentuan **Cap Stand Ospek**.
+Aplikasi kuis interaktif tebak pengurus Himpunan Mahasiswa Program Studi Teknik Informatika (HIMA TI) yang dirancang khusus untuk **Stand Booth Ospek / GMTI Mahasiswa Baru 2026**.
+
+Aplikasi berjalan **100% lokal, cepat, dan offline**, didukung database internal **SQLite (Node:sqlite)**, backend **Express**, antarmuka modern **React 19 + Vite + Tailwind CSS v4**, serta animasi kartu 3D berbasis **Framer Motion**.
 
 ---
 
-## 🚀 Cara Menjalankan di Laptop Stand
+## 📋 Fitur Utama
 
-### 1. Jalankan Mode Siap Pakai (Rekomendasi untuk Hari-H Stand)
-Buka terminal di folder proyek:
+- **3-Section Parallel Layout:**
+  - **Seksi Kiri:** Interaktif 3D Card Stack Preview dengan simulasi gestur swipe, rotasi bolak-balik (front/back), dan ganti kartu otomatis (auto-switch).
+  - **Seksi Tengah:** Cockpit Misi Stand (syarat cap, waktu, bank 34 soal pengurus) dan formulir registrasi peserta dengan validasi nama unik agar tidak ada duplikasi tim.
+  - **Seksi Kanan:** Papan skor (*Live Leaderboard*) yang diperbarui secara otomatis setiap 15 detik dari database SQLite lokal.
+- **Validasi Cap Stand Otomatis & Misi Alternatif:**
+  - **Lolos Cap Langsung:** Peserta yang memenuhi batas minimal benar (misal ≥ 4 dari 5 soal) langsung berhak mendapatkan Cap Stand di buku kendali GMTI dengan selebrasi konfeti.
+  - **Jalur Misi Stand:** Peserta yang belum mencapai batas skor diarahkan untuk menyelesaikan misi interaktif (follow Instagram resmi HIMA TI & sapa panitia pengurus di stand) agar tetap termotivasi dan bisa memperoleh cap.
+- **Audio Engine Lengkap (Tanpa Aset Eksternal):**
+  - **BGM Synthesizer (Web Audio API):** Pilihan musik latar bergaya arcade 8-bit, cyberpunk synthwave, ambient lofi, dan EDM stadium.
+  - **5 Profil Efek Suara (SFX):** Cyber Laser, Mechanical Tactile, Arcade Pop, Digital Chime, dan Acoustic Shuffle.
+  - **Audio Mixer Modal:** Kontrol volume master BGM dan SFX yang independen.
+- **Command Center Admin (Terproteksi PIN):**
+  - **PIN Default:** `2026`
+  - Tambah/edit data nama dan divisi pengurus langsung dari antarmuka atau modal edit (`PUT /api/pengurus/:id`).
+  - Upload foto pengurus lokal.
+  - Uji simulasi kartu pengurus real-time (Card Studio).
+  - Backup & restore database dalam format JSON, serta tombol reset leaderboard sekali klik.
+
+---
+
+## 🚀 Panduan Instalasi & Menjalankan
+
+### Persyaratan Sistem
+- **Node.js**: Versi `v20.0.0` ke atas (Direkomendasikan Node `v22+` untuk dukungan bawaan `node:sqlite`).
+- **npm**: Versi `v8.0.0` ke atas.
+
+---
+
+### Langkah 1: Clone Repository
 ```bash
-cd /home/jay/minigames-hima-ti
+git clone <URL_REPOSITORY>
+cd minigames-hima-ti
+```
+
+---
+
+### Langkah 2: Install Dependensi
+Repository ini telah dikonfigurasi menggunakan **npm workspaces**. Cukup jalankan satu perintah di folder utama (root):
+
+```bash
+npm install
+```
+*Perintah di atas akan secara otomatis mengunduh dan menginstal seluruh package untuk root, backend (Express, CORS, Multer), dan frontend (React, Framer Motion, Tailwind, Lucide).*
+
+> 💡 **Alternatif jika npm versi lama mengalami kendala:**
+> ```bash
+> npm run install:all
+> ```
+
+---
+
+### Langkah 3: Menjalankan Aplikasi
+
+#### Opsi A: Mode Siap Pakai / Hari-H Stand (Rekomendasi)
+Mode ini mengompilasi frontend menjadi aset produksi berkecepatan tinggi dan melayani antarmuka serta API melalui 1 port server default:
+
+```bash
 npm start
 ```
-Buka browser laptop ke: **`http://localhost:3001`**  
-*(Aplikasi langsung berjalan penuh secara offline, melayani frontend dan backend SQLite dalam 1 port).*
+Buka browser di laptop stand:
+👉 **`http://localhost:3000`**
 
-### 2. Jalankan Mode Development
-Jika ingin mengubah kode dengan live reload:
+*(Frontend dan API SQLite Express berjalan bersamaan pada port default **3000**).*
+
+---
+
+#### Opsi B: Mode Pengembangan (Live Reload)
+Jika ingin mengedit antarmuka atau logika kode secara langsung:
+
 ```bash
-npm run dev:backend   # Terminal 1: backend server (port 3001)
-npm run dev:frontend  # Terminal 2: Vite frontend (http://localhost:5173)
+npm run dev
 ```
+Perintah ini akan menyalakan:
+- **Backend Server** di `http://localhost:3000`
+- **Vite Dev Server** di `http://localhost:5173` (dengan proxy otomatis ke port 3000 untuk `/api` dan `/uploads`).
+
+Buka browser di:
+👉 **`http://localhost:5173`**
 
 ---
 
-## 🎮 Fitur Utama & Validasi Sesi
+## ⚙️ Ringkasan Script `package.json`
 
-1. **Validasi Unik Nama Tim / Peserta:**
-   - Nama tim atau peserta divalidasi langsung ke database SQLite sebelum kuis dimulai.
-   - Jika nama tim sudah pernah dimainkan dan tercatat di leaderboard, sistem menampilkan peringatan langsung dan meminta nama pembeda agar tidak ada duplikasi data.
-2. **Desain Kotak-Kotak Neo-Brutalist (Anti-Slop):**
-   - Menggunakan estetika teknis dengan border tegas (`border-2 border-zinc-800`), offset drop-shadow taktil (`shadow-[4px_4px_0px_#000]`), font monospaced untuk telemetri, serta palet Deep Obsidian dan Electric Cobalt.
-   - Tanpa elemen generik AI (tanpa pill badge monoton, tanpa gradien ungu-pink generik).
-3. **Format Card Vertikal Portrait 3:4 & Face Crop Presisi:**
-   - Card foto berukuran proporsional 3:4 (~360x480px) yang pas di layar laptop tanpa perlu scroll.
-   - Dilengkapi pengaturan focal crop (`atas`, `tengah_atas`, `tengah`). Default `tengah_atas` (golden ratio 18%) memastikan wajah seluruh 34 pengurus HIMA TI berada tepat di tengah tanpa terpotong dahi atau dagu.
-4. **8 Kombo Animasi Interaktif (Tanpa Efek Tunggal Membosankan):**
-   Semua opsi efek kini berupa rangkaian kombo sinematik dan interaktif (16 Pilihan Suite):
-   - **Cyber Biometric Protocol:** Laser scanning vertikal, grid HUD biometrik, target crosshairs, dan unscramble teks.
-   - **Quantum Hologram Spectrum:** Kilau pelangi prismatik halus, chromatic aberration lembut tanpa glitch kasar, dan corner ticks.
-   - **Tactical Sonar Interceptor:** Radar sweep cone 360 derajat, radar sweep line, cincin sonar berdenyut, dan audio ping.
-   - **Kinetic Arcade Spring:** Entrance pegas dinamis, particle bursts, dan getaran taktil saat dijawab.
-   - **Analog Tape Surveillance:** CRT scanlines drift lembut, cap REC retro, cap waktu telemetri, dan vignette analog.
-   - **Aperture Spy Identity:** Iris aperture blade reveal, efek flash kamera, audio shutter, dan stempel kartu identitas resmi.
-   - **Matrix Cipher Overdrive:** Matrix rain code cascade, font cipher hijau phosphor, dan de-scrambler karakter real-time.
-   - **The Grand Stand Masterpiece:** Master combo yang menggabungkan seluruh layer efek terbaik untuk festival stand.
-   - **Architect Blueprint CAD:** Grid kertas kalkir biru arsitektur + panduan dimensi teknikal [75x100mm] + laser cyan drafting ruler.
-   - **Cosmic Nebula Pulsar:** Atmosfer nebula ungu kosmik + orbit cincin planet 3D berputar mengelilingi kartu + starlight.
-   - **Synthwave Neon Wireframe:** Perspektif grid wireframe 80s + sunset horizon glow pulse + highlight magenta-cyan retro cyberpunk.
-   - **Overclock Voltage Surge:** Loncatan voltase listrik berenergi tinggi mengitari perimeter kartu + telemetri [1.48V OVERCLOCK].
-   - **Liquid Magnetic Spring:** Levitasi mengambang organik + tarikan magnetis dinamis mengikuti posisi kursor.
-   - **Holo Hyper-Shimmer Beam:** Pancaran difraksi prisma pelangi multi-sudut menyapu diagonal + denyut border aberasi kromatik.
-   - **Cyberpunk Kinetic Glitch:** Slice translasi RGB color-split saat disentuh + scanline telemetri data matrix cybernetic.
-   - **Isometric Frosted Glass:** Kaca buram frosted glass multi-lapisan + partikel kristal melayang halus + elevasi kedalaman 3D.
-5. **Penentuan Cap Ospek Otomatis & Misi Stand:**
-   - **Lolos Cap Otomatis (Maksimal Salah 1 dari 5 Soal):**
-     - Banner kemenangan emas: **"STATUS: LOLOS! BERHAK MENDAPATKAN CAP STAND HIMA TI"**
-     - Efek konfeti selebrasi + audio chime kemenangan.
-     - Panitia langsung membubuhkan cap di kartu kendali maba.
-   - **Misi Stand Alternatif (Salah 2 Soal atau Lebih):**
-     - Banner misi alternatif: **"STATUS: TANTANGAN TAMBAHAN UNTUK DAPAT CAP"**
-     - Menampilkan misi follow Instagram HIMA TI dan menyapa pengurus di stand agar maba tetap termotivasi dan bisa mendapatkan cap.
+| Script | Deskripsi |
+|---|---|
+| `npm install` | Menginstal seluruh dependensi root, backend, dan frontend sekaligus via workspaces. |
+| `npm start` | Melakukan build frontend lalu menjalankan server backend di port 3000. |
+| `npm run dev` | Menjalankan backend dan frontend dev server secara paralel (`concurrently`). |
+| `npm run build` | Melakukan build produksi Vite & TypeScript pada folder `frontend/`. |
+| `npm run install:all` | Script cadangan untuk menginstal paket per folder (`backend` dan `frontend`). |
 
 ---
 
-## ⚙️ Command Center Admin Stand
+## 🔧 Akses Smartphone untuk Maba (Jaringan Lokal)
 
-Klik ikon gembok di pojok kanan atas layar untuk membuka panel admin.
-- **PIN Default:** `2026`
-
-### Fitur Admin:
-- **Pilihan 8 Kombo Animasi:** Pilih salah satu dari 8 suite kombo animasi.
-- **Interactive Live Preview:** Uji animasi langsung di panel admin, ganti foto pengurus (tersedia 34 anggota pengurus HIMA TI), atur fokus crop foto, serta simulasi jawaban Benar / Salah.
-- **Indikator Simpan Responsif:** Tombol simpan memberikan visual feedback bertahap (*Menyimpan...* -> *Tersimpan! ✓* -> normal).
-- **Pengaturan Kuis Fleksibel:** Atur jumlah soal per sesi (3 - 15), timer per soal (5 - 30s), batas minimal benar cap, dan teks misi alternatif.
-- **Manajemen Pengurus Lengkap:** Tambah, edit, aktifkan/nonaktifkan, atau hapus pengurus. Mendukung upload foto lokal.
-- **Leaderboard & Backup:** Tabel rekap peserta, reset leaderboard harian, export JSON, dan restore database dalam satu klik.
+Jika terjadi antrean panjang di meja stand:
+1. Hubungkan laptop stand dan smartphone peserta/panitia ke hotspot atau Wi-Fi yang sama.
+2. Cari tahu alamat IP lokal laptop stand (contoh di terminal: `ip a` atau `ipconfig` -> `192.168.1.15`).
+3. Buka URL berikut di browser smartphone:
+   ```
+   http://192.168.1.15:3000
+   ```
+4. Seluruh fitur, animasi, dan input nama dapat dimainkan langsung dari layar smartphone secara responsif.
 
 ---
 
-## 📱 Responsif di Smartphone Maba (Opsional)
-Jika meja stand sangat padat antrean:
-1. Hubungkan laptop stand dan smartphone maba ke jaringan Wi-Fi atau hotspot yang sama.
-2. Buka IP lokal laptop dari browser smartphone maba (misal: `http://192.168.1.10:3001`).
-3. Layout otomatis menyesuaikan ukuran layar ponsel tanpa kehilangan fitur animasi ataupun visual feedback.
+## 🛠️ Pemecahan Masalah (Troubleshooting)
+
+1. **Port 3000 Sudah Terpakai:**
+   - Ubah port melalui environment variable saat menjalankan:
+     ```bash
+     PORT=3005 npm start
+     ```
+2. **Error `node:sqlite` tidak ditemukan:**
+   - Pastikan versi Node.js yang terinstal adalah Node 22+ (`node -v`).
+3. **Database Reset ke Data Awal:**
+   - File database SQLite disimpan di [`backend/hima_games.sqlite`](backend/hima_games.sqlite). Jangan hapus file ini jika ingin mempertahankan data skor leaderboard dan daftar pengurus yang sudah diinput.

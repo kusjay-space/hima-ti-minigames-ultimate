@@ -24,6 +24,7 @@ interface FlashcardCardProps {
   compactOnMobile?: boolean;
   spillJawaban?: 'akhir' | 'langsung';
   inspectMode?: boolean;
+  minBenarCap?: number;
 }
 
 export const FlashcardCard: React.FC<FlashcardCardProps> = ({
@@ -45,8 +46,13 @@ export const FlashcardCard: React.FC<FlashcardCardProps> = ({
   isFlippedControlled,
   compactOnMobile = false,
   spillJawaban = 'akhir',
-  inspectMode = false
+  inspectMode = false,
+  minBenarCap = 4
 }) => {
+  const safeMinBenar = minBenarCap ?? 4;
+  const safeTotal = totalQuestions || 5;
+  const maxSalah = Math.max(0, safeTotal - safeMinBenar);
+  const cadanganSalah = maxSalah + 1;
   const cardRef = useRef<HTMLDivElement>(null);
   const [isFlipped, setIsFlipped] = useState(isFlippedControlled ?? false);
   const [isHovered, setIsHovered] = useState(false);
@@ -219,10 +225,10 @@ export const FlashcardCard: React.FC<FlashcardCardProps> = ({
 
   return (
     <div className={`relative ${
-      isBackgroundCard
+      isChallengerCard || isBackgroundCard
         ? 'w-full h-full'
         : inspectMode
-        ? 'w-full max-w-[240px] xs:max-w-[255px] sm:max-w-[270px] md:max-w-[285px]'
+        ? 'w-full max-w-[260px] xs:max-w-[285px] sm:max-w-[310px] md:max-w-[335px]'
         : compactOnMobile 
         ? 'h-full max-h-[calc(100%-36px)] md:max-h-none w-auto aspect-[3/4.15] max-w-[min(325px,calc(100vw-64px))] md:h-auto md:w-full md:max-w-[360px] lg:max-w-[375px] md:aspect-auto' 
         : 'w-full max-w-[285px] xs:max-w-[310px] sm:max-w-[340px] md:max-w-[360px] lg:max-w-[375px]'
@@ -557,7 +563,7 @@ export const FlashcardCard: React.FC<FlashcardCardProps> = ({
                      'TARGET: 34 PENGURUS'}
                   </h3>
                   <p className="text-[11px] text-[#94a3b8] text-center max-w-[210px] mt-1 font-mono">
-                    {challengerIndex === 1 ? 'Jawab benar minimal 4 dari 5 soal untuk klaim cap resmi GMTI!' :
+                    {challengerIndex === 1 ? `Jawab benar minimal ${safeMinBenar} dari ${safeTotal} soal untuk klaim cap resmi GMTI!` :
                      challengerIndex === 2 ? 'Catat waktu tercepat untuk memuncaki skor stand & raih merchandise!' :
                      'Bisakah kamu mengenali seluruh wajah & amanah pengurus HIMA TI?'}
                   </p>
@@ -577,6 +583,29 @@ export const FlashcardCard: React.FC<FlashcardCardProps> = ({
                   </span>
                 </div>
               </div>
+            ) : isBackgroundCard ? (
+              /* Kartu Antrean Berikutnya: Design Locked (Bukan Blur) */
+              <div className="relative w-full h-full flex flex-col items-center justify-center p-5 bg-gradient-to-b from-[#0c1424] via-[#080d17] to-[#0d1627] overflow-hidden select-none">
+                <div className="absolute inset-0 bg-[radial-gradient(#1e2b46_1.2px,transparent_1.2px)] [background-size:16px_16px] opacity-35 pointer-events-none" />
+                <div className="relative z-10 flex flex-col items-center text-center">
+                  <div className="relative w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center border-2 border-[#1e2b46] bg-[#090d16]/90 shadow-tactile mb-2.5">
+                    <div className="absolute -inset-1 border border-[#38bdf8]/30 animate-pulse pointer-events-none" />
+                    <Lock className="w-7 h-7 sm:w-8 sm:h-8 text-[#64748b]" />
+                    <div className="absolute -bottom-2 bg-[#080c14] border border-[#1e2b46] px-1.5 py-0.2 text-[7.5px] font-mono text-[#94a3b8] font-bold tracking-wider">
+                      TERKUNCI
+                    </div>
+                  </div>
+                  <span className="inline-block border border-[#1e2b46] bg-[#0d1424] px-2 py-0.5 text-[8.5px] sm:text-[9px] font-mono font-bold uppercase tracking-wider text-[#38bdf8] mb-1">
+                    KARTU #{currentNumber}
+                  </span>
+                  <h4 className="text-xs sm:text-sm font-bold text-[#cbd5e1] font-mono tracking-tight">
+                    IDENTITAS TERKUNCI
+                  </h4>
+                  <p className="text-[9.5px] text-[#64748b] font-mono mt-1 max-w-[190px]">
+                    Selesaikan pertanyaan saat ini untuk membuka kartu ini
+                  </p>
+                </div>
+              </div>
             ) : (
               /* Foto Pengurus Potret - Drag Disabled to delegate gestures to Card */
               <motion.img
@@ -587,8 +616,6 @@ export const FlashcardCard: React.FC<FlashcardCardProps> = ({
                 animate={hasZoomFocus && !isAnswered ? { scale: [1, 1.06, 1] } : { scale: 1 }}
                 transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
                 className={`w-full h-full object-cover select-none pointer-events-none ${objectPositionClass} transition-all duration-300 ${
-                  isBackgroundCard ? 'blur-[22px] scale-110 filter brightness-95' : ''
-                } ${
                   isAnswered && !isCorrect && spillJawaban !== 'akhir' ? 'grayscale contrast-125 brightness-75' : ''
                 } ${hasHolo ? 'animate-holo-smooth' : ''} ${
                   hasGlitch ? 'animate-cyber-glitch-subtle' : ''
@@ -952,11 +979,11 @@ export const FlashcardCard: React.FC<FlashcardCardProps> = ({
                     <ul className="space-y-1.5 mt-1.5 text-[11px] text-[#cbd5e1] font-sans">
                       <li className="flex items-start gap-1.5">
                         <span className="text-[#10b981] font-mono font-bold">1.</span>
-                        <span><strong>Benar &ge; 4 Soal:</strong> Langsung dapat Cap Stempel Basah HIMA TI di buku kendali.</span>
+                        <span><strong>Benar &ge; {safeMinBenar} Soal:</strong> Langsung dapat Cap Stempel Basah HIMA TI di buku kendali.</span>
                       </li>
                       <li className="flex items-start gap-1.5">
                         <span className="text-[#38bdf8] font-mono font-bold">2.</span>
-                        <span><strong>Jalur Cadangan (Salah &ge; 2):</strong> Follow Instagram @himati_official & sapa 2 kakak pengurus di stand.</span>
+                        <span><strong>Jalur Cadangan (Salah &ge; {cadanganSalah}):</strong> Follow Instagram @himati_official & sapa kakak pengurus di stand.</span>
                       </li>
                       <li className="flex items-start gap-1.5">
                         <span className="text-[#f59e0b] font-mono font-bold">3.</span>
@@ -980,7 +1007,7 @@ export const FlashcardCard: React.FC<FlashcardCardProps> = ({
                       </li>
                       <li className="flex items-start gap-1.5">
                         <span className="text-[#10b981] font-mono font-bold">3.</span>
-                        <span><strong>Minimal 4 Benar</strong> (maksimal salah 1) untuk dapat <strong>Cap Stand HIMA TI</strong>.</span>
+                        <span><strong>Minimal {safeMinBenar} Benar</strong> (maksimal salah {maxSalah}) untuk dapat <strong>Cap Stand HIMA TI</strong>.</span>
                       </li>
                     </ul>
                   </div>
@@ -1000,7 +1027,7 @@ export const FlashcardCard: React.FC<FlashcardCardProps> = ({
                       </li>
                       <li className="flex items-start gap-1.5">
                         <span className="text-[#10b981] font-mono font-bold">3.</span>
-                        <span><strong>Minimal 4 Benar</strong> (maksimal salah 1) untuk dapat <strong>Cap Stand HIMA TI</strong>.</span>
+                        <span><strong>Minimal {safeMinBenar} Benar</strong> (maksimal salah {maxSalah}) untuk dapat <strong>Cap Stand HIMA TI</strong>.</span>
                       </li>
                     </ul>
                   </div>

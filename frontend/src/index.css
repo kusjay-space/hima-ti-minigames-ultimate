@@ -720,5 +720,10 @@
   scrollbar-color: #273b5e #080c14;
 }
 
-
-
+/* Technical Grid Pattern Background (Garis Kotak-Kotak HIMA TI) */
+.bg-grid-tech {
+  background-size: 32px 32px;
+  background-image: 
+    linear-gradient(to right, rgba(56, 189, 248, 0.09) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(56, 189, 248, 0.09) 1px, transparent 1px);
+}

@@ -259,19 +259,17 @@ export function App() {
 
   return (
     <div className="min-h-screen bg-[#080c14] text-[#f8fafc] flex flex-col justify-between selection:bg-[#2563eb] selection:text-white relative overflow-x-hidden">
-      {/* Ambient Modern Developer Background: Elegant, Clean, High Craft, Non-Slop */}
+      {/* Ambient Modern Technical Background: Blueprint Grid Lines (nvn inspired) & Focal Depth Glow */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden="true">
         {/* Soft subtle ambient top-center illumination for focal depth */}
-        <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[850px] sm:w-[1100px] h-[450px] bg-gradient-to-b from-[#1e3a8a]/12 via-[#0284c7]/05 to-transparent blur-[120px] rounded-full opacity-75" />
+        <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[850px] sm:w-[1100px] h-[450px] bg-gradient-to-b from-[#1e3a8a]/20 via-[#0284c7]/08 to-transparent blur-[120px] rounded-full opacity-80" />
         
-        {/* Modern micro-dot grid matrix with radial mask that gracefully fades outward */}
+        {/* Technical Grid Pattern Background (Garis Kotak-Kotak HIMA TI) */}
         <div 
-          className="absolute inset-0 opacity-[0.035]"
+          className="absolute inset-0 bg-grid-tech opacity-70"
           style={{
-            backgroundImage: 'radial-gradient(circle at 1px 1px, #38bdf8 1px, transparent 0)',
-            backgroundSize: '32px 32px',
-            maskImage: 'radial-gradient(ellipse 75% 65% at 50% 50%, black 40%, transparent 85%)',
-            WebkitMaskImage: 'radial-gradient(ellipse 75% 65% at 50% 50%, black 40%, transparent 85%)',
+            maskImage: 'radial-gradient(ellipse 85% 75% at 50% 50%, black 50%, transparent 95%)',
+            WebkitMaskImage: 'radial-gradient(ellipse 85% 75% at 50% 50%, black 50%, transparent 95%)',
           }}
         />
 

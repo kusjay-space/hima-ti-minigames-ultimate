@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
-import { Check, X, RotateCcw, Trophy, Shield, Camera, MessageSquare, Music, Volume2, VolumeX, Disc, Eye, Sparkles, ChevronLeft, ChevronRight, RotateCw, Sliders } from 'lucide-react';
+import { Check, X, RotateCcw, Trophy, Shield, Camera, MessageSquare, Eye, Sparkles, ChevronLeft, ChevronRight, RotateCw, Settings } from 'lucide-react';
 import type { GameResult, QuizConfig } from '../../types';
 import { soundFx } from '../../lib/sound';
-import { bgm } from '../../lib/bgm';
 import { FlashcardCard } from './FlashcardCard';
 import { AudioMixerModal } from './AudioMixerModal';
 
@@ -56,40 +55,7 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
     }
   }, [isLolos]);
 
-  const [isMuted, setIsMuted] = React.useState(soundFx.isMuted());
-  const [isMusicEnabled, setIsMusicEnabled] = React.useState(bgm.isMusicEnabled());
-  const [trackInfo, setTrackInfo] = React.useState(bgm.getCurrentTrackInfo());
   const [showAudioMixer, setShowAudioMixer] = React.useState(false);
-
-  React.useEffect(() => {
-    setIsMuted(soundFx.isMuted());
-    const unsubSfx = soundFx.subscribe((muted) => {
-      setIsMuted(muted);
-    });
-    const unsubBgm = bgm.subscribe((enabled) => {
-      setIsMusicEnabled(enabled);
-      setTrackInfo(bgm.getCurrentTrackInfo());
-    });
-    return () => {
-      unsubSfx();
-      unsubBgm();
-    };
-  }, []);
-
-  const handleToggleMusic = () => {
-    const enabled = bgm.toggle();
-    setIsMusicEnabled(enabled);
-  };
-
-  const handleCycleTrack = () => {
-    bgm.cycleNextTrack();
-    setTrackInfo(bgm.getCurrentTrackInfo());
-  };
-
-  const handleToggleSound = () => {
-    const muted = soundFx.toggleMute();
-    setIsMuted(muted);
-  };
 
   // Keyboard navigation for card review carousel
   useEffect(() => {
@@ -125,64 +91,24 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
           </span>
         </div>
 
-        <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
-          <div className="text-[10px] sm:text-xs font-mono text-[#f8fafc] font-bold bg-[#0d1424] px-1.5 sm:px-3 py-0.5 sm:py-1 border border-[#1e2b46] truncate max-w-[85px] xs:max-w-[120px] sm:max-w-none">
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          <div className="text-[10px] sm:text-xs font-mono text-[#f8fafc] font-bold bg-[#0d1424] px-2 sm:px-3 py-1 sm:py-1.5 border border-[#1e2b46] truncate max-w-[110px] xs:max-w-[150px] sm:max-w-none">
             PESERTA: {result.namaPeserta}
           </div>
 
-          {/* BGM Track Cycle Button - Icon Only on Mobile */}
+          {/* Pengaturan Button */}
           <button
             type="button"
-            onClick={handleCycleTrack}
-            className="p-1 sm:p-1.5 bg-[#0d1424] border border-[#1e2b46] hover:border-[#38bdf8] hover:bg-[#0c182c] text-[#94a3b8] hover:text-[#38bdf8] transition-all cursor-pointer flex items-center justify-center gap-1 shadow-tactile-sm"
-            title={`Ganti Tema Musik (Saat ini: ${trackInfo.name}) - Klik untuk ganti musik`}
+            onClick={() => {
+              soundFx.playCardHover();
+              setShowAudioMixer(true);
+            }}
+            className="px-2.5 sm:px-3.5 py-1 sm:py-1.5 bg-[#0d1424] hover:bg-[#0c182c] border border-[#1e2b46] hover:border-[#38bdf8] text-[#94a3b8] hover:text-[#38bdf8] transition-all cursor-pointer group flex items-center gap-1.5 shadow-tactile-sm select-none"
+            title="Buka Pengaturan Game & Audio"
           >
-            <Disc className={`w-3.5 h-3.5 text-[#38bdf8] ${isMusicEnabled ? 'animate-spin' : ''}`} style={{ animationDuration: '4s' }} />
-            <span className="text-[9.5px] sm:text-[10px] font-mono font-bold text-[#38bdf8] hidden sm:inline">
-              {trackInfo.tag}
-            </span>
-          </button>
-
-          {/* Dedicated Quizizz-style BGM Toggle - Icon Only on Mobile */}
-          <button
-            type="button"
-            onClick={handleToggleMusic}
-            className={`p-1 sm:p-1.5 border transition-all cursor-pointer flex items-center justify-center gap-1 ${
-              isMusicEnabled
-                ? 'bg-[#0c182c] border-[#38bdf8] text-[#38bdf8] hover:bg-[#112544] hover:shadow-tactile-sm'
-                : 'bg-[#0d1424] border-[#1e2b46] text-[#64748b] hover:text-[#94a3b8] hover:border-[#273b5e]'
-            }`}
-            title={isMusicEnabled ? 'Musik Latar (BGM): Aktif - Klik untuk Matikan' : 'Musik Latar (BGM): Nonaktif - Klik untuk Nyalakan'}
-          >
-            <Music className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${isMusicEnabled ? 'animate-pulse' : ''}`} />
-            <span className="text-[9.5px] sm:text-[10px] font-mono font-bold hidden sm:inline">
-              BGM {isMusicEnabled ? 'ON' : 'OFF'}
-            </span>
-          </button>
-
-          {/* Dedicated Sound Effects (SFX) Toggle - Icon Only on Mobile */}
-          <button
-            type="button"
-            onClick={handleToggleSound}
-            className="p-1 sm:p-1.5 bg-[#0d1424] border border-[#1e2b46] hover:border-[#38bdf8] hover:bg-[#0c182c] hover:translate-y-[-1px] text-[#94a3b8] hover:text-white transition-all cursor-pointer flex items-center justify-center gap-1"
-            title={isMuted ? 'Efek Suara (SFX): Bisu - Klik untuk Nyalakan' : 'Efek Suara (SFX): Aktif - Klik untuk Bisukan'}
-          >
-            {isMuted ? <VolumeX className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#f43f5e]" /> : <Volume2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#10b981]" />}
-            <span className="text-[9.5px] sm:text-[10px] font-mono font-bold hidden sm:inline">
-              SFX {isMuted ? 'OFF' : 'ON'}
-            </span>
-          </button>
-
-          {/* Dedicated Audio Volume Mixer Button */}
-          <button
-            type="button"
-            onClick={() => setShowAudioMixer(true)}
-            className="p-1 sm:p-1.5 bg-[#0d1424] border border-[#1e2b46] hover:border-[#38bdf8] hover:bg-[#0c182c] hover:translate-y-[-1px] text-[#94a3b8] hover:text-[#38bdf8] transition-all cursor-pointer flex items-center justify-center gap-1 shadow-tactile-sm"
-            title="Buka Mixer Volume Audio (Atur Besar/Kecil Suara BGM & SFX)"
-          >
-            <Sliders className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#38bdf8]" />
-            <span className="text-[9.5px] sm:text-[10px] font-mono font-bold hidden sm:inline">
-              VOL
+            <Settings className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#64748b] group-hover:text-[#38bdf8] group-hover:rotate-90 transition-transform duration-300" />
+            <span className="text-[10px] sm:text-xs font-mono font-bold uppercase tracking-wider hidden xs:inline">
+              Pengaturan
             </span>
           </button>
         </div>

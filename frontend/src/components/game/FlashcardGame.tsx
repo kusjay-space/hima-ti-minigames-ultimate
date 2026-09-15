@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Volume2, VolumeX, ArrowLeft, Keyboard, Terminal, ArrowRight, Music, Disc, Sliders } from 'lucide-react';
+import { ArrowLeft, Keyboard, Terminal, ArrowRight, Settings } from 'lucide-react';
 import type { Question, QuizConfig, GameResult } from '../../types';
 import { soundFx } from '../../lib/sound';
 import { bgm } from '../../lib/bgm';
@@ -41,39 +41,14 @@ export const FlashcardGame: React.FC<FlashcardGameProps> = ({
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const [isAnswered, setIsAnswered] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
-  const [isMuted, setIsMuted] = useState(soundFx.isMuted());
-  const [isMusicEnabled, setIsMusicEnabled] = useState(bgm.isMusicEnabled());
-  const [trackInfo, setTrackInfo] = useState(bgm.getCurrentTrackInfo());
   const [postAnswerCountdown, setPostAnswerCountdown] = useState(5);
   const [showAudioMixer, setShowAudioMixer] = useState(false);
 
   useEffect(() => {
-    setIsMuted(soundFx.isMuted());
-    const unsubSfx = soundFx.subscribe((muted) => {
-      setIsMuted(muted);
-    });
     if (bgm.isMusicEnabled()) {
       bgm.start();
     }
-    const unsubBgm = bgm.subscribe((enabled) => {
-      setIsMusicEnabled(enabled);
-      setTrackInfo(bgm.getCurrentTrackInfo());
-    });
-    return () => {
-      unsubSfx();
-      unsubBgm();
-    };
   }, []);
-
-  const handleToggleMusic = () => {
-    const enabled = bgm.toggle();
-    setIsMusicEnabled(enabled);
-  };
-
-  const handleCycleTrack = () => {
-    bgm.cycleNextTrack();
-    setTrackInfo(bgm.getCurrentTrackInfo());
-  };
 
   const answersRef = useRef<{
     question: Question;
@@ -362,67 +337,41 @@ export const FlashcardGame: React.FC<FlashcardGameProps> = ({
           <TimerBar timeLeft={timeLeft} totalTime={config.timerDetik} />
         </div>
 
-        {/* Right Info & Audio Controls */}
-        <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
-          {/* BGM Track Cycle Button */}
-          <button
-            type="button"
-            onClick={handleCycleTrack}
-            className="p-1 sm:p-1.5 bg-[#0d1424] border border-[#1e2b46] hover:border-[#38bdf8] hover:bg-[#0c182c] text-[#94a3b8] hover:text-[#38bdf8] transition-all cursor-pointer flex items-center justify-center gap-1 shadow-tactile-sm"
-            title={`Ganti Tema Musik (Saat ini: ${trackInfo.name}) - Klik untuk ganti musik`}
+        {/* Right Info: High-Visibility Question Counter & Settings */}
+        <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+          {/* Prominent Question Progress HUD Badge */}
+          <div 
+            className="flex items-center gap-1.5 sm:gap-2 bg-[#0c1e3d] border-2 border-[#38bdf8] px-2 sm:px-3 py-0.5 sm:py-1 shadow-tactile-sm select-none"
+            title={`Pertanyaan ${currentIdx + 1} dari total ${totalQuestions} soal`}
           >
-            <Disc className={`w-3.5 h-3.5 text-[#38bdf8] ${isMusicEnabled ? 'animate-spin' : ''}`} style={{ animationDuration: '4s' }} />
-            <span className="text-[9.5px] sm:text-[10px] font-mono font-bold text-[#38bdf8] hidden sm:inline">
-              {trackInfo.tag}
+            <span className="text-[9.5px] sm:text-[10px] font-mono font-bold text-[#38bdf8] uppercase tracking-wider hidden xs:inline">
+              SOAL
             </span>
-          </button>
-
-          {/* Dedicated Quizizz-style BGM Toggle */}
-          <button
-            type="button"
-            onClick={handleToggleMusic}
-            className={`p-1 sm:p-1.5 border transition-all cursor-pointer flex items-center justify-center gap-1 ${
-              isMusicEnabled
-                ? 'bg-[#0c182c] border-[#38bdf8] text-[#38bdf8] hover:bg-[#112544] hover:shadow-tactile-sm'
-                : 'bg-[#0d1424] border-[#1e2b46] text-[#64748b] hover:text-[#94a3b8] hover:border-[#273b5e]'
-            }`}
-            title={isMusicEnabled ? 'Musik Latar (BGM): Aktif - Klik untuk Matikan' : 'Musik Latar (BGM): Nonaktif - Klik untuk Nyalakan'}
-          >
-            <Music className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${isMusicEnabled ? 'animate-pulse' : ''}`} />
-            <span className="text-[9.5px] sm:text-[10px] font-mono font-bold hidden sm:inline">
-              BGM {isMusicEnabled ? 'ON' : 'OFF'}
-            </span>
-          </button>
-
-          {/* Dedicated Sound Effects (SFX) Toggle */}
-          <button
-            type="button"
-            onClick={() => setIsMuted(soundFx.toggleMute())}
-            className="p-1 sm:p-1.5 bg-[#0d1424] border border-[#1e2b46] text-[#94a3b8] hover:text-white cursor-pointer flex items-center justify-center gap-1"
-            title={isMuted ? 'Efek Suara (SFX): Bisu - Klik untuk Nyalakan' : 'Efek Suara (SFX): Aktif - Klik untuk Bisukan'}
-          >
-            {isMuted ? <VolumeX className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#f43f5e]" /> : <Volume2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#10b981]" />}
-            <span className="text-[9.5px] sm:text-[10px] font-mono font-bold hidden sm:inline">
-              SFX {isMuted ? 'OFF' : 'ON'}
-            </span>
-          </button>
-
-          {/* Dedicated Audio Volume Mixer Button */}
-          <button
-            type="button"
-            onClick={() => setShowAudioMixer(true)}
-            className="p-1 sm:p-1.5 bg-[#0d1424] border border-[#1e2b46] hover:border-[#38bdf8] hover:bg-[#0c182c] text-[#94a3b8] hover:text-[#38bdf8] transition-all cursor-pointer flex items-center justify-center gap-1 shadow-tactile-sm"
-            title="Buka Mixer Volume Audio (Atur Besar/Kecil Suara BGM & SFX)"
-          >
-            <Sliders className="w-3.5 h-3.5 text-[#38bdf8]" />
-            <span className="text-[9.5px] sm:text-[10px] font-mono font-bold hidden sm:inline">
-              VOL
-            </span>
-          </button>
-
-          <div className="text-[10px] sm:text-xs font-mono font-bold text-[#f8fafc] bg-[#0d1424] px-1.5 sm:px-3 py-0.5 sm:py-1 border border-[#1e2b46]">
-            {currentIdx + 1}/{totalQuestions}
+            <div className="flex items-baseline font-mono">
+              <span className="text-xs sm:text-sm md:text-base font-black text-white">
+                {currentIdx + 1}
+              </span>
+              <span className="text-[10px] sm:text-xs font-bold text-[#38bdf8]">
+                /{totalQuestions}
+              </span>
+            </div>
           </div>
+
+          {/* Unified Settings Button */}
+          <button
+            type="button"
+            onClick={() => {
+              soundFx.playCardHover();
+              setShowAudioMixer(true);
+            }}
+            className="px-2.5 sm:px-3 py-1 sm:py-1.5 bg-[#0d1424] hover:bg-[#0c182c] border border-[#1e2b46] hover:border-[#38bdf8] text-[#94a3b8] hover:text-[#38bdf8] transition-all cursor-pointer group flex items-center gap-1.5 shadow-tactile-sm select-none"
+            title="Buka Pengaturan Game & Audio"
+          >
+            <Settings className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#64748b] group-hover:text-[#38bdf8] group-hover:rotate-90 transition-transform duration-300" />
+            <span className="text-[10px] sm:text-xs font-mono font-bold uppercase tracking-wider hidden md:inline">
+              Pengaturan
+            </span>
+          </button>
         </div>
       </header>
 
@@ -432,13 +381,35 @@ export const FlashcardGame: React.FC<FlashcardGameProps> = ({
           {/* Left/Top Column: The Portrait Flashcard (Fills available vertical space on mobile, original fixed height on desktop) */}
           <div className="flex-1 min-h-0 w-full flex items-center justify-center md:flex-none md:col-span-5 xl:col-span-5 md:h-auto py-2 xs:py-2.5 md:py-2 overflow-visible relative">
             <div className="relative w-full h-full flex items-center justify-center">
-              {/* Sibling Background Next Card in Deck (Continuously sitting underneath, locked design, never unmounts prematurely) */}
-              {currentIdx + 1 < totalQuestions && (
+              {/* Card Layer 3: Bottom Background Card (Kiri, hanya jika soal berikutnya tersisa >= 2) */}
+              {currentIdx + 2 < totalQuestions && (
                 <div 
-                  className="absolute inset-0 pointer-events-none z-0 select-none flex items-center justify-center translate-x-2.5 translate-y-3 scale-[0.94] rotate-[2.5deg] md:translate-x-5 md:translate-y-6 md:scale-[0.93] md:rotate-[3deg] opacity-85 transition-all duration-300"
+                  className="absolute inset-0 pointer-events-none z-[2] select-none flex items-center justify-center -translate-x-5 sm:-translate-x-6 md:-translate-x-8 lg:-translate-x-9 translate-y-3 sm:translate-y-3.5 md:translate-y-4 scale-[0.92] md:scale-[0.91] -rotate-[4deg] md:-rotate-[5deg] opacity-75 md:opacity-80 transition-all duration-300"
                 >
                   <FlashcardCard
-                    key={`bg-${questions[currentIdx + 1].id}`}
+                    key={`bg-bottom-${questions[currentIdx + 2].id}`}
+                    question={questions[currentIdx + 2]}
+                    animasiStyle={config.animasiStyle}
+                    fotoFokus={config.fotoFokus}
+                    isAnswered={false}
+                    isCorrect={true}
+                    totalQuestions={totalQuestions}
+                    minBenarCap={config.minBenarCap}
+                    currentNumber={currentIdx + 3}
+                    isBackgroundCard={true}
+                    compactOnMobile={true}
+                    spillJawaban={config.spillJawaban || 'akhir'}
+                  />
+                </div>
+              )}
+
+              {/* Card Layer 2: Middle Background Card (Kanan, jika soal berikutnya tersisa >= 1) */}
+              {currentIdx + 1 < totalQuestions && (
+                <div 
+                  className="absolute inset-0 pointer-events-none z-[5] select-none flex items-center justify-center translate-x-5 sm:translate-x-6 md:translate-x-8 lg:translate-x-9 translate-y-3 sm:translate-y-3.5 md:translate-y-4 scale-[0.94] md:scale-[0.93] rotate-[4deg] md:rotate-[5deg] opacity-85 md:opacity-88 transition-all duration-300"
+                >
+                  <FlashcardCard
+                    key={`bg-mid-${questions[currentIdx + 1].id}`}
                     question={questions[currentIdx + 1]}
                     animasiStyle={config.animasiStyle}
                     fotoFokus={config.fotoFokus}
@@ -511,15 +482,39 @@ export const FlashcardGame: React.FC<FlashcardGameProps> = ({
               <div className="absolute bottom-1 left-1 text-[9px] font-mono text-[#273b5e] font-bold pointer-events-none">+</div>
               <div className="absolute bottom-1 right-1 text-[9px] font-mono text-[#273b5e] font-bold pointer-events-none">+</div>
 
-              <div className="flex items-center justify-between mb-1 pb-1 sm:mb-2 sm:pb-1.5 border-b border-[#1e2b46]">
-                <span className="text-[10px] xs:text-[10.5px] sm:text-[11px] font-mono text-[#38bdf8] uppercase tracking-wider font-bold flex items-center gap-1">
-                  <Terminal className="w-3.5 h-3.5" />
-                  {currentQuestion.questionType === 'tebak_nama' ? 'MISI: NAMA PENGURUS' : 'MISI: JABATAN PENGURUS'}
-                </span>
-                <span className="hidden md:flex items-center gap-1 text-[10px] font-mono text-[#64748b]">
-                  <Keyboard className="w-3 h-3 text-[#94a3b8]" />
-                  [A / B / C / D]
-                </span>
+              <div className="flex items-center justify-between mb-1.5 pb-1.5 sm:mb-2.5 sm:pb-2 border-b border-[#1e2b46]">
+                <div className="flex items-center gap-1.5 sm:gap-2">
+                  <span className="px-2 py-0.5 bg-[#0c1e3d] text-[#38bdf8] border border-[#38bdf8] font-mono text-[10.5px] sm:text-xs font-black tracking-wider shadow-tactile-sm">
+                    SOAL #{currentIdx + 1} DARI {totalQuestions}
+                  </span>
+                  <span className="text-[10px] xs:text-[10.5px] sm:text-[11px] font-mono text-[#94a3b8] uppercase tracking-wider font-bold flex items-center gap-1 hidden xs:flex">
+                    <Terminal className="w-3.5 h-3.5 text-[#38bdf8]" />
+                    {currentQuestion.questionType === 'tebak_nama' ? 'MISI: NAMA PENGURUS' : 'MISI: JABATAN PENGURUS'}
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  {/* Step Progress Indicators */}
+                  <div className="hidden sm:flex items-center gap-1">
+                    {Array.from({ length: totalQuestions }).map((_, qIdx) => (
+                      <div
+                        key={qIdx}
+                        className={`h-1.5 sm:h-2 transition-all ${
+                          qIdx === currentIdx
+                            ? 'w-4 sm:w-5 bg-[#38bdf8] shadow-[0_0_8px_rgba(56,189,248,0.6)]'
+                            : qIdx < currentIdx
+                            ? 'w-2 sm:w-2.5 bg-[#10b981]'
+                            : 'w-2 sm:w-2.5 bg-[#1e2b46]'
+                        }`}
+                        title={`Soal ${qIdx + 1}`}
+                      />
+                    ))}
+                  </div>
+                  <span className="hidden md:flex items-center gap-1 text-[10px] font-mono text-[#64748b]">
+                    <Keyboard className="w-3 h-3 text-[#94a3b8]" />
+                    [A / B / C / D]
+                  </span>
+                </div>
               </div>
 
               <h2 className="text-[13px] xs:text-sm sm:text-base md:text-xl font-bold text-[#f8fafc] leading-snug">

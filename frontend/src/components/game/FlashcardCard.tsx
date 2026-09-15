@@ -225,7 +225,7 @@ export const FlashcardCard: React.FC<FlashcardCardProps> = ({
 
   return (
     <div className={`relative ${
-      isChallengerCard || isBackgroundCard
+      isChallengerCard
         ? 'w-full h-full'
         : inspectMode
         ? 'w-full max-w-[260px] xs:max-w-[285px] sm:max-w-[310px] md:max-w-[335px]'
@@ -490,13 +490,13 @@ export const FlashcardCard: React.FC<FlashcardCardProps> = ({
             </div>
           </div>
 
-          {/* Container Foto / Visual Utama (3:4 Aspect Ratio) - Pass-through to Card Drag */}
+          {/* Container Foto / Visual Utama (Dynamic Proportional 3:4 Aspect Ratio) - Pass-through to Card Drag */}
           <div className={`relative w-full ${
             inspectMode
               ? 'h-[200px] xs:h-[220px] sm:h-[240px] md:h-[295px] lg:h-[315px]'
               : compactOnMobile
-              ? 'flex-1 min-h-0 md:flex-none md:h-[385px] lg:h-[400px]'
-              : 'h-[280px] xs:h-[315px] sm:h-[355px] md:h-[385px] lg:h-[400px]'
+              ? 'flex-1 min-h-0 md:flex-none md:aspect-[347/400]'
+              : 'aspect-[347/400]'
           } select-none pointer-events-none ${
             hasGlass 
               ? 'bg-slate-950/40 border-2 border-white/20 backdrop-blur-sm' 

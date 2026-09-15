@@ -545,20 +545,20 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
 
       {/* Main Area: 3 SECTIONS SEJAJAR (Vertically centered, uncompressed full ratio) */}
       <main className="flex-1 min-h-0 py-1 sm:py-2 flex items-center justify-center w-full overflow-visible">
-        <div className="w-full flex flex-col lg:flex-row items-center justify-center gap-3 sm:gap-4 lg:gap-4 xl:gap-6 2xl:gap-8 overflow-visible">
+        <div className="w-full flex flex-col lg:flex-row items-center justify-center gap-4 sm:gap-6 lg:gap-8 xl:gap-10 2xl:gap-12 overflow-visible">
           
           {/* ========================================================================= */}
           {/* SECTION 1 (KIRI): Real 3D Physical Card Deck Stack & Controls             */}
           {/* ========================================================================= */}
-          <div className="w-full lg:w-[310px] xl:w-[335px] 2xl:w-[390px] shrink-0 flex flex-col items-center justify-center overflow-visible relative z-20">
+          <div className="w-full lg:w-[285px] xl:w-[315px] 2xl:w-[365px] shrink-0 flex flex-col items-center justify-center overflow-visible relative z-20">
             <div 
               className="relative w-full flex flex-col items-center select-none overflow-visible"
               onMouseEnter={() => setIsHoveringStack(true)}
               onMouseLeave={() => setIsHoveringStack(false)}
             >
               {/* Stack Stage Container (Preserving original exact uncompressed aspect ratio) */}
-              <div className="relative w-full max-w-[270px] xs:max-w-[290px] sm:max-w-[310px] md:max-w-[320px] lg:max-w-[305px] xl:max-w-[320px] 2xl:max-w-[365px] mx-auto perspective-1200 flex flex-col items-center overflow-visible">
-                <div className="relative w-full pb-11 pr-10 sm:pb-12 sm:pr-10 xl:pb-13 xl:pr-11 overflow-visible">
+              <div className="relative w-full max-w-[250px] xs:max-w-[270px] sm:max-w-[290px] lg:max-w-[275px] xl:max-w-[305px] 2xl:max-w-[350px] mx-auto perspective-1200 flex flex-col items-center overflow-visible">
+                <div className="relative w-full pb-9 pr-8 sm:pb-10 sm:pr-9 xl:pb-12 xl:pr-10 overflow-visible">
                   {/* Invisible Sizer to naturally dictate container dimensions without hardcoding */}
                   <div className="invisible pointer-events-none opacity-0 select-none" aria-hidden="true">
                     <FlashcardCard
@@ -624,7 +624,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
               </div>
 
               {/* Navigation Controls & Auto-Switch Toolbar */}
-              <div className="mt-2 sm:mt-2.5 w-full max-w-[270px] xs:max-w-[290px] sm:max-w-[310px] md:max-w-[320px] lg:max-w-[305px] xl:max-w-[320px] 2xl:max-w-[365px] flex flex-col items-center gap-1.5 sm:gap-2">
+              <div className="mt-2 sm:mt-2.5 w-full max-w-[250px] xs:max-w-[270px] sm:max-w-[290px] lg:max-w-[275px] xl:max-w-[305px] 2xl:max-w-[350px] flex flex-col items-center gap-1.5 sm:gap-2">
                 {/* 3 Clickable Full-Width Segmented Tabs */}
                 <div className="w-full grid grid-cols-3 gap-1 bg-[#0d1424] border border-[#1e2b46] p-1 shadow-tactile-sm">
                   {challengerCards.map((card) => {
@@ -725,7 +725,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
           {/* ========================================================================= */}
           {/* SECTION 2 (TENGAH): Hero Header, Cap Cockpit, & Registrasi Form           */}
           {/* ========================================================================= */}
-          <div className="w-full lg:w-[370px] xl:w-[410px] 2xl:w-[480px] shrink-0 flex flex-col justify-center space-y-2 sm:space-y-2.5 xl:space-y-3">
+          <div className="w-full lg:w-[340px] xl:w-[380px] 2xl:w-[440px] shrink-0 flex flex-col justify-center space-y-2 sm:space-y-2.5 xl:space-y-3">
             {/* Header Title Block (Elevated Typography & Cyberpunk Hierarchy) */}
             <div>
               <div className="inline-flex items-center gap-1.5 border border-[#38bdf8]/40 bg-[#0d1424] px-2.5 py-0.5 sm:py-1 text-[#38bdf8] text-[9px] sm:text-[9.5px] xl:text-[10px] font-mono mb-1 font-bold uppercase tracking-widest shadow-tactile-sm cursor-default">
@@ -862,8 +862,8 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
           {/* ========================================================================= */}
           {/* SECTION 3 (KANAN): Live Leaderboard Panel                                 */}
           {/* ========================================================================= */}
-          <div className="w-full lg:w-[290px] xl:w-[320px] 2xl:w-[370px] shrink-0 flex flex-col justify-center">
-            <div className="bg-[#0d1424] border border-[#1e2b46] p-2.5 sm:p-3 xl:p-3.5 flex flex-col h-[440px] sm:h-[470px] lg:h-[480px] xl:h-[510px] 2xl:h-[570px] max-h-[calc(100dvh-60px)] shadow-tactile-sm transition-colors relative">
+          <div className="w-full lg:w-[275px] xl:w-[300px] 2xl:w-[340px] shrink-0 flex flex-col justify-center">
+            <div className="bg-[#0d1424] border border-[#1e2b46] p-2.5 sm:p-3 xl:p-3.5 flex flex-col h-[420px] sm:h-[450px] lg:h-[450px] xl:h-[480px] 2xl:h-[530px] max-h-[calc(100dvh-60px)] shadow-tactile-sm transition-colors relative">
               {/* Corner Accents */}
               <div className="absolute top-1 left-1 text-[8px] font-mono text-[#273b5e] font-bold pointer-events-none">+</div>
               <div className="absolute top-1 right-1 text-[8px] font-mono text-[#273b5e] font-bold pointer-events-none">+</div>

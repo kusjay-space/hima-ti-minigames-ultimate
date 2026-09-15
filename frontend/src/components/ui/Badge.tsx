@@ -2,21 +2,26 @@ import React from 'react';
 
 interface BadgeProps {
   children: React.ReactNode;
-  variant?: 'cyan' | 'emerald' | 'rose' | 'amber' | 'purple';
+  variant?: 'primary' | 'cyan' | 'emerald' | 'rose' | 'amber' | 'purple' | 'success' | 'warning' | 'error' | 'info';
   className?: string;
 }
 
-export const Badge: React.FC<BadgeProps> = ({ children, variant = 'cyan', className = '' }) => {
-  const variantStyles = {
-    cyan: 'bg-cyan-950/80 text-cyan-300 border-cyan-500/40 shadow-cyan-900/30',
-    emerald: 'bg-emerald-950/80 text-emerald-300 border-emerald-500/40 shadow-emerald-900/30',
-    rose: 'bg-rose-950/80 text-rose-300 border-rose-500/40 shadow-rose-900/30',
-    amber: 'bg-amber-950/80 text-amber-300 border-amber-500/40 shadow-amber-900/30',
-    purple: 'bg-purple-950/80 text-purple-300 border-purple-500/40 shadow-purple-900/30',
+export const Badge: React.FC<BadgeProps> = ({ children, variant = 'primary', className = '' }) => {
+  const variantStyles: Record<string, string> = {
+    primary: 'bg-primary/10 text-primary border-primary/30',
+    cyan: 'bg-info/10 text-info border-info/30',
+    info: 'bg-info/10 text-info border-info/30',
+    emerald: 'bg-success/10 text-success border-success/30',
+    success: 'bg-success/10 text-success border-success/30',
+    rose: 'bg-error/10 text-error border-error/30',
+    error: 'bg-error/10 text-error border-error/30',
+    amber: 'bg-warning/10 text-warning border-warning/30',
+    warning: 'bg-warning/10 text-warning border-warning/30',
+    purple: 'bg-accent text-accent-content border-default'
   };
 
   return (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border shadow-sm tracking-wide ${variantStyles[variant]} ${className}`}>
+    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border shadow-sm tracking-wide ${variantStyles[variant] || variantStyles.primary} ${className}`}>
       {children}
     </span>
   );

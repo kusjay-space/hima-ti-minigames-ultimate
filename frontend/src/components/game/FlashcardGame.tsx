@@ -275,14 +275,14 @@ export const FlashcardGame: React.FC<FlashcardGameProps> = ({
   }, [isAnswered, handleSelectOption, goToNextQuestion]);
 
   return (
-    <div className="w-full h-[100dvh] max-h-[100dvh] flex flex-col justify-between max-w-6xl mx-auto p-1.5 xs:p-2 sm:p-3 md:p-6 overflow-hidden select-none">
+    <div className="w-full h-[100dvh] max-h-[100dvh] flex flex-col justify-between max-w-6xl mx-auto p-1.5 xs:p-2 sm:p-3 md:p-6 overflow-hidden select-none bg-canvas text-default transition-colors">
       {/* Top Header Bar */}
-      <header className="flex items-center justify-between gap-1.5 sm:gap-2 pb-1.5 sm:pb-2.5 border-b-2 border-[#1c2b46] shrink-0">
+      <header className="flex items-center justify-between gap-1.5 sm:gap-2 pb-1.5 sm:pb-2.5 border-b-2 border-default shrink-0">
         <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
           <button
             type="button"
             onClick={onCancel}
-            className="text-[11px] sm:text-xs font-mono text-[#94a3b8] hover:text-white p-1 sm:py-1.5 sm:px-3 bg-[#0d1424] border border-[#1e2b46] hover:border-[#38bdf8] flex items-center gap-1 transition-colors cursor-pointer"
+            className="text-[11px] sm:text-xs font-mono text-muted hover:text-default p-1 sm:py-1.5 sm:px-3 bg-default border border-default hover:border-primary flex items-center gap-1 transition-colors cursor-pointer shadow-sm"
             title="Batal dan kembali ke menu utama"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
@@ -290,8 +290,8 @@ export const FlashcardGame: React.FC<FlashcardGameProps> = ({
           </button>
 
           <div className="hidden xs:flex items-center gap-1">
-            <span className="text-[9px] sm:text-[10px] font-mono text-[#64748b] uppercase hidden sm:inline">PESERTA:</span>
-            <span className="text-[10px] sm:text-xs font-mono font-bold text-[#f8fafc] px-1.5 sm:px-2 py-0.5 bg-[#0d1424] border border-[#1e2b46] truncate max-w-[75px] xs:max-w-[100px] sm:max-w-none">
+            <span className="text-[9px] sm:text-[10px] font-mono text-muted uppercase hidden sm:inline">PESERTA:</span>
+            <span className="text-[10px] sm:text-xs font-mono font-bold text-default px-1.5 sm:px-2 py-0.5 bg-default border border-default truncate max-w-[75px] xs:max-w-[100px] sm:max-w-none shadow-sm">
               {namaPeserta}
             </span>
           </div>
@@ -308,11 +308,11 @@ export const FlashcardGame: React.FC<FlashcardGameProps> = ({
           <button
             type="button"
             onClick={handleCycleTrack}
-            className="p-1 sm:p-1.5 bg-[#0d1424] border border-[#1e2b46] hover:border-[#38bdf8] hover:bg-[#0c182c] text-[#94a3b8] hover:text-[#38bdf8] transition-all cursor-pointer flex items-center justify-center gap-1 shadow-tactile-sm"
+            className="p-1 sm:p-1.5 bg-default border border-default hover:border-primary hover:bg-subtle text-muted hover:text-primary transition-all cursor-pointer flex items-center justify-center gap-1 shadow-tactile-sm"
             title={`Ganti Tema Musik (Saat ini: ${trackInfo.name}) - Klik untuk ganti musik`}
           >
-            <Disc className={`w-3.5 h-3.5 text-[#38bdf8] ${isMusicEnabled ? 'animate-spin' : ''}`} style={{ animationDuration: '4s' }} />
-            <span className="text-[9.5px] sm:text-[10px] font-mono font-bold text-[#38bdf8] hidden sm:inline">
+            <Disc className={`w-3.5 h-3.5 text-primary ${isMusicEnabled ? 'animate-spin' : ''}`} style={{ animationDuration: '4s' }} />
+            <span className="text-[9.5px] sm:text-[10px] font-mono font-bold text-primary hidden sm:inline">
               {trackInfo.tag}
             </span>
           </button>
@@ -321,10 +321,10 @@ export const FlashcardGame: React.FC<FlashcardGameProps> = ({
           <button
             type="button"
             onClick={handleToggleMusic}
-            className={`p-1 sm:p-1.5 border transition-all cursor-pointer flex items-center justify-center gap-1 ${
+            className={`p-1 sm:p-1.5 border transition-all cursor-pointer flex items-center justify-center gap-1 shadow-tactile-sm ${
               isMusicEnabled
-                ? 'bg-[#0c182c] border-[#38bdf8] text-[#38bdf8] hover:bg-[#112544] hover:shadow-tactile-sm'
-                : 'bg-[#0d1424] border-[#1e2b46] text-[#64748b] hover:text-[#94a3b8] hover:border-[#273b5e]'
+                ? 'bg-primary/10 border-primary text-primary hover:bg-primary/20'
+                : 'bg-default border-default text-muted hover:text-default'
             }`}
             title={isMusicEnabled ? 'Musik Latar (BGM): Aktif - Klik untuk Matikan' : 'Musik Latar (BGM): Nonaktif - Klik untuk Nyalakan'}
           >
@@ -338,25 +338,25 @@ export const FlashcardGame: React.FC<FlashcardGameProps> = ({
           <button
             type="button"
             onClick={() => setIsMuted(soundFx.toggleMute())}
-            className="p-1 sm:p-1.5 bg-[#0d1424] border border-[#1e2b46] text-[#94a3b8] hover:text-white cursor-pointer flex items-center justify-center gap-1"
+            className="p-1 sm:p-1.5 bg-default border border-default text-muted hover:text-default hover:border-primary cursor-pointer flex items-center justify-center gap-1 shadow-tactile-sm"
             title={isMuted ? 'Efek Suara (SFX): Bisu - Klik untuk Nyalakan' : 'Efek Suara (SFX): Aktif - Klik untuk Bisukan'}
           >
-            {isMuted ? <VolumeX className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#f43f5e]" /> : <Volume2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#10b981]" />}
+            {isMuted ? <VolumeX className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-error" /> : <Volume2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-success" />}
             <span className="text-[9.5px] sm:text-[10px] font-mono font-bold hidden sm:inline">
               SFX
             </span>
           </button>
 
-          <div className="text-[10px] sm:text-xs font-mono font-bold text-[#f8fafc] bg-[#0d1424] px-1.5 sm:px-3 py-0.5 sm:py-1 border border-[#1e2b46]">
+          <div className="text-[10px] sm:text-xs font-mono font-bold text-default bg-default px-1.5 sm:px-3 py-0.5 sm:py-1 border border-default shadow-sm">
             {currentIdx + 1}/{totalQuestions}
           </div>
         </div>
       </header>
 
-      {/* Main Play Arena: Dynamic Adaptive Mobile Layout, Zero Scroll, Original Desktop Layout */}
+      {/* Main Play Arena */}
       <main className="flex-1 min-h-0 py-1 xs:py-1.5 sm:py-2 md:py-3 flex flex-col justify-center w-full overflow-visible">
         <div className="w-full h-full flex flex-col md:grid md:grid-cols-12 gap-1.5 xs:gap-2 sm:gap-3 md:gap-6 lg:gap-8 items-center justify-between md:justify-center min-h-0 overflow-visible">
-          {/* Left/Top Column: The Portrait Flashcard (Fills available vertical space on mobile, original fixed height on desktop) */}
+          {/* Left/Top Column: The Portrait Flashcard */}
           <div className="flex-1 min-h-0 w-full flex items-center justify-center md:flex-none md:col-span-5 md:h-auto py-2 xs:py-2.5 md:py-2 overflow-visible">
             <AnimatePresence mode="wait">
               <FlashcardCard
@@ -374,27 +374,27 @@ export const FlashcardGame: React.FC<FlashcardGameProps> = ({
             </AnimatePresence>
           </div>
 
-          {/* Right/Bottom Column: Question Box & ABCD 2x2 Options Grid (Guaranteed zero-scroll shrink-0 on mobile) */}
+          {/* Right/Bottom Column: Question Box & ABCD 2x2 Options Grid */}
           <div className="shrink-0 w-full md:flex-none md:col-span-7 flex flex-col justify-center space-y-2 xs:space-y-2.5 sm:space-y-3 min-w-0 pb-0.5 md:pb-0">
             {/* Question Card Box */}
-            <div className="bg-[#0d1424] border-2 border-[#1e2b46] p-2.5 xs:p-3 sm:p-3.5 md:p-5 shadow-tactile relative">
-              <div className="absolute top-1 left-1 text-[9px] font-mono text-[#273b5e] font-bold pointer-events-none">+</div>
-              <div className="absolute top-1 right-1 text-[9px] font-mono text-[#273b5e] font-bold pointer-events-none">+</div>
-              <div className="absolute bottom-1 left-1 text-[9px] font-mono text-[#273b5e] font-bold pointer-events-none">+</div>
-              <div className="absolute bottom-1 right-1 text-[9px] font-mono text-[#273b5e] font-bold pointer-events-none">+</div>
+            <div className="bg-default border-2 border-default p-2.5 xs:p-3 sm:p-3.5 md:p-5 shadow-tactile relative">
+              <div className="absolute top-1 left-1 text-[9px] font-mono text-muted font-bold pointer-events-none">+</div>
+              <div className="absolute top-1 right-1 text-[9px] font-mono text-muted font-bold pointer-events-none">+</div>
+              <div className="absolute bottom-1 left-1 text-[9px] font-mono text-muted font-bold pointer-events-none">+</div>
+              <div className="absolute bottom-1 right-1 text-[9px] font-mono text-muted font-bold pointer-events-none">+</div>
 
-              <div className="flex items-center justify-between mb-1 pb-1 sm:mb-2 sm:pb-1.5 border-b border-[#1e2b46]">
-                <span className="text-[10px] xs:text-[10.5px] sm:text-[11px] font-mono text-[#38bdf8] uppercase tracking-wider font-bold flex items-center gap-1">
+              <div className="flex items-center justify-between mb-1 pb-1 sm:mb-2 sm:pb-1.5 border-b border-default">
+                <span className="text-[10px] xs:text-[10.5px] sm:text-[11px] font-mono text-primary uppercase tracking-wider font-bold flex items-center gap-1">
                   <Terminal className="w-3.5 h-3.5" />
                   {currentQuestion.questionType === 'tebak_nama' ? 'MISI: NAMA PENGURUS' : 'MISI: JABATAN PENGURUS'}
                 </span>
-                <span className="hidden md:flex items-center gap-1 text-[10px] font-mono text-[#64748b]">
-                  <Keyboard className="w-3 h-3 text-[#94a3b8]" />
+                <span className="hidden md:flex items-center gap-1 text-[10px] font-mono text-muted">
+                  <Keyboard className="w-3 h-3 text-muted" />
                   [A / B / C / D]
                 </span>
               </div>
 
-              <h2 className="text-[13px] xs:text-sm sm:text-base md:text-xl font-bold text-[#f8fafc] leading-snug">
+              <h2 className="text-[13px] xs:text-sm sm:text-base md:text-xl font-bold text-default leading-snug">
                 {currentQuestion.questionText}
               </h2>
             </div>
@@ -421,13 +421,13 @@ export const FlashcardGame: React.FC<FlashcardGameProps> = ({
                 animate={{ opacity: 1, y: 0 }}
                 className={`flex items-center justify-between p-1.5 xs:p-2 sm:p-2.5 md:p-3 border-2 shadow-tactile ${
                   isCorrect
-                    ? 'bg-[#052e16]/80 border-[#10b981] shadow-tactile-emerald'
-                    : 'bg-[#4c0519]/80 border-[#f43f5e] shadow-tactile-coral'
+                    ? 'bg-success/15 border-success text-default shadow-tactile-emerald'
+                    : 'bg-error/15 border-error text-default shadow-tactile-coral'
                 }`}
               >
                 <div className="flex items-center gap-1.5">
-                  <span className={`w-2 h-2 rounded-full ${isCorrect ? 'bg-[#10b981]' : 'bg-[#f43f5e]'} animate-ping`} />
-                  <span className="text-[10px] xs:text-[11px] sm:text-xs font-mono font-bold text-[#f8fafc]">
+                  <span className={`w-2 h-2 rounded-full ${isCorrect ? 'bg-success' : 'bg-error'} animate-ping`} />
+                  <span className="text-[10px] xs:text-[11px] sm:text-xs font-mono font-bold text-default">
                     {isCorrect ? 'BENAR!' : 'SALAH!'} Lanjut {postAnswerCountdown}s
                   </span>
                 </div>
@@ -435,11 +435,11 @@ export const FlashcardGame: React.FC<FlashcardGameProps> = ({
                 <button
                   type="button"
                   onClick={() => goToNextQuestion()}
-                  className="px-2 py-0.5 sm:px-3 sm:py-1 bg-[#1e2b46] hover:bg-[#2563eb] text-[#f8fafc] border border-[#38bdf8] font-mono font-bold text-[10px] sm:text-xs flex items-center gap-1 shadow-tactile-sm transition-all active:translate-y-0.5 cursor-pointer"
+                  className="px-2 py-0.5 sm:px-3 sm:py-1 bg-primary hover:bg-secondary text-white border border-primary font-mono font-bold text-[10px] sm:text-xs flex items-center gap-1 shadow-tactile-sm transition-all active:translate-y-0.5 cursor-pointer"
                 >
                   <span>LEWATI ({postAnswerCountdown}s)</span>
                   <ArrowRight className="w-3 h-3" />
-                  <span className="text-[9px] text-[#94a3b8] hidden sm:inline">[ENTER]</span>
+                  <span className="text-[9px] text-white/80 hidden sm:inline">[ENTER]</span>
                 </button>
               </motion.div>
             )}
@@ -448,9 +448,9 @@ export const FlashcardGame: React.FC<FlashcardGameProps> = ({
       </main>
 
       {/* Footer Status Bar */}
-      <footer className="pt-1 sm:pt-2 border-t-2 border-[#1c2b46] flex items-center justify-between text-[9.5px] sm:text-[11px] font-mono text-[#64748b] shrink-0">
+      <footer className="pt-1 sm:pt-2 border-t-2 border-default flex items-center justify-between text-[9.5px] sm:text-[11px] font-mono text-muted shrink-0">
         <span className="hidden sm:inline">HIMA TI GMTI 2026 // STAND MINIGAME</span>
-        <span className="text-[#94a3b8] truncate">PILIHAN GANDA [A-D]</span>
+        <span className="text-subtle truncate">PILIHAN GANDA [A-D]</span>
         <span className="shrink-0">TARGET: &ge; {config.minBenarCap} BENAR</span>
       </footer>
     </div>

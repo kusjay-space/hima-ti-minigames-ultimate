@@ -50,7 +50,9 @@ const defaultSettings = [
   ['modeKuis', 'tebak_nama'], // 'tebak_nama' | 'tebak_divisi' | 'campuran'
   ['animasiStyle', 'combo'],  // 'combo' | 'biometric_laser' | 'tilt_3d' | 'card_stack' | 'matrix_decode' | 'standard_flip'
   ['misiCapText', 'Follow Instagram @himati_official & Sapa 1 kakak pengurus di stand HIMA!'],
-  ['adminPin', '2026']
+  ['adminPin', '2026'],
+  ['themeMode', 'light'],
+  ['themePreset', 'biru-klasik']
 ];
 
 const checkSetting = db.prepare('SELECT value FROM settings WHERE key = ?');

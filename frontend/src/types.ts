@@ -37,6 +37,8 @@ export type AnimationStyle =
   | 'combo_tactical_quantum';
 
 export type FotoFokus = 'atas' | 'tengah_atas' | 'tengah';
+export type ThemeMode = 'light' | 'dark';
+export type LightPalettePreset = 'biru-klasik' | 'modern-tech' | 'hijau-forest' | 'ungu-royal';
 
 export interface QuizConfig {
   totalSoal: number;
@@ -45,6 +47,8 @@ export interface QuizConfig {
   animasiStyle: AnimationStyle;
   misiCapText: string;
   fotoFokus?: FotoFokus;
+  themeMode?: ThemeMode;
+  themePreset?: LightPalettePreset;
 }
 
 export interface Pengurus {

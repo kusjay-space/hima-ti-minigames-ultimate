@@ -27,16 +27,16 @@ export const OptionButton: React.FC<OptionButtonProps> = ({
   const isCorrect = option.isCorrect;
   const hasMatrix = animasiStyle === 'combo' || animasiStyle === 'combo_matrix_overdrive' || animasiStyle === 'combo_grand_stand';
 
-  // Tactile styling matching bespoke dark navy system
-  let btnClasses = 'bg-[#0f1728] border-2 border-[#1e2b46] text-[#f8fafc] shadow-tactile-sm hover:border-[#2563eb] hover:bg-[#15223c] hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-tactile-blue active:translate-x-[1px] active:translate-y-[1px] active:shadow-none';
+  // Semantic tactile styling matching the design tokens
+  let btnClasses = 'bg-default border-2 border-default text-default shadow-tactile-sm hover:border-primary hover:bg-subtle hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-tactile-blue active:translate-x-[1px] active:translate-y-[1px] active:shadow-none';
 
   if (isAnswered) {
     if (isCorrect) {
-      btnClasses = 'bg-[#052e16] border-2 border-[#10b981] text-[#f8fafc] shadow-tactile-emerald';
+      btnClasses = 'bg-success/15 border-2 border-success text-default shadow-tactile-emerald';
     } else if (isSelected && !isCorrect) {
-      btnClasses = 'bg-[#4c0519] border-2 border-[#f43f5e] text-[#f8fafc] shadow-tactile-coral';
+      btnClasses = 'bg-error/15 border-2 border-error text-default shadow-tactile-coral';
     } else {
-      btnClasses = 'bg-[#080d16] border-2 border-[#162238] text-[#64748b] opacity-40';
+      btnClasses = 'bg-muted/40 border-2 border-subtle text-muted opacity-40';
     }
   }
 
@@ -67,10 +67,10 @@ export const OptionButton: React.FC<OptionButtonProps> = ({
         <span
           className={`w-7 h-7 xs:w-8 xs:h-8 sm:w-8 sm:h-8 flex items-center justify-center font-mono font-bold text-xs xs:text-sm sm:text-sm shrink-0 border transition-colors ${
             isAnswered && isCorrect
-              ? 'bg-[#10b981] text-[#080c14] border-[#34d399]'
+              ? 'bg-success text-white border-success'
               : isAnswered && isSelected && !isCorrect
-              ? 'bg-[#f43f5e] text-white border-[#fb7185]'
-              : 'bg-[#18243b] text-[#cbd5e1] border-[#273b5e]'
+              ? 'bg-error text-white border-error'
+              : 'bg-subtle text-subtle border-default'
           }`}
         >
           {option.key}
@@ -90,12 +90,12 @@ export const OptionButton: React.FC<OptionButtonProps> = ({
       {isAnswered && (
         <div className="shrink-0 ml-1 sm:ml-2">
           {isCorrect && (
-            <div className="w-5 h-5 sm:w-6 sm:h-6 bg-[#10b981] text-[#080c14] flex items-center justify-center">
+            <div className="w-5 h-5 sm:w-6 sm:h-6 bg-success text-white flex items-center justify-center">
               <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[3]" />
             </div>
           )}
           {isSelected && !isCorrect && (
-            <div className="w-5 h-5 sm:w-6 sm:h-6 bg-[#f43f5e] text-white flex items-center justify-center">
+            <div className="w-5 h-5 sm:w-6 sm:h-6 bg-error text-white flex items-center justify-center">
               <X className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[3]" />
             </div>
           )}

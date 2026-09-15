@@ -1,29 +1,241 @@
 @import "tailwindcss";
 
+@theme {
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-accent: var(--accent);
+  --color-accent-content: var(--accent-content);
+  --color-canvas: var(--canvas);
+  --color-default: var(--bg-card);
+  --color-subtle: var(--subtle);
+  --color-muted: var(--muted);
+  --color-disabled: var(--disabled);
+
+  --color-text-default: var(--text-default);
+  --color-text-subtle: var(--text-subtle);
+  --color-text-muted: var(--text-muted);
+  --color-text-disabled: var(--text-disabled);
+
+  --color-border-default: var(--border-default);
+  --color-border-subtle: var(--border-subtle);
+
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-error: var(--error);
+  --color-info: var(--info);
+}
+
 @layer base {
-  :root {
-    --canvas-bg: #080c14;
-    --surface-panel: #0d1424;
-    --surface-card: #131e33;
-    --surface-card-hover: #192742;
-    --border-hairline: #1c2b46;
-    --border-strong: #273b5e;
-    --brand-blue: #2563eb;
-    --brand-sky: #38bdf8;
-    --accent-amber: #f59e0b;
-    --signal-emerald: #10b981;
-    --signal-coral: #f43f5e;
-    --text-primary: #f8fafc;
-    --text-secondary: #94a3b8;
+  /* ==========================================================================
+     1. PALET RESMI DEFAULT (biru-klasik — HIMAPRODI TI)
+     Warna bendera identitas resmi HIMAPRODI TI ITB STIKOM Bali
+     ========================================================================== */
+  :root,
+  [data-theme="light"][data-palette="biru-klasik"],
+  [data-palette="biru-klasik"] {
+    --primary: #014097;
+    --primary-hover: #012b66;
+    --secondary: #012b66;
+    --accent: #eaf2ff;
+    --accent-content: #014097;
+    --canvas: #ffffff;
+    --bg-card: #ffffff;
+    --subtle: #f8fafc;
+    --muted: #e2e8f0;
+    --disabled: #e2e8f0;
+
+    --text-default: #0f172a;
+    --text-subtle: #334155;
     --text-muted: #64748b;
+    --text-disabled: #94a3b8;
+
+    --border-default: #e2e8f0;
+    --border-subtle: #f1f5f9;
+
+    --success: #16a34a;
+    --warning: #f59e0b;
+    --warning-text: #d97706;
+    --error: #dc2626;
+    --info: #0ea5e9;
+    --info-text: #0284c7;
+
+    --shadow-tactile-color: rgba(1, 43, 102, 0.14);
+    --shadow-tactile-strong: #012b66;
+    --card-grid-line: rgba(1, 64, 151, 0.06);
+    --slab-border: #cbd5e1;
+    --slab-layer-1: #e2e8f0;
+    --slab-layer-2: #cbd5e1;
+    --slab-layer-3: #94a3b8;
+    --slab-layer-4: #64748b;
+  }
+
+  /* ==========================================================================
+     2. OPSI ALTERNATIF A: Modern Tech (Indigo & Electric Sky)
+     ========================================================================== */
+  [data-palette="modern-tech"] {
+    --primary: #2563eb;
+    --primary-hover: #1d4ed8;
+    --secondary: #1e3a8a;
+    --accent: #eff6ff;
+    --accent-content: #1e3a8a;
+    --canvas: #fafafa;
+    --bg-card: #ffffff;
+    --subtle: #f1f5f9;
+    --muted: #e5e7eb;
+    --disabled: #e5e7eb;
+
+    --text-default: #0f172a;
+    --text-subtle: #334155;
+    --text-muted: #6b7280;
+    --text-disabled: #9ca3af;
+
+    --border-default: #e5e7eb;
+    --border-subtle: #f3f4f6;
+
+    --success: #16a34a;
+    --warning: #f59e0b;
+    --warning-text: #d97706;
+    --error: #dc2626;
+    --info: #0ea5e9;
+    --info-text: #0284c7;
+
+    --shadow-tactile-color: rgba(30, 58, 138, 0.14);
+    --shadow-tactile-strong: #1e3a8a;
+    --card-grid-line: rgba(37, 99, 235, 0.06);
+    --slab-border: #d1d5db;
+    --slab-layer-1: #e5e7eb;
+    --slab-layer-2: #d1d5db;
+    --slab-layer-3: #9ca3af;
+    --slab-layer-4: #6b7280;
+  }
+
+  /* ==========================================================================
+     3. OPSI ALTERNATIF B: Hijau Forest (Built-in Preset)
+     ========================================================================== */
+  [data-palette="hijau-forest"] {
+    --primary: #14532d;
+    --primary-hover: #052e16;
+    --secondary: #166534;
+    --accent: #dcfce7;
+    --accent-content: #14532d;
+    --canvas: #ffffff;
+    --bg-card: #ffffff;
+    --subtle: #f0fdf4;
+    --muted: #dcfce7;
+    --disabled: #dcfce7;
+
+    --text-default: #064e3b;
+    --text-subtle: #14532d;
+    --text-muted: #166534;
+    --text-disabled: #6ee7b7;
+
+    --border-default: #e2e8f0;
+    --border-subtle: #f1f5f9;
+
+    --success: #16a34a;
+    --warning: #f59e0b;
+    --warning-text: #d97706;
+    --error: #dc2626;
+    --info: #0ea5e9;
+    --info-text: #0284c7;
+
+    --shadow-tactile-color: rgba(20, 83, 45, 0.14);
+    --shadow-tactile-strong: #166534;
+    --card-grid-line: rgba(20, 83, 45, 0.06);
+    --slab-border: #cbd5e1;
+    --slab-layer-1: #dcfce7;
+    --slab-layer-2: #bbf7d0;
+    --slab-layer-3: #86efac;
+    --slab-layer-4: #166534;
+  }
+
+  /* ==========================================================================
+     4. OPSI ALTERNATIF C: Ungu Royal (Built-in Preset)
+     ========================================================================== */
+  [data-palette="ungu-royal"] {
+    --primary: #5b21b6;
+    --primary-hover: #4c1d95;
+    --secondary: #4c1d95;
+    --accent: #ede9fe;
+    --accent-content: #4c1d95;
+    --canvas: #ffffff;
+    --bg-card: #ffffff;
+    --subtle: #faf5ff;
+    --muted: #ede9fe;
+    --disabled: #ede9fe;
+
+    --text-default: #1e1b4b;
+    --text-subtle: #4c1d95;
+    --text-muted: #6b21a8;
+    --text-disabled: #a78bfa;
+
+    --border-default: #e2e8f0;
+    --border-subtle: #f1f5f9;
+
+    --success: #16a34a;
+    --warning: #f59e0b;
+    --warning-text: #d97706;
+    --error: #dc2626;
+    --info: #0ea5e9;
+    --info-text: #0284c7;
+
+    --shadow-tactile-color: rgba(91, 33, 182, 0.14);
+    --shadow-tactile-strong: #4c1d95;
+    --card-grid-line: rgba(91, 33, 182, 0.06);
+    --slab-border: #cbd5e1;
+    --slab-layer-1: #ede9fe;
+    --slab-layer-2: #ddd6fe;
+    --slab-layer-3: #c4b5fd;
+    --slab-layer-4: #4c1d95;
+  }
+
+  /* ==========================================================================
+     5. DARK MODE (Cyberpunk Navy Classic)
+     ========================================================================== */
+  [data-theme="dark"],
+  .dark {
+    --primary: #2563eb;
+    --primary-hover: #3b82f6;
+    --secondary: #1d4ed8;
+    --accent: #131e33;
+    --accent-content: #38bdf8;
+    --canvas: #080c14;
+    --bg-card: #0d1424;
+    --subtle: #131e33;
+    --muted: #192742;
+    --disabled: #192742;
+
+    --text-default: #f8fafc;
+    --text-subtle: #cbd5e1;
+    --text-muted: #94a3b8;
+    --text-disabled: #64748b;
+
+    --border-default: #1c2b46;
+    --border-subtle: #273b5e;
+
+    --success: #10b981;
+    --warning: #f59e0b;
+    --warning-text: #f59e0b;
+    --error: #f43f5e;
+    --info: #38bdf8;
+    --info-text: #38bdf8;
+
+    --shadow-tactile-color: #04060a;
+    --shadow-tactile-strong: #04060a;
+    --card-grid-line: rgba(37, 99, 235, 0.06);
+    --slab-border: #1c2b46;
+    --slab-layer-1: #223555;
+    --slab-layer-2: #1b2a44;
+    --slab-layer-3: #142034;
+    --slab-layer-4: #0d1524;
   }
 
   body {
-    background-color: var(--canvas-bg);
-    color: var(--text-primary);
+    background-color: var(--canvas);
+    color: var(--text-default);
     min-height: 100vh;
     font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    selection-background-color: #2563eb;
+    selection-background-color: var(--primary);
     selection-color: #ffffff;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -40,6 +252,78 @@
     -webkit-touch-callout: none;
   }
 }
+
+/* ==========================================================================
+   SEMANTIC TOKEN UTILITY CLASSES (Aturan Desain Sesuai Spesifikasi)
+   ========================================================================== */
+
+/* Surface Tokens */
+.bg-canvas { background-color: var(--canvas) !important; }
+.bg-default { background-color: var(--bg-card) !important; }
+.bg-subtle { background-color: var(--subtle) !important; }
+.bg-muted { background-color: var(--muted) !important; }
+
+/* Text Tokens */
+.text-default { color: var(--text-default) !important; }
+.text-subtle { color: var(--text-subtle) !important; }
+.text-muted { color: var(--text-muted) !important; }
+.text-disabled { color: var(--text-disabled) !important; }
+
+/* Border Tokens */
+.border-default { border-color: var(--border-default) !important; }
+.border-subtle { border-color: var(--border-subtle) !important; }
+
+/* Brand Tokens */
+.bg-primary { background-color: var(--primary) !important; }
+.text-primary { color: var(--primary) !important; }
+.border-primary { border-color: var(--primary) !important; }
+
+.bg-secondary { background-color: var(--secondary) !important; }
+.text-secondary { color: var(--secondary) !important; }
+.border-secondary { border-color: var(--secondary) !important; }
+
+.bg-accent { background-color: var(--accent) !important; }
+.text-accent-content { color: var(--accent-content) !important; }
+.border-accent { border-color: var(--accent) !important; }
+
+/* Status Tokens */
+.bg-success { background-color: var(--success) !important; }
+.text-success { color: var(--success) !important; }
+.border-success { border-color: var(--success) !important; }
+
+.bg-warning { background-color: var(--warning) !important; }
+.text-warning { color: var(--warning-text, #d97706) !important; }
+.border-warning { border-color: var(--warning) !important; }
+
+.bg-error { background-color: var(--error) !important; }
+.text-error { color: var(--error) !important; }
+.border-error { border-color: var(--error) !important; }
+
+.bg-info { background-color: var(--info) !important; }
+.text-info { color: var(--info-text, #0284c7) !important; }
+.border-info { border-color: var(--info) !important; }
+
+/* Soft Tint Badges */
+.bg-success\/10 { background-color: color-mix(in srgb, var(--success) 10%, transparent) !important; }
+.bg-success\/15 { background-color: color-mix(in srgb, var(--success) 15%, transparent) !important; }
+.bg-success\/20 { background-color: color-mix(in srgb, var(--success) 20%, transparent) !important; }
+
+.bg-warning\/10 { background-color: color-mix(in srgb, var(--warning) 10%, transparent) !important; }
+.bg-warning\/15 { background-color: color-mix(in srgb, var(--warning) 15%, transparent) !important; }
+
+.bg-error\/10 { background-color: color-mix(in srgb, var(--error) 10%, transparent) !important; }
+.bg-error\/15 { background-color: color-mix(in srgb, var(--error) 15%, transparent) !important; }
+.bg-error\/20 { background-color: color-mix(in srgb, var(--error) 20%, transparent) !important; }
+
+.bg-info\/10 { background-color: color-mix(in srgb, var(--info) 10%, transparent) !important; }
+.bg-info\/15 { background-color: color-mix(in srgb, var(--info) 15%, transparent) !important; }
+
+.bg-primary\/10 { background-color: color-mix(in srgb, var(--primary) 10%, transparent) !important; }
+.bg-primary\/15 { background-color: color-mix(in srgb, var(--primary) 15%, transparent) !important; }
+.bg-primary\/20 { background-color: color-mix(in srgb, var(--primary) 20%, transparent) !important; }
+
+.bg-secondary\/10 { background-color: color-mix(in srgb, var(--secondary) 10%, transparent) !important; }
+.bg-secondary\/15 { background-color: color-mix(in srgb, var(--secondary) 15%, transparent) !important; }
 
 /* 3D Perspective & Hardware Acceleration */
 .perspective-1000 {
@@ -63,68 +347,68 @@
   transform: rotateY(180deg);
 }
 
-/* Tactile Physical Elevation (Deep Ink Navy Tinted, No AI Slop Pure Black) */
+/* Tactile Physical Elevation */
 .shadow-tactile {
-  box-shadow: 4px 4px 0px 0px #04060a;
+  box-shadow: 4px 4px 0px 0px var(--shadow-tactile-color, rgba(1, 43, 102, 0.14));
 }
 
 .shadow-tactile-sm {
-  box-shadow: 2px 2px 0px 0px #04060a;
+  box-shadow: 2px 2px 0px 0px var(--shadow-tactile-color, rgba(1, 43, 102, 0.14));
 }
 
 .shadow-tactile-blue {
-  box-shadow: 4px 4px 0px 0px #1d4ed8;
+  box-shadow: 4px 4px 0px 0px var(--primary);
 }
 
 .shadow-tactile-amber {
-  box-shadow: 4px 4px 0px 0px #d97706;
+  box-shadow: 4px 4px 0px 0px var(--warning);
 }
 
 .shadow-tactile-emerald {
-  box-shadow: 4px 4px 0px 0px #059669;
+  box-shadow: 4px 4px 0px 0px var(--success);
 }
 
 .shadow-tactile-coral {
-  box-shadow: 4px 4px 0px 0px #e11d48;
+  box-shadow: 4px 4px 0px 0px var(--error);
 }
 
 /* Backward compatibility classes */
 .shadow-brutal {
-  box-shadow: 4px 4px 0px 0px #04060a;
+  box-shadow: 4px 4px 0px 0px var(--shadow-tactile-color, rgba(1, 43, 102, 0.14));
 }
 
 .shadow-brutal-sm {
-  box-shadow: 2px 2px 0px 0px #04060a;
+  box-shadow: 2px 2px 0px 0px var(--shadow-tactile-color, rgba(1, 43, 102, 0.14));
 }
 
 .shadow-brutal-blue {
-  box-shadow: 4px 4px 0px 0px #1d4ed8;
+  box-shadow: 4px 4px 0px 0px var(--primary);
 }
 
 .shadow-brutal-amber {
-  box-shadow: 4px 4px 0px 0px #d97706;
+  box-shadow: 4px 4px 0px 0px var(--warning);
 }
 
 .shadow-brutal-emerald {
-  box-shadow: 4px 4px 0px 0px #059669;
+  box-shadow: 4px 4px 0px 0px var(--success);
 }
 
 .shadow-brutal-rose {
-  box-shadow: 4px 4px 0px 0px #e11d48;
+  box-shadow: 4px 4px 0px 0px var(--error);
 }
 
 /* Card Bevel & High-End Inset Specular */
 .card-specular-bevel {
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 4px 4px 0px 0px #04060a;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 4px 4px 0px 0px var(--shadow-tactile-color);
 }
 
 /* Official Identity Card Security Micro-Grid Pattern */
 .idcard-security-bg,
 .dossier-security-bg {
-  background-color: #0c121f;
+  background-color: var(--bg-card);
   background-image: 
-    linear-gradient(rgba(37, 99, 235, 0.06) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(37, 99, 235, 0.06) 1px, transparent 1px);
+    linear-gradient(var(--card-grid-line, rgba(1, 64, 151, 0.06)) 1px, transparent 1px),
+    linear-gradient(90deg, var(--card-grid-line, rgba(1, 64, 151, 0.06)) 1px, transparent 1px);
   background-size: 16px 16px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -137,8 +421,8 @@
     circle at 50% 50%,
     transparent 0,
     transparent 10px,
-    rgba(37, 99, 235, 0.04) 10px,
-    rgba(37, 99, 235, 0.04) 11px
+    var(--card-grid-line, rgba(1, 64, 151, 0.04)) 10px,
+    var(--card-grid-line, rgba(1, 64, 151, 0.04)) 11px
   );
 }
 
@@ -199,19 +483,19 @@
 /* Silky Smooth Hologram Chromatic Prism */
 @keyframes holoPrismSmooth {
   0%, 100% {
-    filter: drop-shadow(1.5px 0px 0px rgba(37, 99, 235, 0.5)) drop-shadow(-1.5px 0px 0px rgba(244, 63, 94, 0.5));
+    filter: drop-shadow(1.5px 0px 0px rgba(1, 64, 151, 0.5)) drop-shadow(-1.5px 0px 0px rgba(220, 38, 38, 0.5));
     transform: translate(0, 0);
   }
   25% {
-    filter: drop-shadow(2px 0.5px 0px rgba(37, 99, 235, 0.6)) drop-shadow(-2px -0.5px 0px rgba(244, 63, 94, 0.6));
+    filter: drop-shadow(2px 0.5px 0px rgba(1, 64, 151, 0.6)) drop-shadow(-2px -0.5px 0px rgba(220, 38, 38, 0.6));
     transform: translate(-0.5px, 0.5px);
   }
   50% {
-    filter: drop-shadow(-1.5px 0px 0px rgba(37, 99, 235, 0.5)) drop-shadow(1.5px 0px 0px rgba(244, 63, 94, 0.5));
+    filter: drop-shadow(-1.5px 0px 0px rgba(1, 64, 151, 0.5)) drop-shadow(1.5px 0px 0px rgba(220, 38, 38, 0.5));
     transform: translate(0.5px, -0.5px);
   }
   75% {
-    filter: drop-shadow(-2px 0.5px 0px rgba(37, 99, 235, 0.6)) drop-shadow(2px -0.5px 0px rgba(244, 63, 94, 0.6));
+    filter: drop-shadow(-2px 0.5px 0px rgba(1, 64, 151, 0.6)) drop-shadow(2px -0.5px 0px rgba(220, 38, 38, 0.6));
     transform: translate(0, 0.5px);
   }
 }
@@ -233,8 +517,8 @@
 .vhs-scanlines {
   background: repeating-linear-gradient(
     0deg,
-    rgba(4, 6, 10, 0.35) 0px,
-    rgba(4, 6, 10, 0.35) 1px,
+    rgba(15, 23, 42, 0.15) 0px,
+    rgba(15, 23, 42, 0.15) 1px,
     transparent 1px,
     transparent 3px
   );
@@ -259,7 +543,7 @@
   animation: apertureSpinSmooth 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-/* Holographic Iridescent Foil Sheen Sweep (Clean, Seamless Optical Ray) */
+/* Holographic Iridescent Foil Sheen Sweep */
 @keyframes holoSheenClean {
   0% {
     background-position: -150% -150%;
@@ -273,11 +557,11 @@
   background: linear-gradient(
     135deg,
     transparent 25%,
-    rgba(255, 255, 255, 0.08) 38%,
+    rgba(255, 255, 255, 0.15) 38%,
     rgba(56, 189, 248, 0.28) 46%,
     rgba(244, 63, 94, 0.24) 50%,
     rgba(168, 85, 247, 0.28) 54%,
-    rgba(255, 255, 255, 0.08) 62%,
+    rgba(255, 255, 255, 0.15) 62%,
     transparent 75%
   );
   background-size: 300% 300%;
@@ -288,10 +572,10 @@
 /* Architect Blueprint CAD Lines & Sweeps */
 .cad-blueprint-grid {
   background-image: 
-    linear-gradient(rgba(56, 189, 248, 0.15) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(56, 189, 248, 0.15) 1px, transparent 1px),
-    linear-gradient(rgba(56, 189, 248, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(56, 189, 248, 0.05) 1px, transparent 1px);
+    linear-gradient(rgba(1, 64, 151, 0.15) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(1, 64, 151, 0.15) 1px, transparent 1px),
+    linear-gradient(rgba(1, 64, 151, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(1, 64, 151, 0.05) 1px, transparent 1px);
   background-size: 32px 32px, 32px 32px, 8px 8px, 8px 8px;
 }
 
@@ -348,23 +632,15 @@
   animation: sunsetGlowPulse 2.8s ease-in-out infinite;
 }
 
-/* Overclock Voltage Surge & Electrical Arc */
+/* Overclock Voltage Surge */
 @keyframes voltageBorderPulse {
   0%, 100% {
-    box-shadow: 0 0 8px rgba(37, 99, 235, 0.35), inset 0 0 6px rgba(56, 189, 248, 0.25);
-    border-color: #2563eb;
-  }
-  25% {
-    box-shadow: 0 0 16px rgba(56, 189, 248, 0.65), inset 0 0 12px rgba(37, 99, 235, 0.45);
-    border-color: #38bdf8;
+    box-shadow: 0 0 8px rgba(1, 64, 151, 0.35), inset 0 0 6px rgba(1, 64, 151, 0.2);
+    border-color: var(--primary);
   }
   50% {
-    box-shadow: 0 0 6px rgba(37, 99, 235, 0.25), inset 0 0 6px rgba(56, 189, 248, 0.2);
-    border-color: #1d4ed8;
-  }
-  75% {
-    box-shadow: 0 0 20px rgba(56, 189, 248, 0.75), inset 0 0 16px rgba(37, 99, 235, 0.55);
-    border-color: #60a5fa;
+    box-shadow: 0 0 16px rgba(1, 64, 151, 0.65), inset 0 0 12px rgba(1, 64, 151, 0.35);
+    border-color: var(--secondary);
   }
 }
 
@@ -372,7 +648,7 @@
   animation: voltageBorderPulse 1.8s ease-in-out infinite;
 }
 
-/* 13. Liquid Magnetic Spring Levitation */
+/* Liquid Magnetic Spring Levitation */
 @keyframes liquidMagneticLevitate {
   0%, 100% {
     transform: translateY(0px) rotate(0deg);
@@ -392,13 +668,13 @@
 .liquid-glass-refract {
   background: radial-gradient(
     circle at 50% 20%,
-    rgba(56, 189, 248, 0.15) 0%,
-    rgba(37, 99, 235, 0.08) 45%,
+    rgba(1, 64, 151, 0.12) 0%,
+    rgba(1, 43, 102, 0.05) 45%,
     transparent 70%
   );
 }
 
-/* 14. Holographic Foil Hyper-Shimmer Diffraction (Clean, Seamless Spectrum Beam) */
+/* Holographic Foil Hyper-Shimmer Diffraction */
 @keyframes hyperDiffractionClean {
   0% {
     background-position: -160% -160%;
@@ -426,12 +702,12 @@
 
 @keyframes chromaticBorderPulse {
   0%, 100% {
-    border-color: #38bdf8;
-    box-shadow: 0 0 10px rgba(56, 189, 248, 0.4), inset 0 0 6px rgba(168, 85, 247, 0.3);
+    border-color: var(--primary);
+    box-shadow: 0 0 10px rgba(1, 64, 151, 0.4);
   }
   50% {
-    border-color: #c084fc;
-    box-shadow: 0 0 16px rgba(192, 132, 252, 0.6), inset 0 0 8px rgba(244, 63, 94, 0.35);
+    border-color: var(--secondary);
+    box-shadow: 0 0 16px rgba(1, 43, 102, 0.5);
   }
 }
 
@@ -439,286 +715,81 @@
   animation: chromaticBorderPulse 2.4s ease-in-out infinite;
 }
 
-/* 15. Smooth Cyberpunk Kinetic Glitch (Subtle, Refined, Intermittent) */
-@keyframes cyberGlitchSmooth {
-  0%, 100% {
-    transform: translate(0, 0);
-    filter: none;
-  }
-  38% {
-    transform: translate(0, 0);
-    filter: none;
-  }
-  40% {
-    transform: translate(-1.5px, 0.5px);
-    filter: drop-shadow(1.5px 0 0 rgba(6, 182, 212, 0.6)) drop-shadow(-1.5px 0 0 rgba(244, 63, 94, 0.6));
-  }
-  42% {
-    transform: translate(1.5px, -0.5px);
-    filter: drop-shadow(-1.5px 0 0 rgba(6, 182, 212, 0.6)) drop-shadow(1.5px 0 0 rgba(244, 63, 94, 0.6));
-  }
-  44% {
-    transform: translate(0, 0);
-    filter: none;
-  }
-  84% {
-    transform: translate(0, 0);
-    filter: none;
-  }
-  85% {
-    transform: translate(1px, 0.5px);
-    filter: drop-shadow(1px 0 0 rgba(6, 182, 212, 0.5)) drop-shadow(-1px 0 0 rgba(244, 63, 94, 0.5));
-  }
-  87% {
-    transform: translate(0, 0);
-    filter: none;
-  }
-}
-
-.animate-cyber-glitch-subtle {
-  animation: cyberGlitchSmooth 3.2s ease-in-out infinite;
-}
-
-@keyframes cyberScanlineGlide {
-  0% {
-    top: -5%;
-    opacity: 0;
-  }
-  20% {
-    opacity: 0.5;
-  }
-  80% {
-    opacity: 0.5;
-  }
-  100% {
-    top: 105%;
-    opacity: 0;
-  }
-}
-
-.animate-cyber-scanline {
-  animation: cyberScanlineGlide 3.6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-}
-
-.cyber-telemetry-stream {
-  background: repeating-linear-gradient(
-    180deg,
-    rgba(6, 182, 212, 0.05) 0px,
-    rgba(6, 182, 212, 0.05) 1px,
-    transparent 1px,
-    transparent 5px
-  );
-}
-
-/* 16. Isometric Frosted Glass & 3D Physical Card Slab Thickness */
-.frosted-glass-surface {
-  backdrop-filter: blur(16px) saturate(180%);
-  -webkit-backdrop-filter: blur(16px) saturate(180%);
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.08) 0%,
-    rgba(22, 34, 56, 0.65) 40%,
-    rgba(8, 12, 22, 0.85) 100%
-  );
-}
-
-/* Acrylic / PVC 3D Slab with Physical 4-Layer Cut-Edge Thickness */
+/* Acrylic / PVC 3D Slab with Physical Layer Thickness */
 .card-3d-slab {
   position: relative;
   transform-style: preserve-3d;
-  border-radius: 6px;
+  border-radius: 8px;
   box-shadow:
-    /* Specular light catch on top & left perimeter bevel */
-    -0.5px -0.5px 0 0.5px rgba(255, 255, 255, 0.22),
-    inset 0 1px 1px 0 rgba(255, 255, 255, 0.25),
-    inset 1px 0 1px 0 rgba(255, 255, 255, 0.15),
-    inset 0 -1px 1.5px 0 rgba(0, 0, 0, 0.5),
-    inset -1px 0 1.5px 0 rgba(0, 0, 0, 0.3),
-    /* 4-Layer Solid Acrylic Slab Rim (Physical Thickness) */
-    1px 1px 0 0 #223555,
-    2px 2px 0 0 #1b2a44,
-    3px 3px 0 0 #142034,
-    4px 4px 0 0 #0d1524,
-    /* Ambient Floor Shadow */
-    5px 6px 16px -2px rgba(0, 0, 0, 0.42),
-    0 10px 22px -4px rgba(0, 0, 0, 0.32);
+    -0.5px -0.5px 0 0.5px rgba(255, 255, 255, 0.4),
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.5),
+    1px 1px 0 0 var(--slab-layer-1, #e2e8f0),
+    2px 2px 0 0 var(--slab-layer-2, #cbd5e1),
+    3px 3px 0 0 var(--slab-layer-3, #94a3b8),
+    4px 4px 0 0 var(--slab-layer-4, #64748b),
+    5px 6px 16px -2px var(--shadow-tactile-color, rgba(1, 43, 102, 0.14)),
+    0 10px 22px -4px rgba(0, 0, 0, 0.12);
   transition: box-shadow 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.2s ease;
 }
 
 .card-3d-slab:hover {
   box-shadow:
-    -0.5px -0.5px 0 0.5px rgba(255, 255, 255, 0.35),
-    inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.35),
-    inset 1px 0 1px 0 rgba(255, 255, 255, 0.25),
-    inset 0 -1px 1.5px 0 rgba(0, 0, 0, 0.4),
-    inset -1px 0 1.5px 0 rgba(0, 0, 0, 0.25),
-    /* Enhanced physical slab rim on hover */
-    1px 2px 0 0 #2d436a,
-    2px 3px 0 0 #223454,
-    3px 4px 0 0 #18263e,
-    4px 5px 0 0 #10192a,
-    5px 6px 0 0 #090e18,
-    6px 8px 20px -2px rgba(0, 0, 0, 0.50),
-    0 14px 28px -4px rgba(0, 0, 0, 0.35);
+    -0.5px -0.5px 0 0.5px rgba(255, 255, 255, 0.6),
+    inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.6),
+    1px 2px 0 0 var(--slab-layer-1, #e2e8f0),
+    2px 3px 0 0 var(--slab-layer-2, #cbd5e1),
+    3px 4px 0 0 var(--slab-layer-3, #94a3b8),
+    4px 5px 0 0 var(--slab-layer-4, #64748b),
+    6px 8px 20px -2px var(--shadow-tactile-color, rgba(1, 43, 102, 0.24)),
+    0 14px 28px -4px rgba(0, 0, 0, 0.16);
 }
 
-/* Refractive 3D Glass Slab with Physical 4-Layer Rim & Specular Glint */
+/* Glass Surface and 3D Slab Depth */
 .glass-3d-slab,
 .frosted-glass-depth {
   position: relative;
   transform-style: preserve-3d;
-  border-radius: 6px;
+  border-radius: 8px;
   backdrop-filter: blur(16px) saturate(180%);
   -webkit-backdrop-filter: blur(16px) saturate(180%);
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.12) 0%,
-    rgba(22, 34, 56, 0.68) 40%,
-    rgba(8, 12, 22, 0.88) 100%
-  );
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
   box-shadow:
-    /* Specular glass edge glint on top-left */
-    -0.5px -0.5px 0 0.5px rgba(255, 255, 255, 0.35),
-    inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.4),
-    inset 1px 0 1px 0 rgba(255, 255, 255, 0.25),
-    inset 0 -1px 1.5px 0 rgba(0, 0, 0, 0.4),
-    inset -1px 0 1.5px 0 rgba(0, 0, 0, 0.25),
-    /* 4-Layer Translucent Cyan/Navy Glass Slab Rim (4mm Glass Slab Core) */
-    1px 1px 0 0 rgba(56, 189, 248, 0.35),
-    2px 2px 0 0 rgba(37, 99, 235, 0.28),
-    3px 3px 0 0 rgba(15, 23, 42, 0.65),
-    4px 4px 0 0 rgba(8, 12, 22, 0.85),
-    /* Clean soft ambient depth (not muddy) */
-    5px 6px 16px -2px rgba(0, 0, 0, 0.42),
-    0 10px 22px -4px rgba(0, 0, 0, 0.32),
-    0 0 16px 0 rgba(56, 189, 248, 0.12);
-  transition: box-shadow 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.2s ease;
+    1px 1px 0 0 var(--slab-layer-1, #e2e8f0),
+    2px 2px 0 0 var(--slab-layer-2, #cbd5e1),
+    3px 3px 0 0 var(--slab-layer-3, #94a3b8),
+    5px 6px 16px -2px var(--shadow-tactile-color, rgba(1, 43, 102, 0.14));
 }
 
-.glass-3d-slab-hover,
-.frosted-glass-depth-hover {
-  border-color: rgba(147, 197, 253, 0.65) !important;
-  box-shadow:
-    -0.5px -0.5px 0 0.5px rgba(255, 255, 255, 0.5),
-    inset 0 2px 1.5px 0 rgba(255, 255, 255, 0.5),
-    inset 1.5px 0 1.5px 0 rgba(255, 255, 255, 0.35),
-    inset 0 -1.5px 1.5px 0 rgba(0, 0, 0, 0.35),
-    inset -1.5px 0 1.5px 0 rgba(0, 0, 0, 0.2),
-    /* Dynamic Glass Slab Rim on Hover */
-    1px 2px 0 0 rgba(56, 189, 248, 0.45),
-    2px 3px 0 0 rgba(37, 99, 235, 0.35),
-    3px 4px 0 0 rgba(15, 23, 42, 0.72),
-    4px 5px 0 0 rgba(8, 12, 22, 0.90),
-    5px 6px 0 0 rgba(4, 7, 13, 0.98),
-    6px 8px 20px -2px rgba(0, 0, 0, 0.48),
-    0 14px 28px -4px rgba(0, 0, 0, 0.35),
-    0 0 24px 0 rgba(56, 189, 248, 0.20) !important;
+.frosted-glass-surface {
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  background: var(--bg-card);
 }
 
-/* Clean Specular Glass Sheen Sweep (Seamless Diagonal Optical Ray, No Box Seams) */
-@keyframes glassSheenClean {
-  0% {
-    background-position: -150% -150%;
-  }
-  100% {
-    background-position: 250% 250%;
-  }
-}
-
-.glass-sheen-sweep {
-  background: linear-gradient(
-    135deg,
-    transparent 28%,
-    rgba(255, 255, 255, 0.04) 40%,
-    rgba(255, 255, 255, 0.22) 48%,
-    rgba(56, 189, 248, 0.35) 50%,
-    rgba(255, 255, 255, 0.22) 52%,
-    rgba(255, 255, 255, 0.04) 60%,
-    transparent 72%
-  );
-  background-size: 300% 300%;
-  animation: glassSheenClean 4.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-  pointer-events: none;
-}
-
-@keyframes crystalDustFloat {
-  0%, 100% {
-    transform: translateY(0px) scale(1);
-    opacity: 0.3;
-  }
-  50% {
-    transform: translateY(-14px) scale(1.2);
-    opacity: 0.85;
-  }
-}
-
-.animate-crystal-dust {
-  animation: crystalDustFloat 3.5s ease-in-out infinite alternate;
-}
-
-/* Back Card Interactive Breathing & Dynamic Motion */
-@keyframes stampAlive {
-  0%, 100% {
-    transform: scale(1) rotate(-7deg);
-  }
-  50% {
-    transform: scale(1.03) rotate(-6.5deg);
-  }
-}
-
-.animate-stamp-alive {
-  animation: stampAlive 3.2s ease-in-out infinite;
-}
-
-@keyframes backSheenDrift {
-  0% {
-    background-position: -100% -100%;
-  }
-  100% {
-    background-position: 200% 200%;
-  }
-}
-
-.back-sheen-drift {
-  background: linear-gradient(
-    135deg,
-    transparent 30%,
-    rgba(56, 189, 248, 0.08) 48%,
-    rgba(255, 255, 255, 0.12) 50%,
-    rgba(56, 189, 248, 0.08) 52%,
-    transparent 70%
-  );
-  background-size: 250% 250%;
-  animation: backSheenDrift 6s ease-in-out infinite;
-}
-
-/* Custom Cyberpunk / Tactical Scrollbar */
+/* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #080c14;
-  border-left: 1px solid #1c2b46;
+  background: var(--canvas);
+  border-left: 1px solid var(--border-default);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1e2b46;
+  background: var(--muted);
   border-radius: 0px;
-  border: 1px solid #273b5e;
+  border: 1px solid var(--border-default);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #38bdf8;
-  box-shadow: 0 0 8px rgba(56, 189, 248, 0.5);
+  background: var(--primary);
+  box-shadow: 0 0 8px var(--primary);
 }
 
 * {
   scrollbar-width: thin;
-  scrollbar-color: #273b5e #080c14;
+  scrollbar-color: var(--border-default) var(--canvas);
 }
-
-
-

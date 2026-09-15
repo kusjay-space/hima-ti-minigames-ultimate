@@ -298,15 +298,15 @@ export const FlashcardCard: React.FC<FlashcardCardProps> = ({
           compactOnMobile ? 'w-full h-full md:h-auto flex flex-col md:block' : 'w-full'
         } ${
           hasGlass
-            ? `glass-3d-slab ${isHovered ? 'border-cyan-300' : 'border-white/25'}`
-            : `card-3d-slab bg-[#101827] border-2 ${
+            ? `glass-3d-slab ${isHovered ? 'border-primary' : 'border-default'}`
+            : `card-3d-slab bg-default border-2 ${
                 isAnswered
                   ? isCorrect
-                    ? 'border-[#10b981] shadow-tactile-emerald'
-                    : 'border-[#f43f5e] shadow-tactile-coral'
+                    ? 'border-success shadow-tactile-emerald'
+                    : 'border-error shadow-tactile-coral'
                   : isHovered
-                  ? 'border-[#38bdf8]'
-                  : 'border-[#1e2b46]'
+                  ? 'border-primary'
+                  : 'border-default'
               }`
         } transition-colors duration-200 cursor-pointer ${
           hasVoltage ? 'animate-voltage-border' : ''
@@ -315,8 +315,8 @@ export const FlashcardCard: React.FC<FlashcardCardProps> = ({
         } ${
           hasGlass && isAnswered
             ? isCorrect
-              ? 'border-[#10b981] !shadow-[0_0_18px_rgba(16,185,129,0.3)]'
-              : 'border-[#f43f5e] !shadow-[0_0_18px_rgba(244,63,94,0.3)]'
+              ? 'border-success !shadow-[0_0_18px_rgba(16,185,129,0.3)]'
+              : 'border-error !shadow-[0_0_18px_rgba(244,63,94,0.3)]'
             : ''
         }`}
       >
@@ -431,23 +431,23 @@ export const FlashcardCard: React.FC<FlashcardCardProps> = ({
           )}
 
           {/* Corner Registration Crosshair Marks */}
-          <div className="absolute top-1 left-1 text-[9px] font-mono text-[#475569] pointer-events-none font-bold z-25">+</div>
-          <div className="absolute top-1 right-1 text-[9px] font-mono text-[#475569] pointer-events-none font-bold z-25">+</div>
-          <div className="absolute bottom-1 left-1 text-[9px] font-mono text-[#475569] pointer-events-none font-bold z-25">+</div>
-          <div className="absolute bottom-1 right-1 text-[9px] font-mono text-[#475569] pointer-events-none font-bold z-25">+</div>
+          <div className="absolute top-1 left-1 text-[9px] font-mono text-muted pointer-events-none font-bold z-25">+</div>
+          <div className="absolute top-1 right-1 text-[9px] font-mono text-muted pointer-events-none font-bold z-25">+</div>
+          <div className="absolute bottom-1 left-1 text-[9px] font-mono text-muted pointer-events-none font-bold z-25">+</div>
+          <div className="absolute bottom-1 right-1 text-[9px] font-mono text-muted pointer-events-none font-bold z-25">+</div>
 
           {/* Physical ID Badge Top Lanyard Slot / Punch Hole */}
           <div className={`relative z-25 shrink-0 flex justify-center ${compactOnMobile ? 'mb-1 sm:mb-1.5' : 'mb-1.5'} pointer-events-none`}>
-            <div className={`${compactOnMobile ? 'w-8 h-1 sm:w-11 sm:h-1.5' : 'w-11 h-1.5'} bg-[#050912] border border-[#1e2b46]/70 rounded-full shadow-[inset_0_1px_2px_rgba(0,0,0,0.8)] flex items-center justify-center`}>
-              <div className={`${compactOnMobile ? 'w-4 h-0.5 sm:w-5 sm:h-0.5' : 'w-5 h-0.5'} bg-[#121c30] rounded-full`} />
+            <div className={`${compactOnMobile ? 'w-8 h-1 sm:w-11 sm:h-1.5' : 'w-11 h-1.5'} bg-muted border border-default rounded-full flex items-center justify-center`}>
+              <div className={`${compactOnMobile ? 'w-4 h-0.5 sm:w-5 sm:h-0.5' : 'w-5 h-0.5'} bg-subtle rounded-full`} />
             </div>
           </div>
 
           {/* Card Header Data Bar */}
-          <div className={`relative z-25 shrink-0 flex items-center justify-between ${compactOnMobile ? 'mb-1 pb-1 sm:mb-2 sm:pb-2 text-[9px] sm:text-xs' : 'mb-2 pb-2 text-xs'} border-b border-[#1e2b46] font-mono select-none pointer-events-none`}>
+          <div className={`relative z-25 shrink-0 flex items-center justify-between ${compactOnMobile ? 'mb-1 pb-1 sm:mb-2 sm:pb-2 text-[9px] sm:text-xs' : 'mb-2 pb-2 text-xs'} border-b border-default font-mono select-none pointer-events-none`}>
             <div className="flex items-center gap-1.5 min-w-0">
-              <span className={`w-1.5 h-1.5 sm:w-2 sm:h-2 shrink-0 ${isHovered ? 'bg-[#38bdf8] animate-ping' : 'bg-[#2563eb]'}`} />
-              <span className={`font-bold text-[#f8fafc] uppercase tracking-wider ${compactOnMobile ? 'text-[9.5px] sm:text-[11px]' : 'text-[11px]'} truncate`}>
+              <span className={`w-1.5 h-1.5 sm:w-2 sm:h-2 shrink-0 ${isHovered ? 'bg-primary animate-ping' : 'bg-primary'}`} />
+              <span className={`font-bold text-default uppercase tracking-wider ${compactOnMobile ? 'text-[9.5px] sm:text-[11px]' : 'text-[11px]'} truncate`}>
                 {isChallengerCard ? (
                   challengerIndex === 1 ? 'DOKUMEN KENDALI // CAP' :
                   challengerIndex === 2 ? 'HALL OF FAME // REWARDS' :
@@ -457,7 +457,7 @@ export const FlashcardCard: React.FC<FlashcardCardProps> = ({
             </div>
 
             <div className="flex items-center gap-1 shrink-0">
-              <span className={`border border-[#273b5e] bg-[#090d16] ${compactOnMobile ? 'px-1.5 py-0.2 text-[8.5px] sm:text-[10px]' : 'px-2 py-0.5 text-[10px]'} font-bold text-[#cbd5e1]`}>
+              <span className={`border border-default bg-subtle ${compactOnMobile ? 'px-1.5 py-0.2 text-[8.5px] sm:text-[10px]' : 'px-2 py-0.5 text-[10px]'} font-bold text-subtle`}>
                 {isChallengerCard ? (
                   challengerIndex === 1 ? 'PASS #2' :
                   challengerIndex === 2 ? 'PASS #3' :
@@ -474,8 +474,8 @@ export const FlashcardCard: React.FC<FlashcardCardProps> = ({
               : 'h-[300px] xs:h-[335px] sm:h-[375px] md:h-[405px] lg:h-[430px]'
           } select-none pointer-events-none ${
             hasGlass 
-              ? 'bg-slate-950/40 border-2 border-white/20 backdrop-blur-sm' 
-              : 'bg-[#080c14] border border-[#1e2b46]'
+              ? 'bg-canvas/40 border-2 border-default backdrop-blur-sm' 
+              : 'bg-subtle border border-default'
           } overflow-visible flex items-center justify-center`}>
             {isChallengerCard ? (
               /* Visual Hero Tantangan Maba (3 Variasi Kartu: Misi, Syarat Cap, Rewards) */
@@ -532,12 +532,12 @@ export const FlashcardCard: React.FC<FlashcardCardProps> = ({
                     </div>
                   </motion.div>
 
-                  <h3 className="text-base md:text-lg font-extrabold text-[#f8fafc] text-center mt-4 tracking-tight leading-snug">
+                  <h3 className="text-base md:text-lg font-extrabold text-default text-center mt-4 tracking-tight leading-snug">
                     {challengerIndex === 1 ? 'SYARAT CAP RESMI' :
                      challengerIndex === 2 ? 'TOP 10 LEADERBOARD' :
                      'TARGET: 34 PENGURUS'}
                   </h3>
-                  <p className="text-[11px] text-[#94a3b8] text-center max-w-[210px] mt-1 font-mono">
+                  <p className="text-[11px] text-subtle text-center max-w-[210px] mt-1 font-mono">
                     {challengerIndex === 1 ? 'Jawab benar minimal 4 dari 5 soal untuk klaim cap resmi GMTI!' :
                      challengerIndex === 2 ? 'Catat waktu tercepat untuk memuncaki skor stand & raih merchandise!' :
                      'Bisakah kamu mengenali seluruh wajah & amanah pengurus HIMA TI?'}
@@ -545,7 +545,7 @@ export const FlashcardCard: React.FC<FlashcardCardProps> = ({
                 </div>
 
                 {/* Bottom Callout */}
-                <div className="relative z-10 w-full text-center border-t border-[#1e2b46] pt-2">
+                <div className="relative z-10 w-full text-center border-t border-default pt-2">
                   <span className={`text-[9px] font-mono flex items-center justify-center gap-1 ${
                     challengerIndex === 1 ? 'text-[#10b981]' :
                     challengerIndex === 2 ? 'text-[#f59e0b]' :
@@ -713,12 +713,12 @@ export const FlashcardCard: React.FC<FlashcardCardProps> = ({
           </div>
 
           {/* Card Footer Technical Meta */}
-          <div className={`relative z-25 shrink-0 ${compactOnMobile ? 'mt-1 pt-1 sm:mt-2 sm:pt-2 text-[8.5px] sm:text-[10px]' : 'mt-2 pt-2 text-[10px]'} border-t border-[#1e2b46] flex items-center justify-between font-mono text-[#64748b] select-none pointer-events-none`}>
-            <span className="text-[#94a3b8] uppercase font-semibold truncate">
+          <div className={`relative z-25 shrink-0 ${compactOnMobile ? 'mt-1 pt-1 sm:mt-2 sm:pt-2 text-[8.5px] sm:text-[10px]' : 'mt-2 pt-2 text-[10px]'} border-t border-default flex items-center justify-between font-mono text-muted select-none pointer-events-none`}>
+            <span className="text-subtle uppercase font-semibold truncate">
               HIMA TI // STAND-PASS
             </span>
-            <span className="text-[#38bdf8] flex items-center gap-1 font-bold shrink-0">
-              <RotateCw className="w-2.5 h-2.5 text-[#38bdf8]" />
+            <span className="text-primary flex items-center gap-1 font-bold shrink-0">
+              <RotateCw className="w-2.5 h-2.5 text-primary" />
               <span className="hidden xs:inline">KLIK UNTUK BALIK</span>
               <span className="xs:hidden">BALIK</span>
             </span>
@@ -834,16 +834,16 @@ export const FlashcardCard: React.FC<FlashcardCardProps> = ({
 
           {/* Physical ID Badge Top Lanyard Slot / Punch Hole */}
           <div className={`relative z-25 shrink-0 flex justify-center ${compactOnMobile ? 'mb-0.5 sm:mb-1' : 'mb-1'} pointer-events-none`}>
-            <div className={`${compactOnMobile ? 'w-8 h-1 sm:w-11 sm:h-1.5' : 'w-11 h-1.5'} bg-[#050912] border border-[#1e2b46]/70 rounded-full shadow-[inset_0_1px_2px_rgba(0,0,0,0.8)] flex items-center justify-center`}>
-              <div className={`${compactOnMobile ? 'w-4 h-0.5 sm:w-5 sm:h-0.5' : 'w-5 h-0.5'} bg-[#121c30] rounded-full`} />
+            <div className={`${compactOnMobile ? 'w-8 h-1 sm:w-11 sm:h-1.5' : 'w-11 h-1.5'} bg-muted border border-default rounded-full flex items-center justify-center`}>
+              <div className={`${compactOnMobile ? 'w-4 h-0.5 sm:w-5 sm:h-0.5' : 'w-5 h-0.5'} bg-subtle rounded-full`} />
             </div>
           </div>
 
           {/* ID Card Header */}
-          <div className={`relative z-25 shrink-0 ${compactOnMobile ? 'pb-1 text-[9px] sm:text-xs' : 'pb-2 text-xs'} border-b border-[#1e2b46] flex items-center justify-between font-mono`}>
+          <div className={`relative z-25 shrink-0 ${compactOnMobile ? 'pb-1 text-[9px] sm:text-xs' : 'pb-2 text-xs'} border-b border-default flex items-center justify-between font-mono`}>
             <div className="flex items-center gap-1.5 min-w-0">
-              <Shield className="w-3.5 h-3.5 text-[#2563eb] shrink-0" />
-              <span className={`font-bold text-[#f8fafc] ${compactOnMobile ? 'text-[8.5px] sm:text-[10px]' : 'text-[10px]'} tracking-wider uppercase truncate`}>
+              <Shield className="w-3.5 h-3.5 text-primary shrink-0" />
+              <span className={`font-bold text-default ${compactOnMobile ? 'text-[8.5px] sm:text-[10px]' : 'text-[10px]'} tracking-wider uppercase truncate`}>
                 {isChallengerCard 
                   ? (challengerIndex === 1 ? 'DOKUMEN KELULUSAN STAND' :
                      challengerIndex === 2 ? 'STRATEGI & REWARD STAND' :
@@ -853,7 +853,7 @@ export const FlashcardCard: React.FC<FlashcardCardProps> = ({
                   : 'KARTU IDENTITAS RESMI PENGURUS'}
               </span>
             </div>
-            <span className={`text-[8px] sm:text-[9px] text-[#38bdf8] font-mono border border-[#273b5e] ${compactOnMobile ? 'px-1 py-0.2' : 'px-1.5 py-0.2'} bg-[#080c14] shrink-0`}>
+            <span className={`text-[8px] sm:text-[9px] text-primary font-mono border border-default ${compactOnMobile ? 'px-1 py-0.2' : 'px-1.5 py-0.2'} bg-subtle shrink-0`}>
               RESMI 2026
             </span>
           </div>
@@ -864,15 +864,15 @@ export const FlashcardCard: React.FC<FlashcardCardProps> = ({
             <div className="flex justify-center">
               {isChallengerCard ? (
                 challengerIndex === 1 ? (
-                  <div className="border-2 border-[#10b981] text-[#10b981] px-3.5 py-1 font-mono font-bold text-xs tracking-wider uppercase bg-[#052e16]/90 shadow-tactile-emerald hover:scale-105 transition-transform">
+                  <div className="border-2 border-success text-success px-3.5 py-1 font-mono font-bold text-xs tracking-wider uppercase bg-success/15 shadow-tactile-emerald hover:scale-105 transition-transform">
                     ★ SYARAT CAP STEMPEL RESMI ★
                   </div>
                 ) : challengerIndex === 2 ? (
-                  <div className="border-2 border-[#f59e0b] text-[#f59e0b] px-3.5 py-1 font-mono font-bold text-xs tracking-wider uppercase bg-[#221706]/90 shadow-tactile-amber hover:scale-105 transition-transform">
+                  <div className="border-2 border-warning text-warning px-3.5 py-1 font-mono font-bold text-xs tracking-wider uppercase bg-warning/15 shadow-tactile-amber hover:scale-105 transition-transform">
                     ★ REWARD & STRATEGI SKOR ★
                   </div>
                 ) : (
-                  <div className="border-2 border-[#38bdf8] text-[#38bdf8] px-3.5 py-1 font-mono font-bold text-xs tracking-wider uppercase bg-[#080c14]/90 shadow-tactile-blue hover:scale-105 transition-transform">
+                  <div className="border-2 border-primary text-primary px-3.5 py-1 font-mono font-bold text-xs tracking-wider uppercase bg-accent text-accent-content shadow-tactile-blue hover:scale-105 transition-transform">
                     ★ STAND OPERATIONAL BRIEFING ★
                   </div>
                 )
@@ -882,7 +882,7 @@ export const FlashcardCard: React.FC<FlashcardCardProps> = ({
                     initial={{ scale: 1.4, opacity: 0, rotate: -15 }}
                     animate={{ scale: 1, opacity: 1, rotate: -7 }}
                     transition={{ type: 'spring', stiffness: 400, damping: 18 }}
-                    className={`border-2 md:border-4 border-[#10b981] text-[#10b981] ${compactOnMobile ? 'px-2 py-0.5 text-[9.5px] sm:text-xs md:text-sm' : 'px-4 py-1.5 text-sm'} font-mono font-black tracking-widest uppercase bg-[#052e16]/80 shadow-tactile-emerald animate-stamp-alive`}
+                    className={`border-2 md:border-4 border-success text-success ${compactOnMobile ? 'px-2 py-0.5 text-[9.5px] sm:text-xs md:text-sm' : 'px-4 py-1.5 text-sm'} font-mono font-black tracking-widest uppercase bg-success/15 shadow-tactile-emerald animate-stamp-alive`}
                   >
                     ★ VERIFIED // BENAR ★
                   </motion.div>
@@ -891,15 +891,15 @@ export const FlashcardCard: React.FC<FlashcardCardProps> = ({
                     initial={{ scale: 1.4, opacity: 0, rotate: 15 }}
                     animate={{ scale: 1, opacity: 1, rotate: 7 }}
                     transition={{ type: 'spring', stiffness: 400, damping: 18 }}
-                    className={`border-2 md:border-4 border-[#f43f5e] text-[#f43f5e] ${compactOnMobile ? 'px-2 py-0.5 text-[9.5px] sm:text-xs md:text-sm' : 'px-4 py-1.5 text-sm'} font-mono font-black tracking-widest uppercase bg-[#4c0519]/80 shadow-tactile-coral`}
+                    className={`border-2 md:border-4 border-error text-error ${compactOnMobile ? 'px-2 py-0.5 text-[9.5px] sm:text-xs md:text-sm' : 'px-4 py-1.5 text-sm'} font-mono font-black tracking-widest uppercase bg-error/15 shadow-tactile-coral`}
                   >
                     ✕ ACCESS DENIED // SALAH ✕
                   </motion.div>
                 )
               ) : (
                 /* Stamp Saat Belum Dijawab: Disensor & Terkunci */
-                <div className={`border-2 border-[#f43f5e] text-[#f43f5e] ${compactOnMobile ? 'px-2 py-0.5 text-[8.5px] sm:text-xs' : 'px-3.5 py-1 text-xs'} font-mono font-bold tracking-wider uppercase bg-[#4c0519]/60 shadow-tactile-coral flex items-center gap-1.5 animate-pulse`}>
-                  <Lock className="w-3.5 h-3.5 text-[#f43f5e]" />
+                <div className={`border-2 border-error text-error ${compactOnMobile ? 'px-2 py-0.5 text-[8.5px] sm:text-xs' : 'px-3.5 py-1 text-xs'} font-mono font-bold tracking-wider uppercase bg-error/15 shadow-tactile-coral flex items-center gap-1.5 animate-pulse`}>
+                  <Lock className="w-3.5 h-3.5 text-error" />
                   IDENTITAS DIRAHASIAKAN // JAWAB KUIS
                 </div>
               )}
@@ -911,73 +911,73 @@ export const FlashcardCard: React.FC<FlashcardCardProps> = ({
               <div className={`border p-3 space-y-2 shadow-tactile-sm transition-colors duration-200 ${
                 hasGlass 
                   ? 'bg-white/[0.08] backdrop-blur-xl border-white/20' 
-                  : 'bg-[#080c14]/95 border-[#1e2b46] hover:border-[#38bdf8]'
+                  : 'bg-subtle border-default hover:border-primary'
               }`}>
                 {challengerIndex === 1 ? (
                   <div>
-                    <span className="text-[9px] font-mono text-[#10b981] block uppercase tracking-wider font-bold">
+                    <span className="text-[9px] font-mono text-success block uppercase tracking-wider font-bold">
                       KETENTUAN KLAIM CAP STAND:
                     </span>
-                    <ul className="space-y-1.5 mt-1.5 text-[11px] text-[#cbd5e1] font-sans">
+                    <ul className="space-y-1.5 mt-1.5 text-[11px] text-subtle font-sans">
                       <li className="flex items-start gap-1.5">
-                        <span className="text-[#10b981] font-mono font-bold">1.</span>
+                        <span className="text-success font-mono font-bold">1.</span>
                         <span><strong>Benar &ge; 4 Soal:</strong> Langsung dapat Cap Stempel Basah HIMA TI di buku kendali.</span>
                       </li>
                       <li className="flex items-start gap-1.5">
-                        <span className="text-[#38bdf8] font-mono font-bold">2.</span>
+                        <span className="text-primary font-mono font-bold">2.</span>
                         <span><strong>Jalur Cadangan (Salah &ge; 2):</strong> Follow Instagram @himati_official & sapa 2 kakak pengurus di stand.</span>
                       </li>
                       <li className="flex items-start gap-1.5">
-                        <span className="text-[#f59e0b] font-mono font-bold">3.</span>
+                        <span className="text-warning font-mono font-bold">3.</span>
                         <span>Semua maba yang mencoba pasti dibantu panitia untuk kelulusan GMTI!</span>
                       </li>
                     </ul>
                   </div>
                 ) : challengerIndex === 2 ? (
                   <div>
-                    <span className="text-[9px] font-mono text-[#f59e0b] block uppercase tracking-wider font-bold">
+                    <span className="text-[9px] font-mono text-warning block uppercase tracking-wider font-bold">
                       TIPS MENJADI JUARA STAND:
                     </span>
-                    <ul className="space-y-1.5 mt-1.5 text-[11px] text-[#cbd5e1] font-sans">
+                    <ul className="space-y-1.5 mt-1.5 text-[11px] text-subtle font-sans">
                       <li className="flex items-start gap-1.5">
-                        <span className="text-[#f59e0b] font-mono font-bold">1.</span>
+                        <span className="text-warning font-mono font-bold">1.</span>
                         <span><strong>Bonus Kecepatan:</strong> Jawab dalam 3 detik pertama untuk poin multiplier streak.</span>
                       </li>
                       <li className="flex items-start gap-1.5">
-                        <span className="text-[#38bdf8] font-mono font-bold">2.</span>
+                        <span className="text-primary font-mono font-bold">2.</span>
                         <span><strong>Kenali Divisi:</strong> BPH, Dept. Akademik, PSDM, Kominfo, Kastrat, dll.</span>
                       </li>
                       <li className="flex items-start gap-1.5">
-                        <span className="text-[#10b981] font-mono font-bold">3.</span>
+                        <span className="text-success font-mono font-bold">3.</span>
                         <span><strong>Hadiah Stand:</strong> Top 10 skor berhak atas stiker hologram eksklusif HIMA TI!</span>
                       </li>
                     </ul>
                   </div>
                 ) : (
                   <div>
-                    <span className="text-[9px] font-mono text-[#f59e0b] block uppercase tracking-wider font-bold">
+                    <span className="text-[9px] font-mono text-warning block uppercase tracking-wider font-bold">
                       PROTOKOL PERMAINAN STAND:
                     </span>
-                    <ul className="space-y-1.5 mt-1.5 text-[11px] text-[#cbd5e1] font-sans">
+                    <ul className="space-y-1.5 mt-1.5 text-[11px] text-subtle font-sans">
                       <li className="flex items-start gap-1.5">
-                        <span className="text-[#38bdf8] font-mono font-bold">1.</span>
+                        <span className="text-primary font-mono font-bold">1.</span>
                         <span>Tebak foto & divisi 5 pengurus yang muncul di kartu flashcard.</span>
                       </li>
                       <li className="flex items-start gap-1.5">
-                        <span className="text-[#38bdf8] font-mono font-bold">2.</span>
+                        <span className="text-primary font-mono font-bold">2.</span>
                         <span>Timer countdown per soal dengan pilihan ganda A, B, C, D.</span>
                       </li>
                       <li className="flex items-start gap-1.5">
-                        <span className="text-[#10b981] font-mono font-bold">3.</span>
+                        <span className="text-success font-mono font-bold">3.</span>
                         <span><strong>Minimal 4 Benar</strong> (maksimal salah 1) untuk dapat <strong>Cap Stand HIMA TI</strong>.</span>
                       </li>
                     </ul>
                   </div>
                 )}
 
-                <div className="pt-1.5 border-t border-[#1e2b46] flex items-center justify-between text-[9px] font-mono text-[#94a3b8]">
+                <div className="pt-1.5 border-t border-default flex items-center justify-between text-[9px] font-mono text-muted">
                   <span>{challengerIndex === 1 ? 'BUKU KENDALI MABA' : challengerIndex === 2 ? 'REWARD SYSTEM' : 'OFFLINE SQLITE DB'}</span>
-                  <span className={challengerIndex === 1 ? 'text-[#10b981] font-bold' : challengerIndex === 2 ? 'text-[#f59e0b] font-bold' : 'text-[#38bdf8] font-bold'}>
+                  <span className={challengerIndex === 1 ? 'text-success font-bold' : challengerIndex === 2 ? 'text-warning font-bold' : 'text-primary font-bold'}>
                     STAND BOOTH 2026
                   </span>
                 </div>
@@ -988,68 +988,68 @@ export const FlashcardCard: React.FC<FlashcardCardProps> = ({
                 hasGlass 
                   ? 'bg-white/[0.06] backdrop-blur-md border border-white/15 shadow-inner' 
                   : isAnswered 
-                  ? 'bg-[#080c14]/90 border border-[#1e2b46] hover:border-[#2563eb]' 
-                  : 'bg-[#080c14]/90 border border-[#f43f5e]/50 shadow-tactile-coral'
+                  ? 'bg-default border border-default hover:border-primary' 
+                  : 'bg-default border border-error/50 shadow-tactile-coral'
               } ${compactOnMobile ? 'p-1.5 sm:p-2.5 md:p-3 space-y-1 sm:space-y-2' : 'p-3 space-y-2'} shadow-tactile-sm transition-all duration-200`}>
                 <div>
-                  <span className={`${compactOnMobile ? 'text-[8px] sm:text-[9px]' : 'text-[9px]'} font-mono text-[#64748b] group-hover:text-[#38bdf8] block uppercase tracking-wider transition-colors`}>
+                  <span className={`${compactOnMobile ? 'text-[8px] sm:text-[9px]' : 'text-[9px]'} font-mono text-muted group-hover:text-primary block uppercase tracking-wider transition-colors`}>
                     NAMA LENGKAP PENGURUS:
                   </span>
                   {isAnswered ? (
-                    <p className={`${compactOnMobile ? 'text-xs sm:text-sm md:text-base' : 'text-sm md:text-base'} font-extrabold text-[#f8fafc] leading-tight mt-0.5 group-hover:translate-x-0.5 transition-transform`}>
+                    <p className={`${compactOnMobile ? 'text-xs sm:text-sm md:text-base' : 'text-sm md:text-base'} font-extrabold text-default leading-tight mt-0.5 group-hover:translate-x-0.5 transition-transform`}>
                       {question?.correctNama}
                     </p>
                   ) : (
                     /* SENSOR NAMA: Muncul saat maba iseng balik kartu sebelum jawab */
-                    <div className={`mt-1 flex items-center justify-between bg-[#080d16] border border-[#f43f5e]/40 ${compactOnMobile ? 'p-1 sm:p-2' : 'p-2'} font-mono`}>
+                    <div className={`mt-1 flex items-center justify-between bg-subtle border border-error/40 ${compactOnMobile ? 'p-1 sm:p-2' : 'p-2'} font-mono`}>
                       <div className="flex items-center gap-1.5">
-                        <Lock className="w-3 h-3 text-[#f43f5e] shrink-0 animate-pulse" />
-                        <span className={`${compactOnMobile ? 'text-[9.5px] sm:text-xs' : 'text-xs'} font-bold text-[#f43f5e] tracking-wider uppercase`}>
+                        <Lock className="w-3 h-3 text-error shrink-0 animate-pulse" />
+                        <span className={`${compactOnMobile ? 'text-[9.5px] sm:text-xs' : 'text-xs'} font-bold text-error tracking-wider uppercase`}>
                           [TERKUNCI]
                         </span>
                       </div>
-                      <span className="text-[8px] sm:text-[9px] text-[#94a3b8] font-bold">JAWAB DAHULU</span>
+                      <span className="text-[8px] sm:text-[9px] text-muted font-bold">JAWAB DAHULU</span>
                     </div>
                   )}
                 </div>
 
-                <div className="pt-1 border-t border-[#1e2b46]">
-                  <span className={`${compactOnMobile ? 'text-[8px] sm:text-[9px]' : 'text-[9px]'} font-mono text-[#64748b] group-hover:text-[#38bdf8] block uppercase tracking-wider transition-colors`}>
+                <div className="pt-1 border-t border-default">
+                  <span className={`${compactOnMobile ? 'text-[8px] sm:text-[9px]' : 'text-[9px]'} font-mono text-muted group-hover:text-primary block uppercase tracking-wider transition-colors`}>
                     DIVISI / AMANAH:
                   </span>
                   {isAnswered ? (
-                    <p className={`${compactOnMobile ? 'text-[10px] sm:text-xs' : 'text-xs'} font-bold text-[#38bdf8] font-mono mt-0.5 group-hover:text-[#60a5fa] transition-colors`}>
+                    <p className={`${compactOnMobile ? 'text-[10px] sm:text-xs' : 'text-xs'} font-bold text-primary font-mono mt-0.5 group-hover:opacity-80 transition-opacity`}>
                       {question?.correctDivisi}
                     </p>
                   ) : (
                     /* SENSOR DIVISI: Muncul saat maba iseng balik kartu sebelum jawab */
-                    <div className={`mt-1 flex items-center justify-between bg-[#080d16] border border-[#1e2b46] ${compactOnMobile ? 'p-1 sm:p-2' : 'p-2'} font-mono`}>
-                      <span className={`${compactOnMobile ? 'text-[10px] sm:text-xs' : 'text-xs'} tracking-wider text-[#64748b] font-bold`}>
+                    <div className={`mt-1 flex items-center justify-between bg-subtle border border-default ${compactOnMobile ? 'p-1 sm:p-2' : 'p-2'} font-mono`}>
+                      <span className={`${compactOnMobile ? 'text-[10px] sm:text-xs' : 'text-xs'} tracking-wider text-muted font-bold`}>
                         ████████████
                       </span>
-                      <span className="text-[8px] sm:text-[9px] text-[#f59e0b] font-bold">[RAHASIA]</span>
+                      <span className="text-[8px] sm:text-[9px] text-warning font-bold">[RAHASIA]</span>
                     </div>
                   )}
                 </div>
 
-                <div className={`pt-1 border-t border-[#1e2b46] flex items-center justify-between ${compactOnMobile ? 'text-[8px] sm:text-[9px]' : 'text-[9px]'} font-mono text-[#94a3b8]`}>
+                <div className={`pt-1 border-t border-default flex items-center justify-between ${compactOnMobile ? 'text-[8px] sm:text-[9px]' : 'text-[9px]'} font-mono text-muted`}>
                   {isAnswered ? (
                     <>
-                      <span className="flex items-center gap-1">
-                        <span className="w-1.5 h-1.5 bg-[#10b981] rounded-full animate-ping" />
+                      <span className="flex items-center gap-1 text-success">
+                        <span className="w-1.5 h-1.5 bg-success rounded-full animate-ping" />
                         STATUS: AKTIF
                       </span>
-                      <span className="text-[#10b981] font-bold border border-[#10b981]/40 px-1 py-0.2 bg-[#052e16]/60">
+                      <span className="text-success font-bold border border-success/40 px-1 py-0.2 bg-success/10">
                         TERVERIFIKASI
                       </span>
                     </>
                   ) : (
                     <>
-                      <span className="flex items-center gap-1 text-[#f43f5e]">
+                      <span className="flex items-center gap-1 text-error">
                         <Lock className="w-2.5 h-2.5" />
                         STATUS: TERKUNCI
                       </span>
-                      <span className="text-[#f43f5e] font-bold border border-[#f43f5e]/40 px-1 py-0.2 bg-[#4c0519]/40">
+                      <span className="text-error font-bold border border-error/40 px-1 py-0.2 bg-error/10">
                         DIRAHASIAKAN
                       </span>
                     </>
@@ -1060,9 +1060,9 @@ export const FlashcardCard: React.FC<FlashcardCardProps> = ({
 
             {/* Fun Fact / Quote */}
             <div className={`p-2 text-center transition-colors ${
-              hasGlass ? 'bg-white/[0.04] border border-white/10' : 'bg-[#0d1524] border border-[#1e2b46]'
+              hasGlass ? 'bg-white/[0.04] border border-white/10' : 'bg-subtle border border-default'
             }`}>
-              <p className="text-[10px] text-[#cbd5e1] italic leading-tight">
+              <p className="text-[10px] text-subtle italic leading-tight">
                 {isChallengerCard 
                   ? '“Buktikan keakrabanmu dan klaim cap stempel buku GMTI-mu di stand!”'
                   : isAnswered
@@ -1073,10 +1073,10 @@ export const FlashcardCard: React.FC<FlashcardCardProps> = ({
           </div>
 
           {/* ID Card Footer with Barcode & Re-flip Action */}
-          <div className="relative z-25 shrink-0 pt-1.5 sm:pt-2 border-t border-[#1e2b46] flex items-center justify-between text-[10px] font-mono">
-            <div className="flex items-center gap-1.5 text-[#64748b]">
-              <QrCode className="w-4 h-4 text-[#38bdf8]" />
-              <span className="text-[8px] tracking-tight text-[#94a3b8]">
+          <div className="relative z-25 shrink-0 pt-1.5 sm:pt-2 border-t border-default flex items-center justify-between text-[10px] font-mono">
+            <div className="flex items-center gap-1.5 text-muted">
+              <QrCode className="w-4 h-4 text-primary" />
+              <span className="text-[8px] tracking-tight text-muted">
                 {isAnswered ? 'TI-SEC-2026-OK' : 'TI-LOCKED-WAITING'}
               </span>
             </div>
@@ -1084,7 +1084,7 @@ export const FlashcardCard: React.FC<FlashcardCardProps> = ({
             <button
               type="button"
               onClick={handleFlipCard}
-              className="px-2 py-0.5 bg-[#172338] hover:bg-[#2563eb] text-[#f8fafc] border border-[#273b5e] text-[9px] font-mono font-bold flex items-center gap-1 transition-colors cursor-pointer"
+              className="px-2 py-0.5 bg-primary hover:opacity-90 text-white border border-default text-[9px] font-mono font-bold flex items-center gap-1 transition-colors cursor-pointer"
             >
               <RotateCw className="w-2.5 h-2.5" />
               {isChallengerCard ? 'LIHAT EMBLEM' : 'LIHAT FOTO'}

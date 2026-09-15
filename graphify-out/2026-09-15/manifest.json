@@ -75,8 +75,8 @@
     "semantic_hash": ""
   },
   "frontend/src/components/game/WelcomeScreen.tsx": {
-    "mtime": 1789457651.5175886,
-    "ast_hash": "7605f160b987b35dc33350ba6cb37113",
+    "mtime": 1789459402.1526377,
+    "ast_hash": "f72e64abba466ddd6da5143116d90f9e",
     "semantic_hash": ""
   },
   "frontend/src/components/ui/Badge.tsx": {
@@ -100,8 +100,8 @@
     "semantic_hash": ""
   },
   "frontend/src/lib/sound.ts": {
-    "mtime": 1789457512.2712426,
-    "ast_hash": "d7e1a0874823b1aaedd918603c7f1a97",
+    "mtime": 1789459248.4661014,
+    "ast_hash": "6afd6934980204aa2e6ce75ade474837",
     "semantic_hash": ""
   },
   "frontend/src/main.tsx": {
@@ -395,8 +395,8 @@
     "semantic_hash": ""
   },
   "frontend/src/components/game/AudioMixerModal.tsx": {
-    "mtime": 1789458189.016469,
-    "ast_hash": "ac3129dcd5a70648191f4b72eabaf394",
+    "mtime": 1789459367.9518404,
+    "ast_hash": "ffbb9b2119ad96c7b33267f679e15b7b",
     "semantic_hash": ""
   }
 }

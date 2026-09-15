@@ -1,11 +1,11 @@
 # Graph Report - minigames-hima-ti  (2026-09-15)
 
 ## Corpus Check
-- 32 files · ~151,137 words
+- 32 files · ~151,876 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 304 nodes · 484 edges · 17 communities (14 shown, 3 thin omitted)
+- 304 nodes · 485 edges · 17 communities (14 shown, 3 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS
 - Token cost: 0 input · 0 output
 
@@ -130,7 +130,7 @@ _Questions this graph is uniquely positioned to answer:_
 - **Should `server.js` be split into smaller, more focused modules?**
   _Cohesion score 0.06756756756756757 - nodes in this community are weakly interconnected._
 - **Should `FlashcardGame.tsx` be split into smaller, more focused modules?**
-  _Cohesion score 0.09503843466107617 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.0957372466806429 - nodes in this community are weakly interconnected._
 - **Should `devDependencies` be split into smaller, more focused modules?**
   _Cohesion score 0.08 - nodes in this community are weakly interconnected._
 - **Should `compilerOptions` be split into smaller, more focused modules?**

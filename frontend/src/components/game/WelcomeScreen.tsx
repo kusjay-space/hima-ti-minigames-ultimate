@@ -1,9 +1,12 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { Trophy, Settings, Volume2, VolumeX, Shield, Users, Clock, AlertCircle, ArrowRight, User, RefreshCw, Sparkles, Layers, RotateCw, Music, Disc, Sliders } from 'lucide-react';
+import { 
+  Trophy, Settings, Volume2, VolumeX, Shield, Users, Clock, AlertCircle, 
+  ArrowRight, User, RefreshCw, Sparkles, Layers, RotateCw, Music, Disc, Sliders 
+} from 'lucide-react';
 import { soundFx, CARD_SOUND_STYLES, type CardSoundStyle } from '../../lib/sound';
 import { bgm, type BgmTrackMode } from '../../lib/bgm';
-import type { QuizConfig } from '../../types';
+import type { QuizConfig, LeaderboardEntry } from '../../types';
 import { FlashcardCard } from './FlashcardCard';
 import { AudioMixerModal } from './AudioMixerModal';
 
@@ -56,6 +59,31 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
   const [error, setError] = useState('');
   const [isValidatingName, setIsValidatingName] = useState(false);
   const [showAudioMixer, setShowAudioMixer] = useState(false);
+
+  // Live Leaderboard Panel States
+  const [leaderboardEntries, setLeaderboardEntries] = useState<LeaderboardEntry[]>([]);
+  const [isLeaderboardLoading, setIsLeaderboardLoading] = useState(false);
+
+  const fetchLeaderboard = useCallback(async () => {
+    setIsLeaderboardLoading(true);
+    try {
+      const res = await fetch('/api/leaderboard');
+      const data = await res.json();
+      if (data.success) {
+        setLeaderboardEntries(data.data || []);
+      }
+    } catch (err) {
+      console.error('Gagal mengambil leaderboard:', err);
+    } finally {
+      setIsLeaderboardLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchLeaderboard();
+    const interval = setInterval(fetchLeaderboard, 15000);
+    return () => clearInterval(interval);
+  }, [fetchLeaderboard]);
 
   useEffect(() => {
     if (bgm.isMusicEnabled() && !bgm.isMusicPlaying()) {
@@ -179,29 +207,23 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
   const handleNextRef = useRef(handleNext);
   useEffect(() => {
     handleNextRef.current = handleNext;
-  }, [handleNext]);
+  });
 
-  // Auto-switch: otomatis balik kartu ke sisi belakang, lalu geser ke kartu berikutnya!
+  // Smooth Auto-Play Slideshow: Rotasi kartu otomatis setiap 4.5 detik jika tidak di-hover dan kartu tidak sedang dibalik
   useEffect(() => {
-    if (!isAutoSwitch || isHoveringStack || transition !== null) return;
+    if (!isAutoSwitch || isHoveringStack || isCardFlipped || transition !== null) {
+      return;
+    }
 
     const timer = setTimeout(() => {
-      if (!isCardFlipped) {
-        // Step 1: Otomatis membalikkan kartu ke sisi belakang (menampilkan briefing / rules)
-        // Gunakan suara sangat lembut (isAuto = true) agar standby booth nyaman & tidak risih
-        soundFx.playFlip(true);
-        setIsCardFlipped(true);
-      } else {
-        // Step 2: Otomatis geser ke kartu berikutnya di tumpukan 3D
-        handleNextRef.current('left', false);
-      }
+      handleNextRef.current('left', false);
     }, 4500);
 
     return () => clearTimeout(timer);
   }, [isAutoSwitch, isHoveringStack, isCardFlipped, transition]);
 
   const getCardMotion = (cardIdx: number) => {
-    // Keadaan diam (Idle): Tumpukan kartu fisik fanned out ke pojok kanan bawah dengan pencahayaan bertingkat (tanpa blur agar teks selalu tajam)
+    // Keadaan diam (Idle): Tumpukan kartu fisik fanned out ke pojok kanan bawah dengan pencahayaan bertingkat
     if (!transition) {
       const pos = deck.indexOf(cardIdx); // 0: Front, 1: Middle, 2: Bottom
       if (pos === 0) {
@@ -480,20 +502,25 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
       setError('Nama minimal terdiri dari 2 karakter!');
       return;
     }
+
     setError('');
     setIsValidatingName(true);
 
     try {
       const res = await fetch(`/api/check-name?name=${encodeURIComponent(cleanName)}`);
       const data = await res.json();
-      if (data.exists) {
-        setError(`Nama "${cleanName}" sudah pernah main di peringkat #${data.rank} (Skor: ${data.skor}). Gunakan nama lain / tambahkan kode pembeda!`);
+
+      if (!data.available) {
+        setError(data.message || `Nama tim "${cleanName}" sudah terdaftar di leaderboard! Gunakan nama pembeda.`);
         soundFx.playWrong();
         setIsValidatingName(false);
         return;
       }
+
+      soundFx.playTick();
       onStart(cleanName);
     } catch {
+      soundFx.playTick();
       onStart(cleanName);
     } finally {
       setIsValidatingName(false);
@@ -501,9 +528,9 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
   };
 
   return (
-    <div className="w-full h-[100dvh] max-h-[100dvh] flex flex-col justify-between max-w-7xl mx-auto p-2 sm:p-3 md:p-4 overflow-hidden select-none">
+    <div className="w-full min-h-[100dvh] flex flex-col justify-between max-w-[1880px] mx-auto p-2.5 sm:p-4 md:p-5 select-none relative overflow-x-hidden text-[#f8fafc]">
       {/* Top Technical Status Bar */}
-      <header className="flex items-center justify-between gap-1.5 sm:gap-2 pb-1.5 sm:pb-2 border-b-2 border-[#1e2b46] shrink-0">
+      <header className="flex items-center justify-between gap-1.5 sm:gap-2 pb-2 sm:pb-3 border-b-2 border-[#1e2b46] shrink-0">
         <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
           <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 bg-[#38bdf8] shrink-0 animate-pulse shadow-[0_0_8px_#38bdf8]" />
           <div className="truncate min-w-0">
@@ -514,15 +541,16 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
           </div>
         </div>
 
-        {/* Global Action Bar with Music & SFX Toggles */}
+        {/* Global Action Bar with Music, SFX, Leaderboard & Admin Toggles */}
         <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+          {/* Full Leaderboard Modal Button */}
           <button
             type="button"
             onClick={onOpenLeaderboard}
-            className="p-1.5 sm:px-3 sm:py-1.5 bg-[#0d1424] border border-[#1e2b46] hover:border-[#38bdf8] hover:bg-[#0c182c] hover:translate-y-[-1px] text-[#94a3b8] hover:text-[#38bdf8] text-xs font-mono font-bold transition-all cursor-pointer flex items-center gap-1 shadow-tactile-sm"
+            className="p-1.5 sm:px-3 sm:py-1.5 bg-[#0d1424] border border-[#1e2b46] hover:border-[#38bdf8] hover:bg-[#0c182c] hover:translate-y-[-1px] text-[#94a3b8] hover:text-[#38bdf8] text-xs font-mono font-bold transition-all cursor-pointer flex items-center gap-1.5 shadow-tactile-sm"
           >
             <Trophy className="w-3.5 h-3.5 text-[#f59e0b]" />
-            <span className="hidden xs:inline">PAPAN SKOR</span>
+            <span className="hidden xs:inline">PAPAN SKOR LENGKAP</span>
           </button>
 
           {/* Dedicated Music Track Selector Button */}
@@ -538,7 +566,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
             </span>
           </button>
 
-          {/* Dedicated Quizizz-style BGM Toggle - Icon Only on Mobile */}
+          {/* BGM Toggle */}
           <button
             type="button"
             onClick={handleToggleMusic}
@@ -555,7 +583,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
             </span>
           </button>
 
-          {/* Dedicated Sound Effects (SFX) Toggle - Icon Only on Mobile */}
+          {/* SFX Toggle */}
           <button
             type="button"
             onClick={handleToggleSound}
@@ -572,7 +600,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
             </span>
           </button>
 
-          {/* Dedicated Audio Volume Mixer Button */}
+          {/* Audio Volume Mixer Modal Trigger */}
           <button
             type="button"
             onClick={() => setShowAudioMixer(true)}
@@ -581,10 +609,11 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
           >
             <Sliders className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#38bdf8]" />
             <span className="text-[9.5px] sm:text-[10px] font-mono font-bold hidden sm:inline">
-              VOL
+              MIXER
             </span>
           </button>
 
+          {/* Admin Dashboard Trigger */}
           <button
             type="button"
             onClick={onOpenAdmin}
@@ -596,19 +625,22 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
         </div>
       </header>
 
-      {/* Main Hero & Console Area */}
-      <main className="flex-1 min-h-0 py-3 sm:py-4 md:py-4 flex items-center justify-center">
-        <div className="w-full h-full grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-4 lg:gap-8 items-center">
-          {/* Left Column: Real 3D Physical Card Deck Stack with Dynamic Layers & Gesture Swiping */}
-          <div className="md:col-span-5 flex flex-col items-center justify-center w-full">
+      {/* Main Area: 3 SECTIONS SEJAJAR (Deck Stack | Cockpit & Form | Live Leaderboard) */}
+      <main className="flex-1 min-h-0 py-3 sm:py-4 flex items-center justify-center w-full overflow-visible">
+        <div className="w-full flex flex-col lg:flex-row items-center lg:items-stretch justify-center gap-4 sm:gap-6 xl:gap-8 overflow-visible">
+          
+          {/* ========================================================================= */}
+          {/* SECTION 1 (KIRI): Real 3D Physical Card Deck Stack & Controls             */}
+          {/* ========================================================================= */}
+          <div className="w-full lg:w-[350px] xl:w-[390px] 2xl:w-[430px] shrink-0 flex flex-col items-center justify-center overflow-visible relative z-20">
             <div 
-              className="relative w-full flex flex-col items-center select-none"
+              className="relative w-full flex flex-col items-center select-none overflow-visible"
               onMouseEnter={() => setIsHoveringStack(true)}
               onMouseLeave={() => setIsHoveringStack(false)}
             >
               {/* Stack Stage Container */}
-              <div className="relative w-full max-w-[285px] xs:max-w-[310px] sm:max-w-[340px] md:max-w-[360px] lg:max-w-[375px] mx-auto perspective-1200 flex flex-col items-center">
-                <div className="relative w-full">
+              <div className="relative w-full max-w-[285px] xs:max-w-[310px] sm:max-w-[340px] md:max-w-[360px] lg:max-w-[375px] mx-auto perspective-1200 flex flex-col items-center overflow-visible">
+                <div className="relative w-full pb-14 pr-12 overflow-visible" style={{ transformStyle: 'preserve-3d' }}>
                   {/* Invisible Sizer to naturally dictate container dimensions without hardcoding */}
                   <div className="invisible pointer-events-none opacity-0 select-none" aria-hidden="true">
                     <FlashcardCard
@@ -639,6 +671,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
                         initial={false}
                         style={{
                           zIndex: motionProps.zIndex,
+                          transformStyle: 'preserve-3d',
                         }}
                         animate={motionProps.animate}
                         transition={motionProps.transition}
@@ -647,7 +680,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
                           if (isMid) handleNext('left', true);
                           else if (isBottom) handlePrev('right', true);
                         }}
-                        className={`absolute inset-0 w-full ${!isFront ? 'cursor-pointer pointer-events-auto' : ''}`}
+                        className={`absolute inset-0 w-full overflow-visible ${!isFront ? 'cursor-pointer pointer-events-auto' : ''}`}
                         title={!isFront ? `Klik untuk geser kartu [ ${challengerCards[cardIdx].label} ] ke depan` : undefined}
                       >
                         <FlashcardCard
@@ -672,7 +705,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
               </div>
 
               {/* Navigation Controls & Auto-Switch Toolbar */}
-              <div className="mt-4 sm:mt-6 w-full max-w-[285px] xs:max-w-[310px] sm:max-w-[340px] md:max-w-[360px] lg:max-w-[375px] flex flex-col items-center gap-2">
+              <div className="mt-2 w-full max-w-[285px] xs:max-w-[310px] sm:max-w-[340px] md:max-w-[360px] lg:max-w-[375px] flex flex-col items-center gap-2">
                 {/* 3 Clickable Full-Width Segmented Tabs */}
                 <div className="w-full grid grid-cols-3 gap-1 bg-[#0d1424] border border-[#1e2b46] p-1 shadow-tactile-sm">
                   {challengerCards.map((card) => {
@@ -683,7 +716,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
                         type="button"
                         onClick={() => handleSelectCard(card.index)}
                         disabled={transition !== null}
-                        className={`py-1.5 px-1.5 text-[10px] sm:text-[10.5px] font-mono font-bold uppercase transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                        className={`py-1.5 px-1 text-[10px] sm:text-[10.5px] font-mono font-bold uppercase transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
                           isActive
                             ? 'bg-[#1e2b46] text-[#38bdf8] border border-[#38bdf8] shadow-tactile-sm hover:bg-[#253659]'
                             : 'text-[#64748b] hover:text-[#cbd5e1] border border-transparent hover:border-[#1e2b46] hover:bg-[#0c1322]'
@@ -722,7 +755,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
                     </button>
                   </div>
 
-                  {/* Right: Auto-Switch, Flip Toggle, and Sound Style Switcher */}
+                  {/* Right: Auto-Switch, Flip Toggle, and Quick SFX Cycler */}
                   <div className="flex items-center gap-1 sm:gap-1.5">
                     <button
                       type="button"
@@ -749,13 +782,12 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
                           ? 'border-[#38bdf8]/60 text-[#38bdf8] bg-[#0c1a2e]' 
                           : 'border-[#1e2b46] text-[#94a3b8] bg-[#080c14] hover:border-[#38bdf8] hover:text-white'
                       }`}
-                      title="Klik untuk membalik kartu (Manual)"
+                      title="Klik untuk membalik kartu"
                     >
                       <RotateCw className="w-2.5 h-2.5 text-[#38bdf8]" />
                       <span>{isCardFlipped ? 'BELAKANG' : 'DEPAN'}</span>
                     </button>
 
-                    {/* Quick Sound Profile Cycler */}
                     <button
                       type="button"
                       onClick={handleCycleCardSound}
@@ -777,15 +809,17 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
             </div>
           </div>
 
-          {/* Right Column: Title, Cap Target & Player Input (7 cols) */}
-          <div className="md:col-span-7 flex flex-col justify-center space-y-3 md:space-y-4">
+          {/* ========================================================================= */}
+          {/* SECTION 2 (TENGAH): Hero Header, Cap Cockpit, & Registrasi Form           */}
+          {/* ========================================================================= */}
+          <div className="w-full lg:flex-1 max-w-[620px] xl:max-w-[700px] 2xl:max-w-[760px] flex flex-col justify-center space-y-3 sm:space-y-4">
             {/* Header Title Block */}
             <div>
               <div className="inline-block border border-[#273b5e] bg-[#0d1424] px-2.5 py-0.5 text-[#38bdf8] text-[11px] font-mono mb-2 font-bold uppercase tracking-wider transition-all duration-200 hover:border-[#38bdf8] hover:bg-[#0f1d38] hover:shadow-tactile-sm cursor-default">
-                STAND HIMPUNAN MAHASISWA TEKNOLOGI INFORMASI
+                STAND RESMI HIMA TI // GMTI 2026
               </div>
               <h1 className="text-2xl md:text-4xl font-extrabold tracking-tight text-[#f8fafc] leading-tight">
-                FLASHCARD <span className="text-[#2563eb]">PENGURUS</span>
+                FLASHCARD <span className="text-[#38bdf8]">PENGURUS</span>
               </h1>
               <p className="text-xs md:text-sm text-[#94a3b8] mt-1 leading-relaxed">
                 Uji pengetahuanmu mengenali wajah dan amanah 34 pengurus HIMA TI masa bakti 2026. Raih cap stempel resmi untuk buku kendali GMTI-mu!
@@ -847,7 +881,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
             {/* Registration Input Form */}
             <div className="bg-[#0d1424] border-2 border-[#1e2b46] hover:border-[#2a3c5a] p-4 shadow-tactile relative transition-colors duration-200">
               <div className="flex items-center gap-2 mb-3 pb-2 border-b border-[#1e2b46]">
-                <User className="w-4 h-4 text-[#2563eb]" />
+                <User className="w-4 h-4 text-[#38bdf8]" />
                 <h3 className="text-sm font-bold text-[#f8fafc] tracking-tight">
                   Registrasi Peserta Stand
                 </h3>
@@ -868,7 +902,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
                     placeholder="Contoh: Putu Arya / Tim Turing"
                     maxLength={35}
                     autoFocus
-                    className="w-full px-3.5 py-2.5 bg-[#080c14] border-2 border-[#1e2b46] hover:border-[#334b75] hover:bg-[#0a0f1c] text-[#f8fafc] placeholder-[#475569] focus:outline-none focus:border-[#2563eb] focus:bg-[#091020] text-sm font-medium transition-all"
+                    className="w-full px-3.5 py-2.5 bg-[#080c14] border-2 border-[#1e2b46] hover:border-[#334b75] hover:bg-[#0a0f1c] text-[#f8fafc] placeholder-[#475569] focus:outline-none focus:border-[#38bdf8] focus:bg-[#091020] text-sm font-medium transition-all"
                   />
                   {error && (
                     <p className="text-[#f43f5e] text-xs mt-1.5 flex items-center gap-1.5 font-mono">
@@ -884,7 +918,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
                   className={`w-full py-3.5 font-bold text-sm md:text-base flex items-center justify-center gap-2 shadow-tactile transition-all cursor-pointer ${
                     isValidatingName
                       ? 'bg-[#1e2b46] text-[#94a3b8] cursor-wait'
-                      : 'bg-[#2563eb] hover:bg-[#1d4ed8] text-white hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-tactile-blue active:translate-x-[1px] active:translate-y-[1px] active:shadow-none'
+                      : 'bg-[#0284c7] hover:bg-[#0369a1] text-white hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-tactile-blue active:translate-x-[1px] active:translate-y-[1px] active:shadow-none'
                   }`}
                 >
                   {isValidatingName ? (
@@ -902,6 +936,148 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
               </form>
             </div>
           </div>
+
+          {/* ========================================================================= */}
+          {/* SECTION 3 (KANAN): Live Leaderboard Panel (Papan Skor Stand GMTI)         */}
+          {/* ========================================================================= */}
+          <div className="w-full lg:w-[340px] xl:w-[380px] 2xl:w-[420px] shrink-0 flex flex-col justify-center">
+            <div className="bg-[#0d1424] border-2 border-[#1e2b46] hover:border-[#2a3c5a] p-3.5 sm:p-4 flex flex-col h-[520px] sm:h-[560px] lg:h-[600px] xl:h-[640px] shadow-tactile transition-colors relative">
+              {/* Corner Accents */}
+              <div className="absolute top-1.5 left-1.5 text-[8px] font-mono text-[#273b5e] font-bold pointer-events-none">+</div>
+              <div className="absolute top-1.5 right-1.5 text-[8px] font-mono text-[#273b5e] font-bold pointer-events-none">+</div>
+              <div className="absolute bottom-1.5 left-1.5 text-[8px] font-mono text-[#273b5e] font-bold pointer-events-none">+</div>
+              <div className="absolute bottom-1.5 right-1.5 text-[8px] font-mono text-[#273b5e] font-bold pointer-events-none">+</div>
+
+              {/* Leaderboard Panel Header */}
+              <div className="flex items-center justify-between pb-3 mb-3 border-b border-[#1e2b46]">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-[#f59e0b]/15 text-[#f59e0b] flex items-center justify-center font-bold">
+                    <Trophy className="w-4 h-4 stroke-[2.5]" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-1.5">
+                      <h3 className="text-xs sm:text-sm font-bold text-[#f8fafc] font-mono uppercase tracking-wider">
+                        PAPAN SKOR
+                      </h3>
+                      <span className="flex items-center gap-1 text-[9px] font-mono font-bold text-[#10b981] bg-[#052e16] border border-[#10b981]/40 px-1.5 py-0.2 rounded">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#10b981] animate-ping" />
+                        LIVE
+                      </span>
+                    </div>
+                    <p className="text-[10px] text-[#64748b] font-mono">Top Peserta Stand GMTI</p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => fetchLeaderboard()}
+                  disabled={isLeaderboardLoading}
+                  className="p-1.5 bg-[#080c14] border border-[#1e2b46] hover:border-[#38bdf8] text-[#64748b] hover:text-[#38bdf8] transition-all cursor-pointer shadow-xs"
+                  title="Segarkan data leaderboard"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 ${isLeaderboardLoading ? 'animate-spin text-[#38bdf8]' : ''}`} />
+                </button>
+              </div>
+
+              {/* Scrollable Leaderboard List */}
+              <div className="flex-1 overflow-y-auto pr-1 space-y-2 min-h-0 select-none">
+                {isLeaderboardLoading && leaderboardEntries.length === 0 ? (
+                  <div className="h-full flex flex-col items-center justify-center text-center text-[#64748b] text-xs font-mono">
+                    <RefreshCw className="w-5 h-5 animate-spin mx-auto mb-2 text-[#38bdf8]" />
+                    <span>Memuat Skor Stand...</span>
+                  </div>
+                ) : leaderboardEntries.length === 0 ? (
+                  <div className="h-full flex flex-col items-center justify-center text-center text-[#64748b] text-xs p-4 font-mono">
+                    <Trophy className="w-8 h-8 mx-auto mb-2 text-[#475569]/60" />
+                    <p className="font-bold text-[#94a3b8]">Belum Ada Data Skor</p>
+                    <p className="text-[10px] mt-1 text-[#475569]">Jadilah yang pertama menyelesaikan kuis!</p>
+                  </div>
+                ) : (
+                  leaderboardEntries.map((entry, idx) => {
+                    const isTop1 = idx === 0;
+                    const isTop2 = idx === 1;
+                    const isTop3 = idx === 2;
+
+                    return (
+                      <div
+                        key={entry.id || idx}
+                        className={`p-2 sm:p-2.5 border transition-all ${
+                          isTop1
+                            ? 'bg-[#1f1606]/80 border-[#f59e0b] shadow-tactile-sm'
+                            : isTop2
+                            ? 'bg-[#0a192f]/70 border-[#2563eb]'
+                            : isTop3
+                            ? 'bg-[#0a192f]/50 border-[#38bdf8]/60'
+                            : 'bg-[#080c14] border-[#1e2b46] hover:border-[#273b5e]'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          {/* Rank & Name */}
+                          <div className="flex items-center gap-2 min-w-0 pr-1">
+                            <span
+                              className={`w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center font-mono font-bold text-xs shrink-0 ${
+                                isTop1
+                                  ? 'bg-[#f59e0b] text-[#080c14]'
+                                  : isTop2
+                                  ? 'bg-[#2563eb] text-white'
+                                  : isTop3
+                                  ? 'bg-[#38bdf8] text-[#080c14]'
+                                  : 'bg-[#1e2b46] text-[#94a3b8]'
+                              }`}
+                            >
+                              #{idx + 1}
+                            </span>
+
+                            <div className="min-w-0">
+                              <p className="font-bold text-xs sm:text-sm text-[#f8fafc] truncate" title={entry.nama_peserta}>
+                                {entry.nama_peserta}
+                              </p>
+                              <div className="flex items-center gap-1 text-[10px] text-[#64748b] font-mono">
+                                <Clock className="w-3 h-3 text-[#38bdf8]" />
+                                <span>{entry.waktu_detik}s</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Score & Cap Status */}
+                          <div className="text-right shrink-0 flex flex-col items-end">
+                            <span className="font-mono font-bold text-xs sm:text-sm text-[#38bdf8]">
+                              {entry.skor} PTS
+                            </span>
+                            <div className="mt-0.5 text-[9px] font-mono font-bold uppercase">
+                              {entry.status_cap === 'lolos' ? (
+                                <span className="border border-[#10b981]/40 bg-[#052e16]/80 text-[#10b981] px-1.5 py-0.2 rounded">
+                                  Cap: Lolos
+                                </span>
+                              ) : (
+                                <span className="border border-[#f59e0b]/40 bg-[#1f1606]/80 text-[#f59e0b] px-1.5 py-0.2 rounded">
+                                  Cap: Misi
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+
+              {/* Leaderboard Panel Footer */}
+              <div className="pt-2.5 mt-2 border-t border-[#1e2b46] flex items-center justify-between text-xs font-mono text-[#64748b]">
+                <span className="text-[10px]">{leaderboardEntries.length} Peserta Terdaftar</span>
+                <button
+                  type="button"
+                  onClick={onOpenLeaderboard}
+                  className="text-[#38bdf8] hover:text-white flex items-center gap-1 transition-colors cursor-pointer font-bold text-[11px]"
+                >
+                  <span>Lihat Semua</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
+          </div>
+
         </div>
       </main>
 

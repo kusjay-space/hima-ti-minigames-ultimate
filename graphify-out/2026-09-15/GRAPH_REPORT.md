@@ -1,16 +1,16 @@
 # Graph Report - minigames-hima-ti  (2026-09-15)
 
 ## Corpus Check
-- 32 files · ~151,876 words
+- 32 files · ~152,461 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 304 nodes · 485 edges · 17 communities (14 shown, 3 thin omitted)
+- 304 nodes · 486 edges · 17 communities (14 shown, 3 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `74d0ebed`
+- Built from commit: `ddeaaf3f`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -66,8 +66,8 @@ Cohesion: 0.07
 Nodes (30): checkSetting, db, dbPath, defaultSettings, __dirname, __filename, insertSetting, uploadsDir (+22 more)
 
 ### Community 2 - "FlashcardGame.tsx"
-Cohesion: 0.10
-Nodes (41): RestoredState, AdminDashboardProps, ANIMATION_CHOICES, AudioMixerModal(), AudioMixerModalProps, FlashcardCard(), FlashcardCardProps, FlashcardGameProps (+33 more)
+Cohesion: 0.09
+Nodes (42): RestoredState, AdminDashboardProps, ANIMATION_CHOICES, AudioMixerModal(), AudioMixerModalProps, FlashcardCard(), FlashcardCardProps, FlashcardGameProps (+34 more)
 
 ### Community 4 - "devDependencies"
 Cohesion: 0.08
@@ -110,8 +110,8 @@ Cohesion: 0.50
 Nodes (3): Expanding the Oxlint configuration, React Compiler, React + TypeScript + Vite
 
 ### Community 16 - "App.tsx"
-Cohesion: 0.22
-Nodes (15): App(), AdminDashboard(), FlashcardGame(), LeaderboardModal(), LeaderboardModalProps, clearActiveQuiz(), clearAllSessions(), clearResultSession() (+7 more)
+Cohesion: 0.24
+Nodes (14): App(), AdminDashboard(), FlashcardGame(), LeaderboardModal(), LeaderboardModalProps, clearActiveQuiz(), clearAllSessions(), clearResultSession() (+6 more)
 
 ## Knowledge Gaps
 - **139 isolated node(s):** `__filename`, `__dirname`, `dbPath`, `uploadsDir`, `defaultSettings` (+134 more)
@@ -130,7 +130,7 @@ _Questions this graph is uniquely positioned to answer:_
 - **Should `server.js` be split into smaller, more focused modules?**
   _Cohesion score 0.06756756756756757 - nodes in this community are weakly interconnected._
 - **Should `FlashcardGame.tsx` be split into smaller, more focused modules?**
-  _Cohesion score 0.0957372466806429 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.0936026936026936 - nodes in this community are weakly interconnected._
 - **Should `devDependencies` be split into smaller, more focused modules?**
   _Cohesion score 0.08 - nodes in this community are weakly interconnected._
 - **Should `compilerOptions` be split into smaller, more focused modules?**

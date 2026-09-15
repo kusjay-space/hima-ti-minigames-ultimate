@@ -6509,7 +6509,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/src/components/game/WelcomeScreen.tsx",
-      "source_location": "L795",
+      "source_location": "L798",
       "weight": 1.0,
       "_origin": "ast",
       "source": "frontend_src_components_game_welcomescreen_welcomescreen",
@@ -8944,5 +8944,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "ddeaaf3fa56e294c368b7e5493de4423cdfe2515"
+  "built_at_commit": "50fc19c89eb17fd4e88bf2f526ce058ea4cb8fc1"
 }

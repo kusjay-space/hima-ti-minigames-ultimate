@@ -75,8 +75,8 @@
     "semantic_hash": ""
   },
   "frontend/src/components/game/WelcomeScreen.tsx": {
-    "mtime": 1789485649.5138707,
-    "ast_hash": "9ec3cdf27df5319acbc4edcb393fb5f1",
+    "mtime": 1789486331.7930915,
+    "ast_hash": "f3c996fb8fc62c0b156cc03854f55d57",
     "semantic_hash": ""
   },
   "frontend/src/components/ui/Badge.tsx": {

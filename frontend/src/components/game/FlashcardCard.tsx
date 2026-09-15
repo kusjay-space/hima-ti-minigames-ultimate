@@ -207,12 +207,12 @@ export const FlashcardCard: React.FC<FlashcardCardProps> = ({
 
   return (
     <div className={`relative ${
-      isBackgroundCard
+      isChallengerCard || isBackgroundCard
         ? 'w-full h-full'
         : compactOnMobile 
         ? 'h-full max-h-[calc(100%-36px)] md:max-h-none w-auto aspect-[3/4.15] max-w-[min(325px,calc(100vw-64px))] md:h-auto md:w-full md:max-w-[360px] lg:max-w-[375px] md:aspect-auto' 
         : 'w-full max-w-[285px] xs:max-w-[310px] sm:max-w-[340px] md:max-w-[360px] lg:max-w-[375px]'
-    } mx-auto perspective-1200 flex flex-col items-center justify-center select-none ${
+    } mx-auto perspective-1200 flex flex-col items-center justify-center select-none overflow-visible ${
       hasLiquid ? 'animate-liquid-levitate' : ''
     }`}>
       {/* 3D Physical Real Next Card in Stack (Real next card, never dummy boxes!) */}
@@ -245,11 +245,11 @@ export const FlashcardCard: React.FC<FlashcardCardProps> = ({
       <motion.div
         ref={cardRef}
         drag={!isBackgroundCard && (interactivePreview || !isAnswered) ? 'x' : false}
-        dragConstraints={{ left: 0, right: 0 }}
-        dragElastic={isElastic ? 0.4 : 0.25}
+        dragConstraints={{ left: -75, right: 75 }}
+        dragElastic={0.2}
         onDragEnd={(_, info) => {
           if (isBackgroundCard) return;
-          if (Math.abs(info.offset.x) > 60) {
+          if (Math.abs(info.offset.x) > 45) {
             const dir = info.offset.x > 0 ? 'right' : 'left';
             if (onSwipeCard) {
               onSwipeCard(dir);
@@ -324,7 +324,7 @@ export const FlashcardCard: React.FC<FlashcardCardProps> = ({
         <div 
           className={`w-full ${
             compactOnMobile ? 'h-full md:h-auto flex flex-col justify-between md:block p-2 sm:p-2.5 md:p-3.5' : 'p-3 sm:p-3.5'
-          } backface-hidden relative overflow-hidden rounded-[5px] ${
+          } backface-hidden relative overflow-visible rounded-[5px] ${
             hasGlass 
               ? 'frosted-glass-surface backdrop-blur-xl' 
               : 'idcard-security-bg'
@@ -470,16 +470,16 @@ export const FlashcardCard: React.FC<FlashcardCardProps> = ({
           {/* Container Foto / Visual Utama (3:4 Aspect Ratio) - Pass-through to Card Drag */}
           <div className={`relative w-full ${
             compactOnMobile
-              ? 'flex-1 min-h-0 md:flex-none md:h-[385px] lg:h-[400px]'
-              : 'h-[280px] xs:h-[315px] sm:h-[355px] md:h-[385px] lg:h-[400px]'
+              ? 'flex-1 min-h-0 md:flex-none md:h-[400px] lg:h-[430px]'
+              : 'h-[300px] xs:h-[335px] sm:h-[375px] md:h-[405px] lg:h-[430px]'
           } select-none pointer-events-none ${
             hasGlass 
               ? 'bg-slate-950/40 border-2 border-white/20 backdrop-blur-sm' 
               : 'bg-[#080c14] border border-[#1e2b46]'
-          } overflow-hidden flex items-center justify-center`}>
+          } overflow-visible flex items-center justify-center`}>
             {isChallengerCard ? (
               /* Visual Hero Tantangan Maba (3 Variasi Kartu: Misi, Syarat Cap, Rewards) */
-              <div className="relative w-full h-full flex flex-col items-center justify-between p-6 bg-gradient-to-b from-[#0c1424] via-[#080d17] to-[#0d1627] overflow-hidden">
+              <div className="relative w-full h-full flex flex-col items-center justify-between p-4 sm:p-5 bg-gradient-to-b from-[#0c1424] via-[#080d17] to-[#0d1627] overflow-visible">
                 {/* Background Tech Hex Grid */}
                 <div className="absolute inset-0 bg-[radial-gradient(#2563eb_1.2px,transparent_1.2px)] [background-size:16px_16px] opacity-25" />
 
@@ -731,7 +731,7 @@ export const FlashcardCard: React.FC<FlashcardCardProps> = ({
             hasGlass 
               ? 'frosted-glass-surface backdrop-blur-xl' 
               : 'idcard-security-bg'
-          } flex flex-col justify-between backface-hidden overflow-hidden`}
+          } flex flex-col justify-between backface-hidden overflow-visible`}
           style={{ 
             transform: 'rotateY(180deg) translateZ(3px)',
             transformStyle: 'preserve-3d'

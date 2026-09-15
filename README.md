@@ -20,7 +20,7 @@ Buka browser laptop ke: **`http://localhost:3001`**
 Jika ingin mengubah kode dengan live reload:
 ```bash
 npm run dev:backend   # Terminal 1: backend server (port 3001)
-npm run dev:frontend  # Terminal 2: Vite frontend (http://localhost:5173)
+npm run dev:frontend  # Terminal 2: Vite frontend (http://localhost:3000)
 ```
 
 ---

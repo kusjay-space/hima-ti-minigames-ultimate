@@ -61,7 +61,6 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [currentThemeMode, setCurrentThemeMode] = useState<ThemeMode>(themeManager.getMode());
   const [currentPreset, setCurrentPreset] = useState<LightPalettePreset>(themeManager.getPreset());
-  const [isPaletteMenuOpen, setIsPaletteMenuOpen] = useState(false);
   const [leaderboardEntries, setLeaderboardEntries] = useState<LeaderboardEntry[]>([]);
   const [isLeaderboardLoading, setIsLeaderboardLoading] = useState(false);
 
@@ -80,7 +79,6 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
   const handleSelectPalette = (preset: LightPalettePreset) => {
     soundFx.playClick();
     themeManager.setPreset(preset);
-    setIsPaletteMenuOpen(false);
   };
 
   const fetchLeaderboard = useCallback(async () => {
@@ -527,69 +525,9 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
   };
 
   return (
-    <div className="w-full min-h-[100dvh] flex flex-col justify-center max-w-[1880px] mx-auto px-3 sm:px-6 md:px-8 py-4 sm:py-6 select-none relative overflow-visible bg-canvas text-default transition-colors">
+    <div className="w-full min-h-[100dvh] flex flex-col justify-center max-w-[1880px] mx-auto px-3 sm:px-6 md:px-8 py-4 sm:py-6 select-none relative overflow-visible bg-transparent text-default transition-colors">
       {/* Top-Right Theme & Settings Toolbar */}
       <div className="fixed top-3 right-3 sm:top-4 sm:right-4 z-40 flex items-center gap-1.5 sm:gap-2">
-        {/* Palette Selector Button & Popover */}
-        <div className="relative">
-          <button
-            type="button"
-            onClick={() => {
-              soundFx.playClick();
-              setIsPaletteMenuOpen((prev) => !prev);
-            }}
-            className="px-2.5 sm:px-3 py-2 rounded-xl bg-default hover:bg-subtle border border-default text-subtle hover:text-default transition-all cursor-pointer flex items-center gap-1.5 sm:gap-2 shadow-tactile-sm"
-            title="Pilih Tema Palet Warna"
-          >
-            <Palette className="w-4 h-4 text-primary" />
-            <span className="text-xs font-semibold hidden md:inline">
-              {PALETTE_PRESETS[currentPreset]?.name.split(' (')[0] || 'Palet'}
-            </span>
-          </button>
-
-          <AnimatePresence>
-            {isPaletteMenuOpen && (
-              <motion.div
-                initial={{ opacity: 0, y: 8, scale: 0.96 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: 8, scale: 0.96 }}
-                className="absolute right-0 top-full mt-2 w-72 sm:w-80 rounded-2xl bg-default border-2 border-default p-2.5 shadow-tactile z-50 space-y-1.5"
-              >
-                <div className="px-2 py-1 border-b border-default mb-1">
-                  <span className="text-[10px] font-mono font-bold uppercase text-muted tracking-wider">
-                    PILIH PALET LIGHT MODE RESMI
-                  </span>
-                </div>
-                {(Object.keys(PALETTE_PRESETS) as LightPalettePreset[]).map((key) => {
-                  const p = PALETTE_PRESETS[key];
-                  const isSelected = currentPreset === key;
-                  return (
-                    <button
-                      key={key}
-                      type="button"
-                      onClick={() => handleSelectPalette(key)}
-                      className={`w-full p-2.5 rounded-xl text-left text-xs border transition-all cursor-pointer flex items-center justify-between ${
-                        isSelected
-                          ? 'bg-primary/10 border-primary text-primary font-bold shadow-sm'
-                          : 'bg-subtle border-default text-subtle hover:border-primary/40 hover:text-default'
-                      }`}
-                    >
-                      <div className="pr-2">
-                        <div className="flex items-center gap-1.5">
-                          <span className="w-3 h-3 rounded-full shrink-0 shadow-xs border border-white/40" style={{ backgroundColor: p.primary }} />
-                          <span className="font-semibold text-default">{p.name}</span>
-                        </div>
-                        <p className="text-[10.5px] text-muted line-clamp-1 mt-0.5">{p.desc}</p>
-                      </div>
-                      {isSelected && <Check className="w-4 h-4 text-primary shrink-0" />}
-                    </button>
-                  );
-                })}
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-
         {/* Theme Mode Toggle (Sun/Moon) */}
         <button
           type="button"

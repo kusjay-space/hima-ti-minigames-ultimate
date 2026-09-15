@@ -275,7 +275,7 @@ export const FlashcardGame: React.FC<FlashcardGameProps> = ({
   }, [isAnswered, handleSelectOption, goToNextQuestion]);
 
   return (
-    <div className="w-full h-[100dvh] max-h-[100dvh] flex flex-col justify-between max-w-6xl mx-auto p-1.5 xs:p-2 sm:p-3 md:p-6 overflow-hidden select-none bg-canvas text-default transition-colors">
+    <div className="w-full h-[100dvh] max-h-[100dvh] flex flex-col justify-between max-w-6xl mx-auto p-1.5 xs:p-2 sm:p-3 md:p-6 overflow-hidden select-none bg-transparent text-default transition-colors">
       {/* Top Header Bar */}
       <header className="flex items-center justify-between gap-1.5 sm:gap-2 pb-1.5 sm:pb-2.5 border-b-2 border-default shrink-0">
         <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">

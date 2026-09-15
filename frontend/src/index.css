@@ -793,3 +793,22 @@
   scrollbar-width: thin;
   scrollbar-color: var(--border-default) var(--canvas);
 }
+
+/* Technical Grid Pattern Background (Garis Kotak-Kotak) */
+.bg-grid-tech {
+  background-size: 32px 32px;
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.12) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.12) 1px, transparent 1px);
+}
+
+:root[data-theme="light"] .bg-grid-tech,
+[data-theme="light"] .bg-grid-tech,
+.light .bg-grid-tech,
+:root.light .bg-grid-tech {
+  background-image: 
+    linear-gradient(to right, rgba(1, 64, 151, 0.15) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(1, 64, 151, 0.15) 1px, transparent 1px);
+}
+
+

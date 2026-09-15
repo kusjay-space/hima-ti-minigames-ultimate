@@ -116,6 +116,12 @@ export function App() {
 
   return (
     <div className="min-h-screen bg-canvas text-default flex flex-col justify-between selection:bg-primary selection:text-white relative overflow-x-hidden transition-colors duration-200">
+      {/* Background Grid Pattern (Garis Kotak-Kotak) */}
+      <div 
+        className="fixed inset-0 pointer-events-none z-0 bg-grid-tech" 
+        aria-hidden="true" 
+      />
+
       {/* Main Game Screens */}
       <main className="relative z-10 flex-1 flex flex-col justify-center w-full items-center">
         {isLoadingSession && (

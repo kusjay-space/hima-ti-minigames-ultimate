@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Trophy, Settings, Volume2, VolumeX, Shield, Users, Clock, AlertCircle, ArrowRight, User, RefreshCw, Sparkles, Layers, RotateCw, Music, Disc } from 'lucide-react';
-import { soundFx } from '../../lib/sound';
+import { Trophy, Settings, Volume2, VolumeX, Shield, Users, Clock, AlertCircle, ArrowRight, User, RefreshCw, Sparkles, Layers, RotateCw, Music, Disc, Sliders } from 'lucide-react';
+import { soundFx, CARD_SOUND_STYLES, type CardSoundStyle } from '../../lib/sound';
 import { bgm, type BgmTrackMode } from '../../lib/bgm';
 import type { QuizConfig } from '../../types';
 import { FlashcardCard } from './FlashcardCard';
+import { AudioMixerModal } from './AudioMixerModal';
 
 interface WelcomeScreenProps {
   config: QuizConfig | null;
@@ -48,21 +49,34 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
 }) => {
   const [namaPeserta, setNamaPeserta] = useState('');
   const [isMuted, setIsMuted] = useState(soundFx.isMuted());
+  const [cardSoundStyle, setCardSoundStyle] = useState<CardSoundStyle>(soundFx.getCardSoundStyle());
   const [isMusicEnabled, setIsMusicEnabled] = useState(bgm.isMusicEnabled());
   const [bgmThemeName, setBgmThemeName] = useState(bgm.getActiveThemeName());
   const [bgmTrackMode, setBgmTrackMode] = useState<BgmTrackMode>(bgm.getTrackMode());
   const [error, setError] = useState('');
   const [isValidatingName, setIsValidatingName] = useState(false);
+  const [showAudioMixer, setShowAudioMixer] = useState(false);
 
   useEffect(() => {
     if (bgm.isMusicEnabled() && !bgm.isMusicPlaying()) {
       bgm.start();
     }
-    return bgm.subscribe((enabled, track, themeName) => {
+    const unsubBgm = bgm.subscribe((enabled, track, themeName) => {
       setIsMusicEnabled(enabled);
       setBgmTrackMode(track);
       setBgmThemeName(themeName);
     });
+    const unsubSfx = soundFx.subscribe((muted) => {
+      setIsMuted(muted);
+    });
+    const unsubStyle = soundFx.subscribeCardStyle((style) => {
+      setCardSoundStyle(style);
+    });
+    return () => {
+      unsubBgm();
+      unsubSfx();
+      unsubStyle();
+    };
   }, []);
 
   // Real 3D Physical Card Deck Stack States [topCard, midCard, backCard]
@@ -78,10 +92,12 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
   const [isCardFlipped, setIsCardFlipped] = useState(false);
   const isSwipingRef = useRef(false);
 
-  const handleNext = (direction: 'left' | 'right' = 'left') => {
+  const handleNext = (direction: 'left' | 'right' = 'left', isManual = false) => {
     if (isSwipingRef.current) return;
     isSwipingRef.current = true;
-    soundFx.playCardHover();
+    if (isManual) {
+      soundFx.playCardHover(false);
+    }
 
     const topCard = deck[0];
     const targetDeck = [deck[1], deck[2], deck[0]];
@@ -113,10 +129,12 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
     }, 240);
   };
 
-  const handlePrev = (direction: 'left' | 'right' = 'right') => {
+  const handlePrev = (direction: 'left' | 'right' = 'right', isManual = false) => {
     if (isSwipingRef.current) return;
     isSwipingRef.current = true;
-    soundFx.playCardHover();
+    if (isManual) {
+      soundFx.playCardHover(false);
+    }
 
     const bottomCard = deck[2];
     const targetDeck = [deck[2], deck[0], deck[1]];
@@ -152,9 +170,9 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
     if (isSwipingRef.current || deck[0] === targetIndex) return;
     const currentPos = deck.indexOf(targetIndex);
     if (currentPos === 1) {
-      handleNext('left');
+      handleNext('left', true);
     } else if (currentPos === 2) {
-      handlePrev('right');
+      handlePrev('right', true);
     }
   };
 
@@ -170,13 +188,14 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
     const timer = setTimeout(() => {
       if (!isCardFlipped) {
         // Step 1: Otomatis membalikkan kartu ke sisi belakang (menampilkan briefing / rules)
-        soundFx.playFlip();
+        // Gunakan suara sangat lembut (isAuto = true) agar standby booth nyaman & tidak risih
+        soundFx.playFlip(true);
         setIsCardFlipped(true);
       } else {
         // Step 2: Otomatis geser ke kartu berikutnya di tumpukan 3D
-        handleNextRef.current('left');
+        handleNextRef.current('left', false);
       }
-    }, 3600);
+    }, 4500);
 
     return () => clearTimeout(timer);
   }, [isAutoSwitch, isHoveringStack, isCardFlipped, transition]);
@@ -435,6 +454,16 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
     setIsMuted(muted);
   };
 
+  const handleCycleCardSound = () => {
+    const nextStyle = soundFx.cycleCardStyle();
+    setCardSoundStyle(nextStyle);
+    soundFx.playFlip(false);
+  };
+
+  const handleCycleTrack = () => {
+    bgm.cycleNextTrack();
+  };
+
   const handleToggleMusic = () => {
     const enabled = bgm.toggle();
     setIsMusicEnabled(enabled);
@@ -451,25 +480,20 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
       setError('Nama minimal terdiri dari 2 karakter!');
       return;
     }
-
     setError('');
     setIsValidatingName(true);
 
     try {
       const res = await fetch(`/api/check-name?name=${encodeURIComponent(cleanName)}`);
       const data = await res.json();
-
-      if (!data.available) {
-        setError(data.message || `Nama tim "${cleanName}" sudah terdaftar di leaderboard! Gunakan nama pembeda.`);
+      if (data.exists) {
+        setError(`Nama "${cleanName}" sudah pernah main di peringkat #${data.rank} (Skor: ${data.skor}). Gunakan nama lain / tambahkan kode pembeda!`);
         soundFx.playWrong();
         setIsValidatingName(false);
         return;
       }
-
-      soundFx.playTick();
       onStart(cleanName);
     } catch {
-      soundFx.playTick();
       onStart(cleanName);
     } finally {
       setIsValidatingName(false);
@@ -477,36 +501,36 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
   };
 
   return (
-    <div className="w-full min-h-[100dvh] md:h-[100dvh] md:max-h-[100dvh] flex flex-col justify-between max-w-6xl mx-auto p-2.5 sm:p-4 md:p-6 overflow-y-auto md:overflow-hidden select-none">
-      {/* Top Navbar */}
-      <header className="flex items-center justify-between gap-1.5 sm:gap-2 pb-2 sm:pb-2.5 border-b-2 border-[#1c2b46] shrink-0">
+    <div className="w-full h-[100dvh] max-h-[100dvh] flex flex-col justify-between max-w-7xl mx-auto p-2 sm:p-3 md:p-4 overflow-hidden select-none">
+      {/* Top Technical Status Bar */}
+      <header className="flex items-center justify-between gap-1.5 sm:gap-2 pb-1.5 sm:pb-2 border-b-2 border-[#1e2b46] shrink-0">
         <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
-          <span className="w-2 h-2 bg-[#10b981] shrink-0" />
-          <span className="text-[10.5px] sm:text-xs font-mono text-[#cbd5e1] font-bold uppercase tracking-wider sm:tracking-widest truncate">
-            HIMA TI // BOOTH GMTI 2026
-          </span>
+          <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 bg-[#38bdf8] shrink-0 animate-pulse shadow-[0_0_8px_#38bdf8]" />
+          <div className="truncate min-w-0">
+            <h1 className="font-mono text-xs sm:text-sm font-bold tracking-tight text-white flex items-center gap-1.5 truncate">
+              <span>HIMA TI // STAND-PASS</span>
+              <span className="text-[10px] sm:text-xs text-[#38bdf8] hidden xs:inline font-normal">GMTI 2026</span>
+            </h1>
+          </div>
         </div>
 
-        <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
-          {/* Papan Skor Button - Icon Only on Mobile */}
+        {/* Global Action Bar with Music & SFX Toggles */}
+        <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
           <button
             type="button"
             onClick={onOpenLeaderboard}
-            className="flex items-center justify-center gap-1 sm:gap-1.5 text-[10.5px] sm:text-xs font-mono text-[#f59e0b] bg-[#0d1424] border border-[#1e2b46] hover:border-[#f59e0b] hover:bg-[#1a150b] hover:translate-y-[-1px] hover:shadow-tactile-amber p-1.5 sm:px-3 sm:py-1.5 transition-all cursor-pointer"
-            title="Lihat Papan Skor Stand"
+            className="p-1.5 sm:px-3 sm:py-1.5 bg-[#0d1424] border border-[#1e2b46] hover:border-[#38bdf8] hover:bg-[#0c182c] hover:translate-y-[-1px] text-[#94a3b8] hover:text-[#38bdf8] text-xs font-mono font-bold transition-all cursor-pointer flex items-center gap-1 shadow-tactile-sm"
           >
-            <Trophy className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-            <span className="hidden sm:inline">PAPAN SKOR</span>
+            <Trophy className="w-3.5 h-3.5 text-[#f59e0b]" />
+            <span className="hidden xs:inline">PAPAN SKOR</span>
           </button>
 
-          {/* BGM Track Cycle Button - Icon Only on Mobile */}
+          {/* Dedicated Music Track Selector Button */}
           <button
             type="button"
-            onClick={() => {
-              bgm.cycleNextTrack();
-            }}
-            className="p-1.5 sm:px-2.5 sm:py-1.5 bg-[#0d1424] border border-[#1e2b46] hover:border-[#38bdf8] hover:bg-[#0c182c] text-[#94a3b8] hover:text-[#38bdf8] transition-all cursor-pointer flex items-center justify-center gap-1 shadow-tactile-sm"
-            title={`Ganti Tema Musik (Saat ini: ${bgmThemeName}) - Klik untuk ganti musik`}
+            onClick={handleCycleTrack}
+            className="p-1.5 sm:px-2.5 sm:py-1.5 bg-[#0d1424] border border-[#1e2b46] hover:border-[#38bdf8] hover:bg-[#0c182c] hover:translate-y-[-1px] text-[#94a3b8] hover:text-white transition-all cursor-pointer flex items-center justify-center gap-1"
+            title={`Musik Latar: ${bgmThemeName} (${bgm.getCurrentTrackInfo().tag}). Klik untuk ganti musik.`}
           >
             <Disc className={`w-3.5 h-3.5 text-[#38bdf8] ${isMusicEnabled ? 'animate-spin' : ''}`} style={{ animationDuration: '4s' }} />
             <span className="text-[9.5px] sm:text-[10px] font-mono font-bold text-[#38bdf8] hidden sm:inline">
@@ -535,12 +559,29 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
           <button
             type="button"
             onClick={handleToggleSound}
-            className="p-1.5 sm:px-2.5 sm:py-1.5 bg-[#0d1424] border border-[#1e2b46] hover:border-[#38bdf8] hover:bg-[#0c182c] hover:translate-y-[-1px] text-[#94a3b8] hover:text-white transition-all cursor-pointer flex items-center justify-center gap-1"
-            title={isMuted ? 'Efek Suara (SFX): Bisu - Klik untuk Nyalakan' : 'Efek Suara (SFX): Aktif - Klik untuk Bisukan'}
+            className={`p-1.5 sm:px-2.5 sm:py-1.5 border transition-all cursor-pointer flex items-center justify-center gap-1 ${
+              isMuted
+                ? 'bg-[#0d1424] border-[#1e2b46] text-[#64748b] hover:text-[#94a3b8] hover:border-[#273b5e]'
+                : 'bg-[#0c182c] border-[#10b981] text-[#10b981] hover:bg-[#112544] hover:shadow-tactile-sm'
+            }`}
+            title={isMuted ? 'Efek Suara (SFX): Bisu - Klik untuk Nyalakan' : `Efek Suara (SFX): Aktif [${cardSoundStyle.toUpperCase()}] - Klik untuk Bisukan`}
           >
             {isMuted ? <VolumeX className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#f43f5e]" /> : <Volume2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#10b981]" />}
             <span className="text-[9.5px] sm:text-[10px] font-mono font-bold hidden sm:inline">
-              SFX
+              SFX {isMuted ? 'OFF' : 'ON'}
+            </span>
+          </button>
+
+          {/* Dedicated Audio Volume Mixer Button */}
+          <button
+            type="button"
+            onClick={() => setShowAudioMixer(true)}
+            className="p-1.5 sm:px-2.5 sm:py-1.5 bg-[#0d1424] border border-[#1e2b46] hover:border-[#38bdf8] hover:bg-[#0c182c] hover:translate-y-[-1px] text-[#94a3b8] hover:text-[#38bdf8] transition-all cursor-pointer flex items-center justify-center gap-1 shadow-tactile-sm"
+            title="Buka Mixer Volume Audio (Atur Besar/Kecil Suara BGM & SFX)"
+          >
+            <Sliders className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#38bdf8]" />
+            <span className="text-[9.5px] sm:text-[10px] font-mono font-bold hidden sm:inline">
+              VOL
             </span>
           </button>
 
@@ -603,8 +644,8 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
                         transition={motionProps.transition}
                         onClick={() => {
                           if (transition) return;
-                          if (isMid) handleNext('left');
-                          else if (isBottom) handlePrev('right');
+                          if (isMid) handleNext('left', true);
+                          else if (isBottom) handlePrev('right', true);
                         }}
                         className={`absolute inset-0 w-full ${!isFront ? 'cursor-pointer pointer-events-auto' : ''}`}
                         title={!isFront ? `Klik untuk geser kartu [ ${challengerCards[cardIdx].label} ] ke depan` : undefined}
@@ -621,7 +662,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
                           currentNumber={1}
                           interactivePreview={isFront && transition === null}
                           isFlippedControlled={isFront && transition === null ? isCardFlipped : false}
-                          onSwipeCard={isFront ? (dir) => handleNext(dir) : undefined}
+                          onSwipeCard={isFront ? (dir) => handleNext(dir, true) : undefined}
                           onCardFlipped={isFront ? (flipped) => setIsCardFlipped(flipped) : undefined}
                         />
                       </motion.div>
@@ -655,13 +696,13 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
                   })}
                 </div>
 
-                {/* Sub Action Bar: Prev, Next, Auto, and Flip State */}
-                <div className="w-full flex items-center justify-between gap-2 px-0.5">
+                {/* Sub Action Bar: Prev, Next, Auto, Flip State, and Sound Profile */}
+                <div className="w-full flex items-center justify-between gap-1.5 px-0.5">
                   {/* Left: Previous & Next Arrow Nav */}
                   <div className="flex items-center gap-1">
                     <button
                       type="button"
-                      onClick={() => handlePrev('right')}
+                      onClick={() => handlePrev('right', true)}
                       disabled={transition !== null}
                       className="px-2.5 py-1 bg-[#0d1424] border border-[#1e2b46] hover:border-[#38bdf8] hover:bg-[#0c182c] hover:translate-x-[-1px] text-[#94a3b8] hover:text-white text-xs font-mono font-bold transition-all cursor-pointer disabled:opacity-40 flex items-center gap-1"
                       title="Kartu Sebelumnya"
@@ -671,7 +712,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
                     </button>
                     <button
                       type="button"
-                      onClick={() => handleNext('left')}
+                      onClick={() => handleNext('left', true)}
                       disabled={transition !== null}
                       className="px-2.5 py-1 bg-[#0d1424] border border-[#1e2b46] hover:border-[#38bdf8] hover:bg-[#0c182c] hover:translate-x-[1px] text-[#94a3b8] hover:text-white text-xs font-mono font-bold transition-all cursor-pointer disabled:opacity-40 flex items-center gap-1"
                       title="Kartu Selanjutnya"
@@ -681,12 +722,12 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
                     </button>
                   </div>
 
-                  {/* Right: Auto-Switch and Flip Toggle */}
-                  <div className="flex items-center gap-1.5">
+                  {/* Right: Auto-Switch, Flip Toggle, and Sound Style Switcher */}
+                  <div className="flex items-center gap-1 sm:gap-1.5">
                     <button
                       type="button"
                       onClick={() => setIsAutoSwitch((prev) => !prev)}
-                      className={`px-2 py-1 text-[9.5px] font-mono font-bold border transition-all cursor-pointer flex items-center gap-1.5 hover:translate-y-[-1px] ${
+                      className={`px-2 py-1 text-[9.5px] font-mono font-bold border transition-all cursor-pointer flex items-center gap-1 hover:translate-y-[-1px] ${
                         isAutoSwitch 
                           ? 'border-[#10b981]/60 text-[#10b981] bg-[#052e16]/60 hover:bg-[#052e16]' 
                           : 'border-[#1e2b46] text-[#64748b] bg-[#0d1424] hover:text-[#94a3b8] hover:border-[#2a3c5a]'
@@ -699,16 +740,30 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
 
                     <button
                       type="button"
-                      onClick={() => setIsCardFlipped((prev) => !prev)}
-                      className={`px-2 py-1 border text-[9px] font-mono font-bold flex items-center gap-1 transition-all cursor-pointer ${
+                      onClick={() => {
+                        soundFx.playFlip(false);
+                        setIsCardFlipped((prev) => !prev);
+                      }}
+                      className={`px-2 py-1 border text-[9px] font-mono font-bold flex items-center gap-1 transition-all cursor-pointer hover:translate-y-[-1px] ${
                         isCardFlipped 
                           ? 'border-[#38bdf8]/60 text-[#38bdf8] bg-[#0c1a2e]' 
                           : 'border-[#1e2b46] text-[#94a3b8] bg-[#080c14] hover:border-[#38bdf8] hover:text-white'
                       }`}
-                      title="Klik untuk membalik kartu"
+                      title="Klik untuk membalik kartu (Manual)"
                     >
                       <RotateCw className="w-2.5 h-2.5 text-[#38bdf8]" />
                       <span>{isCardFlipped ? 'BELAKANG' : 'DEPAN'}</span>
+                    </button>
+
+                    {/* Quick Sound Profile Cycler */}
+                    <button
+                      type="button"
+                      onClick={handleCycleCardSound}
+                      className="px-2 py-1 border border-[#1e2b46] text-[#38bdf8] bg-[#0d1424] hover:border-[#38bdf8] hover:bg-[#0c182c] text-[9px] font-mono font-bold flex items-center gap-1 transition-all cursor-pointer hover:translate-y-[-1px]"
+                      title={`Karakter Suara Kartu: ${CARD_SOUND_STYLES.find(s => s.id === cardSoundStyle)?.name}. Klik untuk ganti variasi suara.`}
+                    >
+                      <Volume2 className="w-2.5 h-2.5 text-[#38bdf8]" />
+                      <span className="hidden xxs:inline">{cardSoundStyle.toUpperCase()}</span>
                     </button>
                   </div>
                 </div>
@@ -853,9 +908,11 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
       {/* Footer Meta */}
       <footer className="pt-2 border-t-2 border-[#1c2b46] flex items-center justify-between text-[11px] font-mono text-[#64748b] shrink-0">
         <span>HIMA TI // GEMA MAHASISWA TEKNOLOGI INFORMASI 2026</span>
-        <span className="hidden sm:inline text-[#475569]">34 Anggota Pengurus</span>
         <span>STAND BOOTH HIMA TI</span>
       </footer>
+
+      {/* Audio Mixer Modal */}
+      <AudioMixerModal isOpen={showAudioMixer} onClose={() => setShowAudioMixer(false)} />
     </div>
   );
 };

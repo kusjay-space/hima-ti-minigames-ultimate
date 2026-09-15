@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import type { Pengurus, QuizConfig, AnimationStyle, FotoFokus } from '../../types';
 import { FlashcardCard } from '../game/FlashcardCard';
+import { AudioMixerModal } from '../game/AudioMixerModal';
 
 interface AdminDashboardProps {
   onClose: () => void;
@@ -146,13 +147,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onRefre
     minBenarCap: 4,
     animasiStyle: 'combo',
     misiCapText: 'Follow Instagram @himati_official & Sapa 1 kakak pengurus di stand HIMA!',
-    fotoFokus: 'tengah_atas'
+    fotoFokus: 'tengah_atas',
+    spillJawaban: 'akhir'
   });
   const [modeKuis, setModeKuis] = useState('tebak_nama');
 
   // Button Save Feedback States
   const [settingsBtnState, setSettingsBtnState] = useState<'idle' | 'saving' | 'saved'>('idle');
   const [addPengurusBtnState, setAddPengurusBtnState] = useState<'idle' | 'saving' | 'saved'>('idle');
+  const [showAudioMixer, setShowAudioMixer] = useState(false);
 
   // Live Animation Preview State
   const [previewAnswered, setPreviewAnswered] = useState(false);
@@ -221,7 +224,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onRefre
           minBenarCap: parseInt(s.minBenarCap) || 4,
           animasiStyle: (s.animasiStyle as AnimationStyle) || 'combo',
           misiCapText: s.misiCapText || '',
-          fotoFokus: (s.fotoFokus as FotoFokus) || 'tengah_atas'
+          fotoFokus: (s.fotoFokus as FotoFokus) || 'tengah_atas',
+          spillJawaban: (s.spillJawaban as 'akhir' | 'langsung') || 'akhir'
         });
         setModeKuis(s.modeKuis || 'tebak_nama');
       }
@@ -249,14 +253,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onRefre
     try {
       const res = await fetch('/api/settings');
       const data = await res.json();
-      const serverPin = data.data?.adminPin || '2026';
-
-      if (pinInput === serverPin) {
-        setIsAuthenticated(true);
-        setPinError('');
-        loadData();
-      } else {
-        setPinError('PIN Admin salah! (Default: 2026)');
+      if (data.success) {
+        const correctPin = data.data.adminPin || '2026';
+        if (pinInput === correctPin) {
+          setIsAuthenticated(true);
+          setPinError('');
+          loadData();
+        } else {
+          setPinError('PIN Admin salah!');
+        }
       }
     } catch (err) {
       setPinError('Gagal memverifikasi ke server');
@@ -278,7 +283,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onRefre
           modeKuis,
           animasiStyle: settings.animasiStyle,
           misiCapText: settings.misiCapText,
-          fotoFokus: settings.fotoFokus || 'tengah_atas'
+          fotoFokus: settings.fotoFokus || 'tengah_atas',
+          spillJawaban: settings.spillJawaban || 'akhir'
         })
       });
       const data = await res.json();
@@ -647,6 +653,53 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onRefre
                             ))}
                           </div>
                         </div>
+
+                        {/* Setting Mode Pengungkapan Jawaban (Element of Surprise) */}
+                        <div className="pt-3 border-t border-[#1e2b46]">
+                          <label className="block text-xs font-mono text-zinc-300 mb-1 flex items-center gap-1.5">
+                            <Sparkles className="w-3.5 h-3.5 text-blue-400" />
+                            <span>Mode Pengungkapan Jawaban (Stand Review):</span>
+                          </label>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-1.5">
+                            {[
+                              {
+                                id: 'akhir',
+                                label: 'Tahan di Akhir (Element of Surprise)',
+                                badge: 'REKOMENDASI STAND',
+                                desc: 'Jawaban dikunci tanpa spoiler. Tidak ada kartu berbalik atau indikator benar/salah saat kuis. Skor & identitas resmi diungkap dramatis di akhir sesi.'
+                              },
+                              {
+                                id: 'langsung',
+                                label: 'Spill Langsung Tiap Soal',
+                                badge: 'MODE LATIHAN',
+                                desc: 'Kartu langsung berbalik ke sisi belakang untuk menampilkan ID Card resmi dan indikator warna hijau/merah segera setelah peserta memilih jawaban.'
+                              }
+                            ].map((m) => (
+                              <button
+                                key={m.id}
+                                type="button"
+                                onClick={() => setSettings({ ...settings, spillJawaban: m.id as 'akhir' | 'langsung' })}
+                                className={`p-2.5 border-2 text-left cursor-pointer transition-all ${
+                                  (settings.spillJawaban || 'akhir') === m.id
+                                    ? 'bg-blue-950/80 border-blue-500 shadow-tactile-blue text-white'
+                                    : 'bg-[#0d1424] border-[#1e2b46] text-zinc-400 hover:text-zinc-200'
+                                }`}
+                              >
+                                <div className="flex items-center justify-between gap-1 mb-1">
+                                  <span className="text-xs font-bold font-mono text-white">{m.label}</span>
+                                  <span className={`text-[9px] font-mono px-1.5 py-0.5 border ${
+                                    (settings.spillJawaban || 'akhir') === m.id
+                                      ? 'bg-blue-900/60 border-blue-400 text-blue-300 font-bold'
+                                      : 'border-[#1e2b46] text-zinc-500'
+                                  }`}>
+                                    {m.badge}
+                                  </span>
+                                </div>
+                                <p className="text-[10.5px] text-zinc-400 leading-snug">{m.desc}</p>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
                       </div>
 
                       {/* Box 2: Katalog 8 Kombo Animasi Interaktif */}
@@ -705,6 +758,27 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onRefre
                           rows={2}
                           className="w-full px-3 py-2 bg-[#0d1424] border border-[#273b5e] text-white text-xs focus:outline-none focus:border-blue-500 font-sans"
                         />
+                      </div>
+
+                      {/* Box 4: Kontrol Volume Audio Browser (BGM & SFX) */}
+                      <div className="bg-[#080c14] border-2 border-[#1e2b46] p-4 space-y-2.5 shadow-tactile-sm">
+                        <div className="flex items-center justify-between border-b border-[#1e2b46] pb-1.5">
+                          <h3 className="text-xs font-bold text-blue-400 uppercase font-mono flex items-center gap-1.5">
+                            <Sliders className="w-4 h-4" />
+                            4. Kontrol Volume Audio Stand (BGM & SFX)
+                          </h3>
+                        </div>
+                        <p className="text-[11px] text-zinc-400 leading-snug font-sans">
+                          Sesuaikan volume musik latar arcade dan efek suara flip kartu secara presisi di browser agar pas dengan suasana ramai stand.
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => setShowAudioMixer(true)}
+                          className="w-full py-2.5 px-3 bg-[#0d1424] hover:bg-[#112544] border-2 border-[#38bdf8] text-[#38bdf8] font-mono font-bold text-xs flex items-center justify-center gap-2 shadow-tactile-sm transition-all cursor-pointer"
+                        >
+                          <Sliders className="w-4 h-4" />
+                          <span>BUKA MIXER VOLUME AUDIO BROWSER</span>
+                        </button>
                       </div>
 
                       {/* Tombol Simpan dengan Status Berubah Jelas */}
@@ -1106,6 +1180,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onRefre
           </div>
         )}
       </motion.div>
+
+      {/* Audio Mixer Modal */}
+      <AudioMixerModal isOpen={showAudioMixer} onClose={() => setShowAudioMixer(false)} />
     </div>
   );
 };

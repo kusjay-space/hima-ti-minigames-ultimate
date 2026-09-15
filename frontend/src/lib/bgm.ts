@@ -1,62 +1,121 @@
-// Web Audio API Procedural Background Music Engine - Multi-Variation Arcade Soundtrack
-// Features 4 Distinct Quizizz / Kahoot / Cyberpunk Themes + Auto-Cycling + Zero-Lag Scheduling
+// Web Audio API Procedural Background Music Engine - Multi-Genre Stand Soundtrack
+// Features 5 Truly Distinct Musical Genres with Authentic Instruments, Rhythms, and Smooth Crossfades
 
-export type BgmTrackMode = 'auto' | 'funky' | 'blitz' | 'cyber' | 'pixel';
+export type BgmTrackMode = 'auto' | 'funky' | 'blitz' | 'cyber' | 'pixel' | 'lofi';
 
 export interface BgmTrackInfo {
   id: BgmTrackMode;
   name: string;
   tag: string;
   bpm: number;
+  genre: string;
+  desc: string;
 }
 
 export const BGM_TRACKS: BgmTrackInfo[] = [
-  { id: 'auto', name: 'Auto-Cycle (Berganti Otomatis)', tag: 'AUTO', bpm: 126 },
-  { id: 'funky', name: '01. Funky Quizizz (Arcade Bounce)', tag: 'FUNK', bpm: 126 },
-  { id: 'blitz', name: '02. Kahoot Blitz (Tension Rush)', tag: 'BLITZ', bpm: 130 },
-  { id: 'cyber', name: '03. Cyberpunk 80s (Outrun Neon)', tag: 'CYBER', bpm: 122 },
-  { id: 'pixel', name: '04. 8-Bit Pixel (Retro Gameboy)', tag: 'PIXEL', bpm: 128 },
+  {
+    id: 'auto',
+    name: 'Auto-Cycle (Ganti Tema Tiap Selesai Loop)',
+    tag: 'AUTO',
+    bpm: 124,
+    genre: 'Dynamic Mix',
+    desc: 'Berganti gaya musik secara otomatis dan mulus setiap kali putaran lagu selesai.'
+  },
+  {
+    id: 'funky',
+    name: '01. Funky Arcade (Quizizz Bounce)',
+    tag: 'FUNK',
+    bpm: 124,
+    genre: 'Disco Funk',
+    desc: 'Beat disko ceria, slap bass lincah, dan synth playful bergaya game show Quizizz.'
+  },
+  {
+    id: 'blitz',
+    name: '02. Kahoot Blitz (Tension Rush)',
+    tag: 'BLITZ',
+    bpm: 134,
+    genre: 'Electro Tension',
+    desc: 'Beat 4-on-the-floor cepat, rolling bassline EDM, dan akord brass menegangkan.'
+  },
+  {
+    id: 'cyber',
+    name: '03. Synthwave 80s (Retro Outrun)',
+    tag: 'CYBER',
+    bpm: 112,
+    genre: '80s Retrowave',
+    desc: 'Ketukan lambat berbobot, gated snare 80s, analog sub-bass, dan pad neon bernuansa cyberpunk.'
+  },
+  {
+    id: 'pixel',
+    name: '04. 8-Bit Pixel (Chiptune Gameboy)',
+    tag: 'PIXEL',
+    bpm: 138,
+    genre: 'Chiptune NES',
+    desc: 'Suara asli konsol retro 8-bit: gelombang square arpeggio dan triangle bass yang seru dan nostalgia.'
+  },
+  {
+    id: 'lofi',
+    name: '05. Lo-Fi Chill (Jazzy Stand Beat)',
+    tag: 'LO-FI',
+    bpm: 88,
+    genre: 'Lo-Fi Hip-Hop',
+    desc: 'Tempo santai 88 BPM, Rhodes electric piano dengan akord jazz hangat, rimshot empuk, dan sub bass santai.'
+  },
 ];
+
+type ActiveThemeId = 'funky' | 'blitz' | 'cyber' | 'pixel' | 'lofi';
 
 class BgmEngine {
   private ctx: AudioContext | null = null;
   private masterGain: GainNode | null = null;
+  private warmFilter: BiquadFilterNode | null = null;
   private isRunning = false;
   private isEnabled = true;
+  private volume = 0.65; // Default 65% volume
   private trackMode: BgmTrackMode = 'auto';
-  private activeThemeIndex = 0; // 0: funky, 1: blitz, 2: cyber, 3: pixel
+  private activeThemeIndex = 0; // 0: funky, 1: blitz, 2: cyber, 3: pixel, 4: lofi
   private currentStep = 0;
   private nextStepTime = 0;
   private timerId: number | null = null;
-  private listeners: Set<(enabled: boolean, track: BgmTrackMode, themeName: string) => void> = new Set();
+  private transitionTimer: number | null = null;
+  private isCrossfading = false;
+  private listeners: Set<(enabled: boolean, track: BgmTrackMode, themeName: string, volume: number) => void> = new Set();
   private noiseBuffer: AudioBuffer | null = null;
 
-  private readonly TOTAL_STEPS = 128; // 8-bar loop (16 steps per bar)
+  private readonly TOTAL_STEPS = 128; // 8 bars (16 steps per bar)
   private readonly LOOKAHEAD_MS = 25;
-  private readonly SCHEDULE_AHEAD_TIME = 0.12; // 120ms lookahead
+  private readonly SCHEDULE_AHEAD_TIME = 0.14; // 140ms lookahead
 
   constructor() {
     if (typeof window !== 'undefined') {
       const savedEnabled = localStorage.getItem('minigames_hima_bgm_enabled');
-      // Default to true (music ON) unless user explicitly turned it off
       this.isEnabled = savedEnabled === null ? true : savedEnabled === 'true';
+
+      const savedVol = localStorage.getItem('minigames_hima_bgm_volume');
+      if (savedVol !== null) {
+        const parsed = parseFloat(savedVol);
+        if (!isNaN(parsed)) {
+          this.volume = Math.max(0, Math.min(1, parsed));
+        }
+      }
 
       const savedTrack = localStorage.getItem('minigames_hima_bgm_track') as BgmTrackMode;
       if (savedTrack && BGM_TRACKS.some((t) => t.id === savedTrack)) {
         this.trackMode = savedTrack;
         if (savedTrack !== 'auto') {
-          this.activeThemeIndex = ['funky', 'blitz', 'cyber', 'pixel'].indexOf(savedTrack);
+          const themes: ActiveThemeId[] = ['funky', 'blitz', 'cyber', 'pixel', 'lofi'];
+          const idx = themes.indexOf(savedTrack as ActiveThemeId);
+          if (idx !== -1) this.activeThemeIndex = idx;
         }
       }
 
-      // Proactively start if enabled
       if (this.isEnabled) {
         setTimeout(() => {
           this.start();
         }, 50);
       }
 
-      // Unconditional gesture & movement listeners to unlock/resume audio in case browser blocked autoplay
+      // Auto-unlock audio on user gesture
       const unlockAudio = () => {
         if (this.ctx && this.ctx.state === 'suspended') {
           this.ctx.resume().catch(() => {});
@@ -73,26 +132,32 @@ class BgmEngine {
     }
   }
 
+  private getEffectiveGain(): number {
+    return this.volume * 0.28;
+  }
+
   private initAudio() {
     if (this.ctx) return;
-    const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+    const AudioContextClass =
+      window.AudioContext ||
+      (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
     if (!AudioContextClass) return;
 
     this.ctx = new AudioContextClass();
 
     this.masterGain = this.ctx.createGain();
-    this.masterGain.gain.setValueAtTime(0.18, this.ctx.currentTime);
+    this.masterGain.gain.setValueAtTime(this.isEnabled ? this.getEffectiveGain() : 0.0001, this.ctx.currentTime);
 
-    // Warm master filter to keep music soft & smooth under SFX
-    const warmFilter = this.ctx.createBiquadFilter();
-    warmFilter.type = 'lowpass';
-    warmFilter.frequency.setValueAtTime(10500, this.ctx.currentTime);
-    warmFilter.Q.setValueAtTime(0.7, this.ctx.currentTime);
+    // Warm master filter
+    this.warmFilter = this.ctx.createBiquadFilter();
+    this.warmFilter.type = 'lowpass';
+    this.warmFilter.frequency.setValueAtTime(11000, this.ctx.currentTime);
+    this.warmFilter.Q.setValueAtTime(0.7, this.ctx.currentTime);
 
-    this.masterGain.connect(warmFilter);
-    warmFilter.connect(this.ctx.destination);
+    this.masterGain.connect(this.warmFilter);
+    this.warmFilter.connect(this.ctx.destination);
 
-    // Pre-generate white noise buffer for drums & percussions
+    // Noise buffer for drums & percussions
     const bufferSize = this.ctx.sampleRate * 1;
     this.noiseBuffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
     const data = this.noiseBuffer.getChannelData(0);
@@ -105,33 +170,39 @@ class BgmEngine {
     return 440 * Math.pow(2, (note - 69) / 12);
   }
 
-  private getCurrentBPM(): number {
-    const theme = this.getActiveThemeId();
-    switch (theme) {
-      case 'blitz': return 130;
-      case 'cyber': return 122;
-      case 'pixel': return 128;
-      case 'funky':
-      default: return 126;
-    }
-  }
-
-  private getStepDuration(): number {
-    return (60 / this.getCurrentBPM()) / 4; // 16th note step
-  }
-
-  public getActiveThemeId(): 'funky' | 'blitz' | 'cyber' | 'pixel' {
+  public getActiveThemeId(): ActiveThemeId {
     if (this.trackMode !== 'auto') {
-      return this.trackMode as 'funky' | 'blitz' | 'cyber' | 'pixel';
+      return this.trackMode as ActiveThemeId;
     }
-    const themes: ('funky' | 'blitz' | 'cyber' | 'pixel')[] = ['funky', 'blitz', 'cyber', 'pixel'];
+    const themes: ActiveThemeId[] = ['funky', 'blitz', 'cyber', 'pixel', 'lofi'];
     return themes[this.activeThemeIndex % themes.length];
   }
 
   public getActiveThemeName(): string {
     const active = this.getActiveThemeId();
     const track = BGM_TRACKS.find((t) => t.id === active);
-    return track ? track.name : '01. Funky Quizizz';
+    return track ? track.name : '01. Funky Arcade';
+  }
+
+  public getCurrentBPM(): number {
+    const theme = this.getActiveThemeId();
+    switch (theme) {
+      case 'lofi':
+        return 88;
+      case 'cyber':
+        return 112;
+      case 'blitz':
+        return 134;
+      case 'pixel':
+        return 138;
+      case 'funky':
+      default:
+        return 124;
+    }
+  }
+
+  private getStepDuration(): number {
+    return (60 / this.getCurrentBPM()) / 4; // 16th note step
   }
 
   public getTrackMode(): BgmTrackMode {
@@ -147,40 +218,132 @@ class BgmEngine {
     };
   }
 
-  // --- Instrument Synthesizers ---
+  // =========================================================================
+  // INSTRUMENT SYNTHESIZERS (Customized Per Genre)
+  // =========================================================================
 
-  private playKick(time: number, punch = 1) {
+  /**
+   * KICK DRUM: Genre-specific punch, body, and curve
+   */
+  private playKick(time: number, genre: ActiveThemeId, punch = 1) {
     if (!this.ctx || !this.masterGain) return;
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
 
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(155 * punch, time);
-    osc.frequency.exponentialRampToValueAtTime(38, time + 0.085);
-
-    gain.gain.setValueAtTime(0.38 * punch, time);
-    gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.095);
+    if (genre === 'lofi') {
+      // Muffled, warm low-end thump
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(95, time);
+      osc.frequency.exponentialRampToValueAtTime(36, time + 0.12);
+      gain.gain.setValueAtTime(0.32 * punch, time);
+      gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.13);
+    } else if (genre === 'cyber') {
+      // 80s Deep Gated Kick with punchy click
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(140 * punch, time);
+      osc.frequency.exponentialRampToValueAtTime(32, time + 0.14);
+      gain.gain.setValueAtTime(0.42 * punch, time);
+      gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.15);
+    } else if (genre === 'blitz') {
+      // High-energy EDM four-on-the-floor kick
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(180 * punch, time);
+      osc.frequency.exponentialRampToValueAtTime(45, time + 0.08);
+      gain.gain.setValueAtTime(0.44 * punch, time);
+      gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.09);
+    } else if (genre === 'pixel') {
+      // 8-bit sweep kick
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(160, time);
+      osc.frequency.exponentialRampToValueAtTime(30, time + 0.06);
+      gain.gain.setValueAtTime(0.25 * punch, time);
+      gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.065);
+    } else {
+      // Funky acoustic-style disco kick with click
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(155 * punch, time);
+      osc.frequency.exponentialRampToValueAtTime(40, time + 0.09);
+      gain.gain.setValueAtTime(0.38 * punch, time);
+      gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.095);
+    }
 
     osc.connect(gain);
     gain.connect(this.masterGain);
-
     osc.start(time);
-    osc.stop(time + 0.1);
+    osc.stop(time + 0.16);
   }
 
-  private playSnare(time: number, gated = false) {
+  /**
+   * SNARE / CLAP / RIMSHOT: Genre-specific backbeat
+   */
+  private playSnare(time: number, genre: ActiveThemeId, isAccent = false) {
     if (!this.ctx || !this.masterGain || !this.noiseBuffer) return;
 
+    if (genre === 'lofi') {
+      // Warm jazzy cross-stick / rimshot
+      const osc = this.ctx.createOscillator();
+      const oscGain = this.ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(380, time);
+      osc.frequency.exponentialRampToValueAtTime(160, time + 0.04);
+      oscGain.gain.setValueAtTime(0.24, time);
+      oscGain.gain.exponentialRampToValueAtTime(0.0001, time + 0.045);
+      osc.connect(oscGain);
+      oscGain.connect(this.masterGain);
+      osc.start(time);
+      osc.stop(time + 0.05);
+
+      // Subtle noise tap
+      const noise = this.ctx.createBufferSource();
+      noise.buffer = this.noiseBuffer;
+      const filter = this.ctx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.setValueAtTime(1400, time);
+      filter.Q.setValueAtTime(1.0, time);
+      const noiseGain = this.ctx.createGain();
+      noiseGain.gain.setValueAtTime(0.08, time);
+      noiseGain.gain.exponentialRampToValueAtTime(0.0001, time + 0.04);
+      noise.connect(filter);
+      filter.connect(noiseGain);
+      noiseGain.connect(this.masterGain);
+      noise.start(time);
+      noise.stop(time + 0.05);
+      return;
+    }
+
+    if (genre === 'pixel') {
+      // Chiptune white-noise snare
+      const noise = this.ctx.createBufferSource();
+      noise.buffer = this.noiseBuffer;
+      const filter = this.ctx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.setValueAtTime(2400, time);
+      filter.Q.setValueAtTime(1.2, time);
+      const noiseGain = this.ctx.createGain();
+      noiseGain.gain.setValueAtTime(0.16, time);
+      noiseGain.gain.exponentialRampToValueAtTime(0.0001, time + 0.08);
+      noise.connect(filter);
+      filter.connect(noiseGain);
+      noiseGain.connect(this.masterGain);
+      noise.start(time);
+      noise.stop(time + 0.09);
+      return;
+    }
+
+    // Noise body for Funky, Blitz, Cyber
     const noise = this.ctx.createBufferSource();
     noise.buffer = this.noiseBuffer;
     const filter = this.ctx.createBiquadFilter();
     filter.type = 'bandpass';
-    filter.frequency.setValueAtTime(gated ? 1800 : 2200, time);
-    filter.Q.setValueAtTime(gated ? 1.2 : 2.0, time);
+
+    const isCyber = genre === 'cyber';
+    filter.frequency.setValueAtTime(isCyber ? 1800 : 2300, time);
+    filter.Q.setValueAtTime(isCyber ? 1.1 : 2.0, time);
 
     const noiseGain = this.ctx.createGain();
-    const dur = gated ? 0.18 : 0.11;
-    noiseGain.gain.setValueAtTime(gated ? 0.17 : 0.14, time);
+    const dur = isCyber ? 0.20 : 0.11; // 80s gated snare has longer tail
+    const vol = isCyber ? 0.20 : isAccent ? 0.18 : 0.14;
+    noiseGain.gain.setValueAtTime(vol, time);
     noiseGain.gain.exponentialRampToValueAtTime(0.0001, time + dur);
 
     noise.connect(filter);
@@ -193,47 +356,67 @@ class BgmEngine {
     // Body tone
     const osc = this.ctx.createOscillator();
     const toneGain = this.ctx.createGain();
-    osc.type = 'triangle';
-    osc.frequency.setValueAtTime(190, time);
-    osc.frequency.exponentialRampToValueAtTime(70, time + 0.075);
-
-    toneGain.gain.setValueAtTime(0.12, time);
+    osc.type = isCyber ? 'sine' : 'triangle';
+    osc.frequency.setValueAtTime(isCyber ? 220 : 190, time);
+    osc.frequency.exponentialRampToValueAtTime(80, time + 0.075);
+    toneGain.gain.setValueAtTime(isCyber ? 0.16 : 0.12, time);
     toneGain.gain.exponentialRampToValueAtTime(0.0001, time + 0.075);
 
     osc.connect(toneGain);
     toneGain.connect(this.masterGain);
-
     osc.start(time);
     osc.stop(time + 0.08);
   }
 
-  private playHiHat(time: number, isOpen = false, isChiptune = false) {
+  /**
+   * HI-HAT: Genre-specific texture
+   */
+  private playHiHat(time: number, genre: ActiveThemeId, isOpen = false) {
     if (!this.ctx || !this.masterGain || !this.noiseBuffer) return;
-
     const noise = this.ctx.createBufferSource();
     noise.buffer = this.noiseBuffer;
 
     const filter = this.ctx.createBiquadFilter();
-    filter.type = isChiptune ? 'bandpass' : 'highpass';
-    filter.frequency.setValueAtTime(isChiptune ? 4500 : 8000, time);
-    filter.Q.setValueAtTime(isChiptune ? 3.5 : 2.0, time);
-
     const gain = this.ctx.createGain();
-    const duration = isOpen ? 0.14 : 0.038;
-    const volume = isOpen ? 0.075 : 0.045;
 
-    gain.gain.setValueAtTime(volume, time);
-    gain.gain.exponentialRampToValueAtTime(0.0001, time + duration);
+    if (genre === 'lofi') {
+      // Soft vinyl brush hat
+      filter.type = 'bandpass';
+      filter.frequency.setValueAtTime(4200, time);
+      filter.Q.setValueAtTime(1.4, time);
+      const dur = isOpen ? 0.08 : 0.025;
+      gain.gain.setValueAtTime(isOpen ? 0.045 : 0.028, time);
+      gain.gain.exponentialRampToValueAtTime(0.0001, time + dur);
+    } else if (genre === 'pixel') {
+      // 8-bit periodic noise hat
+      filter.type = 'highpass';
+      filter.frequency.setValueAtTime(6500, time);
+      filter.Q.setValueAtTime(3.0, time);
+      const dur = isOpen ? 0.07 : 0.025;
+      gain.gain.setValueAtTime(isOpen ? 0.06 : 0.035, time);
+      gain.gain.exponentialRampToValueAtTime(0.0001, time + dur);
+    } else {
+      filter.type = 'highpass';
+      filter.frequency.setValueAtTime(isOpen ? 7500 : 8500, time);
+      filter.Q.setValueAtTime(2.2, time);
+      const dur = isOpen ? 0.13 : 0.035;
+      const vol = isOpen ? 0.075 : 0.042;
+      gain.gain.setValueAtTime(vol, time);
+      gain.gain.exponentialRampToValueAtTime(0.0001, time + dur);
+    }
 
     noise.connect(filter);
     filter.connect(gain);
     gain.connect(this.masterGain);
 
     noise.start(time);
-    noise.stop(time + duration + 0.01);
+    noise.stop(time + (isOpen ? 0.14 : 0.04));
   }
 
-  private playBass(note: number, time: number, type: 'funky' | 'blitz' | 'cyber' | 'pixel' = 'funky', isAccent = false) {
+  /**
+   * BASS: Truly distinct waveforms, envelopes, and character per genre
+   */
+  private playBass(note: number, time: number, genre: ActiveThemeId, isAccent = false) {
     if (!this.ctx || !this.masterGain) return;
     const freq = this.m2f(note);
 
@@ -241,265 +424,471 @@ class BgmEngine {
     const filter = this.ctx.createBiquadFilter();
     const gain = this.ctx.createGain();
 
-    if (type === 'pixel') {
-      osc.type = 'square';
+    if (genre === 'lofi') {
+      // Warm Sub / Upright Jazz Bass (sine + gentle lowpass)
+      osc.type = 'sine';
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(260, time);
+      filter.Q.setValueAtTime(1.0, time);
+
+      gain.gain.setValueAtTime(0.28, time);
+      gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.28);
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(this.masterGain);
+      osc.start(time);
+      osc.stop(time + 0.30);
+      return;
+    }
+
+    if (genre === 'pixel') {
+      // Pure 8-bit NES Triangle Bass
+      osc.type = 'triangle';
       filter.type = 'lowpass';
       filter.frequency.setValueAtTime(1800, time);
-      filter.Q.setValueAtTime(1.0, time);
-      gain.gain.setValueAtTime(isAccent ? 0.18 : 0.13, time);
-      gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.12);
-    } else if (type === 'cyber') {
+      filter.Q.setValueAtTime(0.8, time);
+
+      gain.gain.setValueAtTime(isAccent ? 0.22 : 0.16, time);
+      gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.14);
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(this.masterGain);
+      osc.start(time);
+      osc.stop(time + 0.15);
+      return;
+    }
+
+    if (genre === 'cyber') {
+      // 80s Moog Taurus Sub Bass with analog warmth
       osc.type = 'sawtooth';
       filter.type = 'lowpass';
       filter.Q.setValueAtTime(2.2, time);
-      filter.frequency.setValueAtTime(isAccent ? 900 : 600, time);
-      filter.frequency.exponentialRampToValueAtTime(120, time + 0.15);
-      gain.gain.setValueAtTime(0.20, time);
-      gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.16);
-    } else if (type === 'blitz') {
-      // Galloping energetic electro bass
-      osc.type = 'sawtooth';
-      filter.type = 'lowpass';
-      filter.Q.setValueAtTime(4.5, time);
-      filter.frequency.setValueAtTime(isAccent ? 1600 : 950, time);
-      filter.frequency.exponentialRampToValueAtTime(200, time + 0.095);
-      gain.gain.setValueAtTime(isAccent ? 0.23 : 0.17, time);
-      gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.10);
-    } else {
-      // Squelchy Funky Quizizz Moog/Juno Bass
-      osc.type = 'sawtooth';
-      filter.type = 'lowpass';
-      filter.Q.setValueAtTime(4.0, time);
-      filter.frequency.setValueAtTime(isAccent ? 1400 : 850, time);
-      filter.frequency.exponentialRampToValueAtTime(170, time + 0.125);
-      gain.gain.setValueAtTime(isAccent ? 0.22 : 0.16, time);
-      gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.13);
+      filter.frequency.setValueAtTime(isAccent ? 750 : 500, time);
+      filter.frequency.exponentialRampToValueAtTime(110, time + 0.18);
+
+      gain.gain.setValueAtTime(0.24, time);
+      gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.19);
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(this.masterGain);
+      osc.start(time);
+      osc.stop(time + 0.20);
+      return;
     }
 
+    if (genre === 'blitz') {
+      // Tight EDM Rolling Sawtooth Bass
+      osc.type = 'sawtooth';
+      filter.type = 'lowpass';
+      filter.Q.setValueAtTime(4.2, time);
+      filter.frequency.setValueAtTime(isAccent ? 1700 : 1050, time);
+      filter.frequency.exponentialRampToValueAtTime(180, time + 0.09);
+
+      gain.gain.setValueAtTime(isAccent ? 0.24 : 0.18, time);
+      gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.095);
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(this.masterGain);
+      osc.start(time);
+      osc.stop(time + 0.10);
+      return;
+    }
+
+    // Default: Funky Moog Slap Bass with squelchy envelope
+    osc.type = 'sawtooth';
+    filter.type = 'lowpass';
+    filter.Q.setValueAtTime(5.0, time);
+    filter.frequency.setValueAtTime(isAccent ? 1500 : 900, time);
+    filter.frequency.exponentialRampToValueAtTime(160, time + 0.12);
+
+    gain.gain.setValueAtTime(isAccent ? 0.24 : 0.17, time);
+    gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.13);
+
+    osc.connect(filter);
+    filter.connect(gain);
+    gain.connect(this.masterGain);
+    osc.start(time);
+    osc.stop(time + 0.14);
+  }
+
+  /**
+   * HARMONIC CHORD STABS / PADS (Distinct Instrument Character)
+   */
+  private playChord(notes: number[], time: number, genre: ActiveThemeId, duration = 0.25) {
+    if (!this.ctx || !this.masterGain) return;
+
+    notes.forEach((note) => {
+      if (!this.ctx || !this.masterGain) return;
+      const freq = this.m2f(note);
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      const filter = this.ctx.createBiquadFilter();
+
+      if (genre === 'lofi') {
+        // Dreamy Rhodes Electric Piano (sine + subtle harmonic)
+        osc.type = 'sine';
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(2200, time);
+        filter.Q.setValueAtTime(1.0, time);
+
+        gain.gain.setValueAtTime(0.05, time);
+        gain.gain.exponentialRampToValueAtTime(0.0001, time + duration);
+      } else if (genre === 'cyber') {
+        // Lush Analog Pad with detune
+        osc.type = 'sawtooth';
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(1800, time);
+        filter.Q.setValueAtTime(1.5, time);
+
+        gain.gain.setValueAtTime(0.04, time);
+        gain.gain.linearRampToValueAtTime(0.0001, time + duration);
+      } else if (genre === 'blitz') {
+        // EDM Synth Brass Stab
+        osc.type = 'sawtooth';
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(3200, time);
+        filter.frequency.exponentialRampToValueAtTime(800, time + duration);
+        filter.Q.setValueAtTime(2.5, time);
+
+        gain.gain.setValueAtTime(0.055, time);
+        gain.gain.exponentialRampToValueAtTime(0.0001, time + duration);
+      } else {
+        // Funky Clavinet Staccato Stab
+        osc.type = 'square';
+        filter.type = 'bandpass';
+        filter.frequency.setValueAtTime(1400, time);
+        filter.Q.setValueAtTime(2.0, time);
+
+        gain.gain.setValueAtTime(0.045, time);
+        gain.gain.exponentialRampToValueAtTime(0.0001, time + duration);
+      }
+
+      osc.frequency.setValueAtTime(freq, time);
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(this.masterGain);
+
+      osc.start(time);
+      osc.stop(time + duration + 0.02);
+    });
+  }
+
+  /**
+   * LEAD MELODY / SOLO / ARPEGGIO SYNTH
+   */
+  private playLead(note: number, time: number, genre: ActiveThemeId, isHigh = false) {
+    if (!this.ctx || !this.masterGain) return;
+    const freq = this.m2f(note);
+
+    const osc = this.ctx.createOscillator();
+    const filter = this.ctx.createBiquadFilter();
+    const gain = this.ctx.createGain();
+
+    if (genre === 'lofi') {
+      // Mellow Jazz Guitar / Glockenspiel Bell
+      osc.type = 'triangle';
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(2800, time);
+      filter.Q.setValueAtTime(1.0, time);
+
+      gain.gain.setValueAtTime(isHigh ? 0.08 : 0.06, time);
+      gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.28);
+    } else if (genre === 'pixel') {
+      // Pure 8-bit Square Wave Lead
+      osc.type = 'square';
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(3500, time);
+      filter.Q.setValueAtTime(0.9, time);
+
+      gain.gain.setValueAtTime(isHigh ? 0.075 : 0.055, time);
+      gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.12);
+    } else if (genre === 'cyber') {
+      // Neon Outrun Sawtooth Lead with lush vibrato
+      osc.type = 'sawtooth';
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(isHigh ? 3800 : 2600, time);
+      filter.frequency.exponentialRampToValueAtTime(900, time + 0.22);
+      filter.Q.setValueAtTime(2.2, time);
+
+      gain.gain.setValueAtTime(isHigh ? 0.09 : 0.07, time);
+      gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.24);
+    } else if (genre === 'blitz') {
+      // High-Tension Electro Pluck / Arp
+      osc.type = 'sawtooth';
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(isHigh ? 4500 : 3400, time);
+      filter.frequency.exponentialRampToValueAtTime(1200, time + 0.12);
+      filter.Q.setValueAtTime(3.5, time);
+
+      gain.gain.setValueAtTime(isHigh ? 0.10 : 0.08, time);
+      gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.13);
+    } else {
+      // Funky Whistle / Chiptune Bounce Lead
+      osc.type = 'triangle';
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(isHigh ? 3600 : 2500, time);
+      filter.frequency.exponentialRampToValueAtTime(600, time + 0.15);
+      filter.Q.setValueAtTime(1.8, time);
+
+      gain.gain.setValueAtTime(isHigh ? 0.09 : 0.07, time);
+      gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.16);
+    }
+
+    osc.frequency.setValueAtTime(freq, time);
     osc.connect(filter);
     filter.connect(gain);
     gain.connect(this.masterGain);
 
     osc.start(time);
-    osc.stop(time + 0.16);
+    osc.stop(time + 0.30);
   }
 
-  private playPluck(note: number, time: number, type: 'funky' | 'blitz' | 'cyber' | 'pixel' = 'funky', isHigh = false) {
-    if (!this.ctx || !this.masterGain) return;
-    const freq = this.m2f(note);
+  // =========================================================================
+  // SONG COMPOSITIONS & SEQUENCER (Totally Distinct Per Track)
+  // =========================================================================
 
-    const osc1 = this.ctx.createOscillator();
-    const osc2 = this.ctx.createOscillator();
-    const filter = this.ctx.createBiquadFilter();
-    const gain = this.ctx.createGain();
+  private scheduleTheme(theme: ActiveThemeId, step: number, time: number) {
+    const isTension = step >= 64;
 
-    if (type === 'pixel') {
-      osc1.type = 'square';
-      osc2.type = 'square';
-      osc2.frequency.setValueAtTime(freq * 2, time);
-      filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(3200, time);
-      filter.Q.setValueAtTime(1.0, time);
-      gain.gain.setValueAtTime(isHigh ? 0.08 : 0.065, time);
-      gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.11);
-    } else if (type === 'cyber') {
-      // Lush synthwave analog pluck
-      osc1.type = 'sawtooth';
-      osc2.type = 'triangle';
-      osc2.frequency.setValueAtTime(freq * 1.003, time); // Subtle lush detune
-      filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(isHigh ? 3800 : 2800, time);
-      filter.frequency.exponentialRampToValueAtTime(800, time + 0.2);
-      filter.Q.setValueAtTime(2.0, time);
-      gain.gain.setValueAtTime(isHigh ? 0.09 : 0.07, time);
-      gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.22);
-    } else if (type === 'blitz') {
-      // Punchy Kahoot electro brass stab
-      osc1.type = 'sawtooth';
-      osc2.type = 'square';
-      osc2.frequency.setValueAtTime(freq, time);
-      filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(isHigh ? 4200 : 3200, time);
-      filter.frequency.exponentialRampToValueAtTime(1100, time + 0.13);
-      filter.Q.setValueAtTime(3.2, time);
-      gain.gain.setValueAtTime(isHigh ? 0.11 : 0.085, time);
-      gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.14);
-    } else {
-      // Playful chiptune pluck
-      osc1.type = 'square';
-      osc2.type = 'triangle';
-      osc2.frequency.setValueAtTime(freq * 2, time);
-      filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(isHigh ? 3600 : 2600, time);
-      filter.frequency.exponentialRampToValueAtTime(650, time + 0.15);
-      filter.Q.setValueAtTime(1.5, time);
-      gain.gain.setValueAtTime(isHigh ? 0.09 : 0.07, time);
-      gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.16);
-    }
+    // -----------------------------------------------------------------------
+    // TRACK 1: FUNKY ARCADE (124 BPM, D Dorian Disco Funk)
+    // -----------------------------------------------------------------------
+    if (theme === 'funky') {
+      // Syncopated Disco Funk Beat
+      const isKickStep = (step % 16 === 0) || (step % 16 === 6) || (step % 16 === 10);
+      if (isKickStep) this.playKick(time, 'funky');
+      if (step % 8 === 4) this.playSnare(time, 'funky', true);
+      // Open hi-hat on every off-beat
+      if (step % 4 === 2) this.playHiHat(time, 'funky', true);
+      else if (step % 2 === 0) this.playHiHat(time, 'funky', false);
 
-    osc1.frequency.setValueAtTime(freq, time);
-    osc1.connect(filter);
-    osc2.connect(filter);
-    filter.connect(gain);
-    gain.connect(this.masterGain);
-
-    osc1.start(time);
-    osc2.start(time);
-    osc1.stop(time + 0.23);
-    osc2.stop(time + 0.23);
-  }
-
-  // --- Theme Step Sequencer Logic ---
-
-  private scheduleTheme(theme: 'funky' | 'blitz' | 'cyber' | 'pixel', step: number, time: number) {
-    const isTensionSection = step >= 64;
-
-    if (theme === 'blitz') {
-      // ===== THEME 2: KAHOOT BLITZ (130 BPM, A Minor / Electro Tension) =====
-      // Drums: Driving four-on-the-floor
-      if (step % 4 === 0) this.playKick(time, 1.1);
-      if (step % 8 === 4) this.playSnare(time);
-      if (step % 2 === 0) this.playHiHat(time, isTensionSection && (step % 4 === 2));
-      if (step >= 120) this.playHiHat(time, false);
-
-      // Galloping 16th Bass
-      const roots = [45, 45, 41, 43]; // A1, A1, F1, G1
-      const barRoot = isTensionSection ? (step < 80 ? 45 : step < 96 ? 48 : step < 112 ? 50 : 52) : roots[Math.floor((step % 64) / 16)];
-      if (step % 2 === 0) {
-        const isUpper = (step % 4 === 2);
-        this.playBass(isUpper ? barRoot + 12 : barRoot, time, 'blitz', step % 4 === 0);
+      // Funky Clavinet Chords on off-beats
+      if (step % 8 === 2) {
+        this.playChord([62, 65, 69], time, 'funky', 0.15); // Dm
+      } else if (step % 8 === 6) {
+        this.playChord([60, 64, 67], time, 'funky', 0.15); // C
       }
 
-      // Melodic Stabs & Tension Arp
-      const blitzStabs: Record<number, number> = {
+      // Funky Slap Bassline
+      const funkBass: Record<number, number> = {
+        0: 38, 2: 38, 4: 50, 6: 41, 8: 43, 10: 45, 12: 41, 14: 40,
+        16: 38, 18: 38, 22: 48, 24: 43, 26: 45, 28: 48, 30: 49,
+        32: 34, 34: 34, 38: 46, 40: 41, 42: 43, 44: 45, 46: 48,
+        48: 36, 50: 36, 54: 48, 56: 43, 58: 45, 60: 48, 62: 50,
+      };
+      if (funkBass[step % 64]) {
+        this.playBass(funkBass[step % 64], time, 'funky', step % 8 === 0);
+      }
+
+      // Playful Lead Whistle
+      const funkLead: Record<number, number> = {
+        0: 65, 4: 69, 8: 72, 12: 74, 14: 72,
+        16: 69, 20: 65, 24: 67, 28: 65,
+        32: 70, 36: 72, 40: 74, 44: 77, 46: 76,
+        48: 72, 52: 69, 56: 67, 60: 65, 62: 64,
+        // Chorus Hook
+        64: 77, 68: 77, 72: 76, 76: 74, 80: 72,
+        84: 74, 88: 77, 92: 79, 96: 81, 100: 79,
+        104: 77, 108: 74, 112: 72, 116: 69, 120: 65, 124: 62
+      };
+      if (funkLead[step]) {
+        this.playLead(funkLead[step], time, 'funky', funkLead[step] >= 74);
+      }
+      return;
+    }
+
+    // -----------------------------------------------------------------------
+    // TRACK 2: KAHOOT BLITZ (134 BPM, A Minor Electro Tension)
+    // -----------------------------------------------------------------------
+    if (theme === 'blitz') {
+      // Four-on-the-Floor EDM Kick
+      if (step % 4 === 0) this.playKick(time, 'blitz', 1.15);
+      if (step % 8 === 4) this.playSnare(time, 'blitz', true);
+      if (step % 2 === 0) this.playHiHat(time, 'blitz', isTension && (step % 4 === 2));
+
+      // Rolling 16th EDM Bass
+      const roots = [45, 45, 41, 43]; // Am, Am, F, G
+      const barRoot = isTension ? (step < 80 ? 45 : step < 96 ? 48 : step < 112 ? 50 : 52) : roots[Math.floor((step % 64) / 16)];
+      if (step % 2 === 0) {
+        const isOctave = (step % 4 === 2);
+        this.playBass(isOctave ? barRoot + 12 : barRoot, time, 'blitz', step % 4 === 0);
+      }
+
+      // Tension Brass Chord Stabs
+      if (step % 16 === 0 || step % 16 === 6 || step % 16 === 12) {
+        const chordNotes = isTension
+          ? [barRoot + 24, barRoot + 27, barRoot + 31]
+          : [barRoot + 24, barRoot + 28, barRoot + 31];
+        this.playChord(chordNotes, time, 'blitz', 0.18);
+      }
+
+      // Fast Tension Countdown Lead
+      const blitzLead: Record<number, number> = {
         0: 69, 4: 72, 8: 76, 12: 81,
         16: 67, 20: 71, 24: 74, 28: 79,
         32: 65, 36: 69, 40: 72, 44: 77,
         48: 64, 52: 68, 56: 71, 60: 76,
-        // Tension Countdown Ascents
-        64: 81, 66: 81, 68: 84, 72: 86, 76: 88,
-        80: 81, 82: 81, 86: 88, 90: 86, 92: 84,
-        96: 77, 98: 81, 102: 84, 104: 88, 108: 91,
-        112: 93, 114: 93, 116: 91, 118: 88, 120: 86, 122: 84, 124: 81, 126: 76
+        64: 81, 68: 84, 72: 86, 76: 88,
+        80: 89, 84: 88, 88: 86, 92: 84,
+        96: 86, 100: 88, 104: 91, 108: 93,
+        112: 96, 116: 93, 120: 91, 124: 88
       };
-      if (blitzStabs[step]) {
-        this.playPluck(blitzStabs[step], time, 'blitz', blitzStabs[step] >= 76);
+      if (blitzLead[step]) {
+        this.playLead(blitzLead[step], time, 'blitz', true);
+      }
+      return;
+    }
+
+    // -----------------------------------------------------------------------
+    // TRACK 3: SYNTHWAVE 80s (112 BPM, D Minor Retro Cyberpunk)
+    // -----------------------------------------------------------------------
+    if (theme === 'cyber') {
+      // 80s Drum Machine Groove
+      if (step % 16 === 0 || step % 16 === 10) this.playKick(time, 'cyber', 1.25);
+      if (step % 8 === 4) this.playSnare(time, 'cyber', true); // Gated 80s snare
+      if (step % 2 === 0) this.playHiHat(time, 'cyber', step % 4 === 2);
+
+      // Lush Analog Synth Pads (Dm -> Bb -> C -> Am)
+      if (step % 16 === 0) {
+        const barIdx = Math.floor(step / 16) % 4;
+        const padChords = [
+          [50, 57, 62, 65], // Dm
+          [46, 53, 58, 62], // Bb
+          [48, 55, 60, 64], // C
+          [45, 52, 57, 60], // Am
+        ];
+        this.playChord(padChords[barIdx], time, 'cyber', 0.95);
       }
 
-    } else if (theme === 'cyber') {
-      // ===== THEME 3: CYBERPUNK 80s (122 BPM, F# Minor Outrun) =====
-      if (step % 8 === 0 || step % 16 === 10) this.playKick(time, 1.2);
-      if (step % 8 === 4) this.playSnare(time, true); // Gated 80s snare
-      if (step % 2 === 0) this.playHiHat(time, step % 4 === 2);
-
-      // Rolling 80s Synthwave Bass
-      const cyberRoots = [42, 45, 38, 40]; // F#1, A1, D1, E1
+      // Rolling 80s Moog Bassline
+      const cyberRoots = [38, 34, 36, 33]; // D, Bb, C, A
       const root = cyberRoots[Math.floor((step % 64) / 16)];
       if (step % 2 === 0) {
         this.playBass(root, time, 'cyber', step % 4 === 0);
       }
 
-      // Neon Lead Melody
+      // Cinematic Neon Outrun Lead Melody
       const cyberLead: Record<number, number> = {
-        0: 73, 4: 76, 8: 78, 14: 81,
-        16: 80, 20: 78, 24: 76, 28: 73,
-        32: 74, 36: 78, 40: 81, 46: 85,
-        48: 83, 52: 81, 56: 80, 60: 78,
-        // Chorus hook
-        64: 85, 68: 85, 72: 83, 76: 81,
-        80: 80, 84: 81, 88: 83, 92: 85,
-        96: 86, 100: 85, 104: 83, 108: 81,
-        112: 80, 116: 78, 120: 76, 124: 73
+        0: 62, 6: 65, 8: 69, 14: 72,
+        16: 70, 22: 69, 24: 67, 30: 65,
+        32: 67, 38: 70, 40: 72, 46: 76,
+        48: 74, 54: 72, 56: 69, 60: 67, 62: 65,
+        // High Horizon Hook
+        64: 74, 68: 74, 72: 72, 76: 70,
+        80: 72, 84: 74, 88: 76, 92: 77,
+        96: 76, 100: 74, 104: 72, 108: 70,
+        112: 69, 116: 67, 120: 65, 124: 62
       };
       if (cyberLead[step]) {
-        this.playPluck(cyberLead[step], time, 'cyber', true);
+        this.playLead(cyberLead[step], time, 'cyber', cyberLead[step] >= 70);
       }
+      return;
+    }
 
-    } else if (theme === 'pixel') {
-      // ===== THEME 4: 8-BIT PIXEL ARCADE (128 BPM, C Major Chiptune) =====
-      if (step % 4 === 0) this.playKick(time, 0.9);
-      if (step % 8 === 4) this.playSnare(time);
-      if (step % 2 === 0) this.playHiHat(time, false, true);
+    // -----------------------------------------------------------------------
+    // TRACK 4: 8-BIT PIXEL (138 BPM, C Major Chiptune Gameboy)
+    // -----------------------------------------------------------------------
+    if (theme === 'pixel') {
+      // 8-bit Fast Arcade Beat
+      if (step % 4 === 0) this.playKick(time, 'pixel');
+      if (step % 8 === 4) this.playSnare(time, 'pixel');
+      if (step % 2 === 0) this.playHiHat(time, 'pixel', step % 4 === 2);
 
-      // Walking Chiptune Bass
+      // Walking NES Triangle Bass
       const pixelBass: Record<number, number> = {
         0: 36, 4: 40, 8: 43, 12: 45,
         16: 41, 20: 45, 24: 48, 28: 50,
         32: 43, 36: 47, 40: 50, 44: 53,
         48: 36, 52: 43, 56: 48, 60: 47,
-        // Tension section
-        64: 36, 68: 36, 72: 41, 76: 41,
-        80: 43, 84: 43, 88: 45, 92: 45,
-        96: 48, 100: 48, 104: 50, 108: 50,
-        112: 52, 116: 50, 120: 47, 124: 43
+        64: 36, 68: 40, 72: 43, 76: 48,
+        80: 41, 84: 45, 88: 48, 92: 53,
+        96: 43, 100: 47, 104: 50, 108: 55,
+        112: 36, 116: 43, 120: 48, 124: 47
       };
-      if (pixelBass[step]) {
-        this.playBass(pixelBass[step], time, 'pixel', step % 4 === 0);
+      if (pixelBass[step % 128]) {
+        this.playBass(pixelBass[step % 128], time, 'pixel', step % 4 === 0);
       }
 
-      // Cheerful Mario/NES Arcade Melody
+      // Fast NES Arpeggiated Melody
       const pixelLead: Record<number, number> = {
         0: 60, 2: 64, 4: 67, 6: 72, 8: 76, 10: 72, 12: 67, 14: 64,
         16: 65, 18: 69, 20: 72, 22: 77, 24: 76, 26: 72, 28: 69, 30: 65,
         32: 67, 34: 71, 36: 74, 38: 79, 40: 77, 42: 74, 44: 71, 46: 67,
         48: 60, 50: 64, 52: 67, 54: 72, 56: 76, 58: 79, 60: 84, 62: 83,
-        // High hook
+        // High Boss Fight Jump
         64: 84, 66: 84, 70: 84, 74: 79, 78: 81,
         80: 83, 82: 83, 86: 84, 90: 81, 94: 79,
         96: 81, 98: 84, 102: 88, 106: 91,
         112: 96, 114: 95, 116: 93, 118: 91, 120: 88, 122: 84, 124: 79, 126: 72
       };
       if (pixelLead[step]) {
-        this.playPluck(pixelLead[step], time, 'pixel', pixelLead[step] >= 76);
+        this.playLead(pixelLead[step], time, 'pixel', pixelLead[step] >= 76);
+      }
+      return;
+    }
+
+    // -----------------------------------------------------------------------
+    // TRACK 5: LO-FI CHILL (88 BPM, Jazzy Stand Coffee House)
+    // -----------------------------------------------------------------------
+    if (theme === 'lofi') {
+      // Laid-back Boom-Bap Swing Beat
+      const isKick = (step % 16 === 0) || (step % 16 === 7) || (step % 16 === 10);
+      if (isKick) this.playKick(time, 'lofi', 1.0);
+      // Soft wood rimshot on beats 2 and 4
+      if (step % 8 === 4) this.playSnare(time, 'lofi');
+      // Subtle vinyl hi-hat
+      if (step % 2 === 0) this.playHiHat(time, 'lofi', step % 8 === 6);
+
+      // Dreamy Rhodes Jazz Chords (Dm9 -> G13 -> Cmaj9 -> Am9)
+      if (step % 16 === 0) {
+        const bar = Math.floor(step / 16) % 4;
+        const jazzChords = [
+          [50, 57, 60, 64, 65], // Dm9
+          [43, 55, 59, 64, 67], // G13
+          [48, 55, 59, 62, 64], // Cmaj9
+          [45, 57, 60, 64, 67], // Am9
+        ];
+        this.playChord(jazzChords[bar], time, 'lofi', 1.15);
       }
 
-    } else {
-      // ===== THEME 1: FUNKY QUIZIZZ (126 BPM, D Dorian Bounce) =====
-      const isMainBeat = step % 4 === 0;
-      const isPickupKick = step % 16 === 14;
-      if (isMainBeat || isPickupKick) this.playKick(time);
-      if (step % 8 === 4) this.playSnare(time);
-      if (step % 2 === 0) this.playHiHat(time, isTensionSection && (step % 4 === 2));
-      if ((step >= 60 && step <= 63) || (step >= 124 && step <= 127)) this.playHiHat(time, false);
-
-      if (!isTensionSection) {
-        const bassTable: Record<number, { note: number; accent?: boolean }> = {
-          0: { note: 38, accent: true }, 2: { note: 38 }, 5: { note: 41 },
-          8: { note: 43, accent: true }, 10: { note: 43 }, 12: { note: 45 }, 14: { note: 48 },
-          16: { note: 38, accent: true }, 18: { note: 38 }, 22: { note: 41 },
-          24: { note: 43, accent: true }, 26: { note: 45 }, 28: { note: 41 }, 30: { note: 40 },
-          32: { note: 34, accent: true }, 34: { note: 34 }, 38: { note: 38 },
-          40: { note: 41, accent: true }, 42: { note: 41 }, 44: { note: 43 }, 46: { note: 45 },
-          48: { note: 36, accent: true }, 50: { note: 36 }, 54: { note: 40 },
-          56: { note: 43, accent: true }, 58: { note: 45 }, 60: { note: 48 }, 62: { note: 49 },
-        };
-        if (bassTable[step]) this.playBass(bassTable[step].note, time, 'funky', !!bassTable[step].accent);
-
-        const arpTable: Record<number, number> = {
-          0: 62, 2: 65, 4: 69, 6: 74, 8: 72, 10: 69, 12: 65, 14: 67,
-          16: 62, 18: 65, 20: 67, 22: 69, 24: 77, 26: 76, 28: 74, 30: 72,
-          32: 62, 34: 65, 36: 70, 38: 74, 40: 72, 42: 70, 44: 69, 46: 65,
-          48: 64, 50: 67, 52: 72, 54: 76, 56: 74, 58: 72, 60: 69, 62: 73,
-        };
-        if (arpTable[step] !== undefined) this.playPluck(arpTable[step], time, 'funky', arpTable[step] >= 72);
-      } else {
-        const root = step < 80 ? 38 : step < 96 ? 41 : step < 112 ? 43 : 45;
-        if (step % 2 === 0) {
-          const isUpper = (step % 4 === 2);
-          this.playBass(isUpper ? root + 12 : root, time, 'funky', step % 4 === 0);
-        }
-        const hookTable: Record<number, number> = {
-          64: 74, 66: 74, 70: 77, 74: 79, 76: 81,
-          80: 74, 82: 74, 86: 84, 88: 81, 92: 79,
-          96: 77, 98: 79, 102: 81, 104: 84, 108: 86,
-          112: 88, 114: 88, 116: 86, 118: 84, 120: 81, 122: 79, 124: 76, 126: 73
-        };
-        if (hookTable[step] !== undefined) this.playPluck(hookTable[step], time, 'funky', true);
+      // Smooth Walking Sub Bassline
+      const lofiRoots = [38, 43, 36, 45]; // D, G, C, A
+      if (step % 8 === 0) {
+        const bar = Math.floor(step / 16) % 4;
+        const root = lofiRoots[bar];
+        this.playBass(root, time, 'lofi');
+      } else if (step % 8 === 4) {
+        const bar = Math.floor(step / 16) % 4;
+        const root = lofiRoots[bar];
+        this.playBass(root + 7, time, 'lofi'); // 5th step
       }
+
+      // Gentle Melodic Bell / Guitar Lick
+      const lofiLicks: Record<number, number> = {
+        8: 69, 12: 72, 14: 76,
+        24: 74, 28: 71,
+        40: 67, 44: 71, 46: 74,
+        56: 72, 60: 69,
+        // Second Section Mellow Fill
+        72: 76, 76: 79, 80: 81, 86: 83,
+        90: 79, 94: 76, 96: 74, 102: 71,
+        108: 67, 114: 69, 120: 72, 124: 74
+      };
+      if (lofiLicks[step]) {
+        this.playLead(lofiLicks[step], time, 'lofi', lofiLicks[step] >= 74);
+      }
+      return;
     }
   }
 
-  // Lookahead scheduler loop
+  // =========================================================================
+  // LOOKAHEAD SCHEDULER & SMOOTH TRANSITION ENGINE
+  // =========================================================================
+
   private scheduler = () => {
     if (!this.isRunning || !this.ctx) return;
 
@@ -511,15 +900,26 @@ class BgmEngine {
       this.nextStepTime += stepDuration;
 
       const nextStep = (this.currentStep + 1) % this.TOTAL_STEPS;
-      // When a loop completes (after 128 steps):
+      // Auto-Cycle: Saat 128 steps (8 bar) selesai, transisi halus ke lagu berikutnya
       if (nextStep === 0 && this.trackMode === 'auto') {
-        // Automatically progress to next musical variation
-        this.activeThemeIndex = (this.activeThemeIndex + 1) % 4;
-        this.notifyListeners();
+        this.transitionToNextTheme();
+        return;
       }
       this.currentStep = nextStep;
     }
   };
+
+  /**
+   * Transisi otomatis antar lagu di mode auto (Smooth Crossfade)
+   */
+  private transitionToNextTheme() {
+    this.activeThemeIndex = (this.activeThemeIndex + 1) % 5;
+    this.currentStep = 0;
+    if (this.ctx) {
+      this.nextStepTime = this.ctx.currentTime + 0.05;
+    }
+    this.notifyListeners();
+  }
 
   public start() {
     if (this.isRunning) {
@@ -539,7 +939,7 @@ class BgmEngine {
     // Smooth fade in
     this.masterGain.gain.cancelScheduledValues(this.ctx.currentTime);
     this.masterGain.gain.setValueAtTime(0.0001, this.ctx.currentTime);
-    this.masterGain.gain.linearRampToValueAtTime(0.18, this.ctx.currentTime + 0.35);
+    this.masterGain.gain.linearRampToValueAtTime(this.getEffectiveGain(), this.ctx.currentTime + 0.35);
 
     this.isRunning = true;
     this.currentStep = 0;
@@ -561,7 +961,7 @@ class BgmEngine {
     try {
       this.masterGain.gain.cancelScheduledValues(this.ctx.currentTime);
       this.masterGain.gain.setValueAtTime(this.masterGain.gain.value, this.ctx.currentTime);
-      this.masterGain.gain.linearRampToValueAtTime(0.0001, this.ctx.currentTime + 0.2);
+      this.masterGain.gain.linearRampToValueAtTime(0.0001, this.ctx.currentTime + 0.22);
     } catch {
       // Ignore audio error
     }
@@ -574,7 +974,7 @@ class BgmEngine {
         }
         this.isRunning = false;
       }
-    }, 220);
+    }, 240);
     this.notifyListeners();
   }
 
@@ -594,20 +994,98 @@ class BgmEngine {
     return this.isEnabled;
   }
 
-  public setTrackMode(mode: BgmTrackMode) {
-    this.trackMode = mode;
+  public setVolume(vol: number) {
+    const clamped = Math.max(0, Math.min(1, vol));
+    this.volume = clamped;
     if (typeof window !== 'undefined') {
-      localStorage.setItem('minigames_hima_bgm_track', mode);
+      try {
+        localStorage.setItem('minigames_hima_bgm_volume', String(clamped));
+      } catch {
+        // Ignore localStorage error
+      }
     }
-    if (mode !== 'auto') {
-      const idx = ['funky', 'blitz', 'cyber', 'pixel'].indexOf(mode);
-      if (idx !== -1) this.activeThemeIndex = idx;
+    if (this.masterGain && this.ctx && this.isRunning && this.isEnabled && !this.isCrossfading) {
+      this.masterGain.gain.cancelScheduledValues(this.ctx.currentTime);
+      this.masterGain.gain.setValueAtTime(this.masterGain.gain.value, this.ctx.currentTime);
+      this.masterGain.gain.linearRampToValueAtTime(this.getEffectiveGain(), this.ctx.currentTime + 0.05);
     }
     this.notifyListeners();
   }
 
+  public getVolume(): number {
+    return this.volume;
+  }
+
+  /**
+   * Ganti lagu dengan transisi smooth crossfade profesional
+   */
+  public setTrackMode(mode: BgmTrackMode) {
+    if (this.trackMode === mode && mode !== 'auto') return;
+
+    this.trackMode = mode;
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('minigames_hima_bgm_track', mode);
+    }
+
+    if (!this.isRunning || !this.ctx || !this.masterGain || !this.isEnabled) {
+      if (mode !== 'auto') {
+        const themes: ActiveThemeId[] = ['funky', 'blitz', 'cyber', 'pixel', 'lofi'];
+        const idx = themes.indexOf(mode as ActiveThemeId);
+        if (idx !== -1) this.activeThemeIndex = idx;
+      }
+      this.notifyListeners();
+      return;
+    }
+
+    // Smooth DJ Crossfade:
+    // 1. Fade out track sebelumnya (200ms)
+    this.isCrossfading = true;
+    try {
+      const now = this.ctx.currentTime;
+      this.masterGain.gain.cancelScheduledValues(now);
+      this.masterGain.gain.setValueAtTime(this.masterGain.gain.value, now);
+      this.masterGain.gain.linearRampToValueAtTime(0.0001, now + 0.20);
+    } catch {
+      // Ignore
+    }
+
+    if (this.transitionTimer !== null) {
+      window.clearTimeout(this.transitionTimer);
+    }
+
+    this.transitionTimer = window.setTimeout(() => {
+      if (!this.ctx || !this.masterGain) {
+        this.isCrossfading = false;
+        return;
+      }
+
+      if (mode !== 'auto') {
+        const themes: ActiveThemeId[] = ['funky', 'blitz', 'cyber', 'pixel', 'lofi'];
+        const idx = themes.indexOf(mode as ActiveThemeId);
+        if (idx !== -1) this.activeThemeIndex = idx;
+      }
+
+      // Mulai lagu baru dari step 0 (beat 1) dengan sinkronisasi tempo yang baru
+      this.currentStep = 0;
+      this.nextStepTime = this.ctx.currentTime + 0.05;
+
+      // 2. Fade in track baru (300ms)
+      try {
+        const rampStart = this.ctx.currentTime;
+        this.masterGain.gain.cancelScheduledValues(rampStart);
+        this.masterGain.gain.setValueAtTime(0.0001, rampStart);
+        this.masterGain.gain.linearRampToValueAtTime(this.getEffectiveGain(), rampStart + 0.30);
+      } catch {
+        // Ignore
+      }
+
+      this.isCrossfading = false;
+      this.notifyListeners();
+    }, 220);
+  }
+
   public cycleNextTrack(): BgmTrackMode {
-    const modes: BgmTrackMode[] = ['auto', 'funky', 'blitz', 'cyber', 'pixel'];
+    const modes: BgmTrackMode[] = ['auto', 'funky', 'blitz', 'cyber', 'pixel', 'lofi'];
     const currentIdx = modes.indexOf(this.trackMode);
     const nextMode = modes[(currentIdx + 1) % modes.length];
     this.setTrackMode(nextMode);
@@ -622,9 +1100,9 @@ class BgmEngine {
     return this.isRunning && this.isEnabled;
   }
 
-  public subscribe(listener: (enabled: boolean, track: BgmTrackMode, themeName: string) => void): () => void {
+  public subscribe(listener: (enabled: boolean, track: BgmTrackMode, themeName: string, volume: number) => void): () => void {
     this.listeners.add(listener);
-    listener(this.isEnabled, this.trackMode, this.getActiveThemeName());
+    listener(this.isEnabled, this.trackMode, this.getActiveThemeName(), this.volume);
     return () => {
       this.listeners.delete(listener);
     };
@@ -632,7 +1110,7 @@ class BgmEngine {
 
   private notifyListeners() {
     const themeName = this.getActiveThemeName();
-    this.listeners.forEach((l) => l(this.isEnabled, this.trackMode, themeName));
+    this.listeners.forEach((l) => l(this.isEnabled, this.trackMode, themeName, this.volume));
   }
 }
 

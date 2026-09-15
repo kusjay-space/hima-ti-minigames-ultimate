@@ -62,3 +62,6 @@ coverage/
 
 # Dynamic uploads from admin dashboard (preserve default assets)
 backend/uploads/pengurus-*
+
+# Graphify cache
+graphify-out/cache/

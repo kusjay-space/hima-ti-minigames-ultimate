@@ -1,0 +1,402 @@
+{
+  "backend/db.js": {
+    "mtime": 1789449434.7425158,
+    "ast_hash": "a7aa454ba02b2711c5582817b9c83314",
+    "semantic_hash": ""
+  },
+  "backend/importCsvPengurus.js": {
+    "mtime": 1789318730.1036067,
+    "ast_hash": "0a18640bc68825d789ec899fd42a5a02",
+    "semantic_hash": ""
+  },
+  "backend/package.json": {
+    "mtime": 1789318308.3392537,
+    "ast_hash": "fce9d0365be360085526d951bfaa4cd2",
+    "semantic_hash": ""
+  },
+  "backend/seedData.js": {
+    "mtime": 1789318737.9467058,
+    "ast_hash": "e7e10e5d9a3f6c87d99884949cf80f55",
+    "semantic_hash": ""
+  },
+  "backend/server.js": {
+    "mtime": 1789449537.9976957,
+    "ast_hash": "d4242963631a0d75f8dcaf2a5ab7cc37",
+    "semantic_hash": ""
+  },
+  "frontend/.oxlintrc.json": {
+    "mtime": 1789318285.957008,
+    "ast_hash": "029f4905006c1fffd96bc863e2d98d3e",
+    "semantic_hash": ""
+  },
+  "frontend/package.json": {
+    "mtime": 1789318310.0820184,
+    "ast_hash": "67e98252ceb95c84d5fea8373287e072",
+    "semantic_hash": ""
+  },
+  "frontend/src/App.tsx": {
+    "mtime": 1789457099.9994326,
+    "ast_hash": "5fef2f35f1f01459559ae0cac54a6dc4",
+    "semantic_hash": ""
+  },
+  "frontend/src/components/admin/AdminDashboard.tsx": {
+    "mtime": 1789457780.5365868,
+    "ast_hash": "aca46358bb664c980ef7701c06fbefbb",
+    "semantic_hash": ""
+  },
+  "frontend/src/components/game/FlashcardCard.tsx": {
+    "mtime": 1789455612.3028479,
+    "ast_hash": "3c05067387e0aa68c737dc69f204444e",
+    "semantic_hash": ""
+  },
+  "frontend/src/components/game/FlashcardGame.tsx": {
+    "mtime": 1789457686.669124,
+    "ast_hash": "ea18e4c23f2e826fdeb061b2e8a65844",
+    "semantic_hash": ""
+  },
+  "frontend/src/components/game/LeaderboardModal.tsx": {
+    "mtime": 1789333754.8560548,
+    "ast_hash": "ab24b2202e5efcc9efd653c26145d0f9",
+    "semantic_hash": ""
+  },
+  "frontend/src/components/game/OptionButton.tsx": {
+    "mtime": 1789449560.048044,
+    "ast_hash": "f5fcdac75eb184da1bd19e08cf415730",
+    "semantic_hash": ""
+  },
+  "frontend/src/components/game/ResultScreen.tsx": {
+    "mtime": 1789457794.4512491,
+    "ast_hash": "06274ffe5b0d06b2496a01e4360707f5",
+    "semantic_hash": ""
+  },
+  "frontend/src/components/game/TimerBar.tsx": {
+    "mtime": 1789335313.3174415,
+    "ast_hash": "2de89dca6cffded074b4695c319d2712",
+    "semantic_hash": ""
+  },
+  "frontend/src/components/game/WelcomeScreen.tsx": {
+    "mtime": 1789457651.5175886,
+    "ast_hash": "7605f160b987b35dc33350ba6cb37113",
+    "semantic_hash": ""
+  },
+  "frontend/src/components/ui/Badge.tsx": {
+    "mtime": 1789318374.0880787,
+    "ast_hash": "6e159d8e1856e50292420ddbcd9fb82e",
+    "semantic_hash": ""
+  },
+  "frontend/src/components/ui/ScrambleText.tsx": {
+    "mtime": 1789318377.1363702,
+    "ast_hash": "dfc54f5c29962006976f19c89fdc2f8e",
+    "semantic_hash": ""
+  },
+  "frontend/src/lib/bgm.ts": {
+    "mtime": 1789458174.8904183,
+    "ast_hash": "9fa2e5df2277801d11823718123c01f0",
+    "semantic_hash": ""
+  },
+  "frontend/src/lib/session.ts": {
+    "mtime": 1789456973.1477606,
+    "ast_hash": "94b9006274ffed2d2a7e241a11f2e134",
+    "semantic_hash": ""
+  },
+  "frontend/src/lib/sound.ts": {
+    "mtime": 1789457512.2712426,
+    "ast_hash": "d7e1a0874823b1aaedd918603c7f1a97",
+    "semantic_hash": ""
+  },
+  "frontend/src/main.tsx": {
+    "mtime": 1789318285.9585934,
+    "ast_hash": "787e5a07efeb2bf6209d5937195f2f68",
+    "semantic_hash": ""
+  },
+  "frontend/src/types.ts": {
+    "mtime": 1789449543.406911,
+    "ast_hash": "8dc72cee184eeb61df1e24715480e56f",
+    "semantic_hash": ""
+  },
+  "frontend/tsconfig.app.json": {
+    "mtime": 1789318479.967627,
+    "ast_hash": "7aa1d1399ac00d43d7124f66b6a5bb3d",
+    "semantic_hash": ""
+  },
+  "frontend/tsconfig.json": {
+    "mtime": 1789318285.9588423,
+    "ast_hash": "a3d39fa780ebff65444de257f291ce6c",
+    "semantic_hash": ""
+  },
+  "frontend/tsconfig.node.json": {
+    "mtime": 1789318285.9589596,
+    "ast_hash": "f9cb81ddcea69ffdab672fc8c48dca66",
+    "semantic_hash": ""
+  },
+  "frontend/vite.config.ts": {
+    "mtime": 1789318350.1050482,
+    "ast_hash": "8cd712564657a0168a67baaa1c23c5de",
+    "semantic_hash": ""
+  },
+  "package.json": {
+    "mtime": 1789318510.953958,
+    "ast_hash": "7151039d475f6fb89b4c5cf47dab89c6",
+    "semantic_hash": ""
+  },
+  "README.md": {
+    "mtime": 1789394554.5809877,
+    "ast_hash": "8939a05cb463fe1bf912715657c77c56",
+    "semantic_hash": ""
+  },
+  "SPESIFIKASI_DAN_RULES.md": {
+    "mtime": 1789315244.2585614,
+    "ast_hash": "184383c1a602313f29b342bcea10128c",
+    "semantic_hash": ""
+  },
+  "frontend/README.md": {
+    "mtime": 1789318285.9567156,
+    "ast_hash": "10495bfcc6c568eca4dab6dd5df795d3",
+    "semantic_hash": ""
+  },
+  "frontend/index.html": {
+    "mtime": 1789322973.2599072,
+    "ast_hash": "9f51e50869616a4de6f14d9e7c0f1ff2",
+    "semantic_hash": ""
+  },
+  "backend/uploads/aisyah_humas.svg": {
+    "mtime": 1789318338.6615565,
+    "ast_hash": "70f333f43cef57a2e693296778294aaf",
+    "semantic_hash": ""
+  },
+  "backend/uploads/arya_kahim.svg": {
+    "mtime": 1789318338.6425557,
+    "ast_hash": "a33db1e4e41f7238381fe77c1e640b7c",
+    "semantic_hash": ""
+  },
+  "backend/uploads/dewa-ayu-dwicahya-dewanti.webp": {
+    "mtime": 1788526406.0,
+    "ast_hash": "0a9df505955be76bbd1ef64ce56b664a",
+    "semantic_hash": ""
+  },
+  "backend/uploads/dimas_litbang.svg": {
+    "mtime": 1789318338.653556,
+    "ast_hash": "9066e6cb8047d46bf1a622e82b01e711",
+    "semantic_hash": ""
+  },
+  "backend/uploads/farhan_bendum.svg": {
+    "mtime": 1789318338.651556,
+    "ast_hash": "93c2dab0302e3b3d7b80b1293c9f6f06",
+    "semantic_hash": ""
+  },
+  "backend/uploads/fiji-firmanda.webp": {
+    "mtime": 1788526406.0,
+    "ast_hash": "818663d2a5aec77afbd75de446360cd4",
+    "semantic_hash": ""
+  },
+  "backend/uploads/gede-satya-devra-widyanatha.webp": {
+    "mtime": 1788526408.0,
+    "ast_hash": "199acdfec934cdf74683b2f3ef5ac98b",
+    "semantic_hash": ""
+  },
+  "backend/uploads/i-dewa-gede-ariesta-dharmayuda.webp": {
+    "mtime": 1788526408.0,
+    "ast_hash": "93da95b08d06bc8dc7a5ec271776076b",
+    "semantic_hash": ""
+  },
+  "backend/uploads/i-gede-angga-yudistira.webp": {
+    "mtime": 1788526410.0,
+    "ast_hash": "f08c289caa4166fcb86796cd6efdcbc6",
+    "semantic_hash": ""
+  },
+  "backend/uploads/i-gst-n-pt-diana-putra-pratama.webp": {
+    "mtime": 1788526410.0,
+    "ast_hash": "f39d87a0614456231f605bb56f527bf7",
+    "semantic_hash": ""
+  },
+  "backend/uploads/i-gusti-bagus-agung-andra-pradnyana-pandji.webp": {
+    "mtime": 1788526410.0,
+    "ast_hash": "c2d97b23b4df9ce1d615b45f0b1fb98a",
+    "semantic_hash": ""
+  },
+  "backend/uploads/i-kadek-abi-prawira.webp": {
+    "mtime": 1788526412.0,
+    "ast_hash": "22063f18e53f745c8300b59214b7aff2",
+    "semantic_hash": ""
+  },
+  "backend/uploads/i-komang-bayu-kurniawan.webp": {
+    "mtime": 1788526412.0,
+    "ast_hash": "011d351a3770fcc55b1418804ba1b448",
+    "semantic_hash": ""
+  },
+  "backend/uploads/i-made-adhi-pranaya-kusuma-putra.webp": {
+    "mtime": 1788526414.0,
+    "ast_hash": "fccb580bbcfe2e70e0e3d092634b69eb",
+    "semantic_hash": ""
+  },
+  "backend/uploads/i-made-agastya-wedastika.webp": {
+    "mtime": 1788526414.0,
+    "ast_hash": "1241fdc274da0bfb2b3ec432c13836cb",
+    "semantic_hash": ""
+  },
+  "backend/uploads/i-made-arya-krisna-sanjaya.webp": {
+    "mtime": 1788526416.0,
+    "ast_hash": "ad07ea08ce1a05cd6bca354b293ecf3b",
+    "semantic_hash": ""
+  },
+  "backend/uploads/i-made-bintang-kartika-yasa.webp": {
+    "mtime": 1788526416.0,
+    "ast_hash": "1e1112f2cb5cddead0b7521662b68b18",
+    "semantic_hash": ""
+  },
+  "backend/uploads/i-made-chandra-yudi-saskara.webp": {
+    "mtime": 1788526418.0,
+    "ast_hash": "2da722d51579968d43fc8c03dda8d2ae",
+    "semantic_hash": ""
+  },
+  "backend/uploads/i-made-kusuma-jaya-wardana.webp": {
+    "mtime": 1788526418.0,
+    "ast_hash": "3342cbfc14e2af7c6b64cf115cd1e99e",
+    "semantic_hash": ""
+  },
+  "backend/uploads/i-putu-adhiatman.webp": {
+    "mtime": 1788526420.0,
+    "ast_hash": "7c987d913390878cc92ee92fc66f6f9d",
+    "semantic_hash": ""
+  },
+  "backend/uploads/i-wayan-oka-eswara-candrana.webp": {
+    "mtime": 1788526422.0,
+    "ast_hash": "b9b8671ded25740db437a4687d86f497",
+    "semantic_hash": ""
+  },
+  "backend/uploads/ida-ayu-gede-sri-widiani.webp": {
+    "mtime": 1788526422.0,
+    "ast_hash": "c9c9a9e01bbd78123cee684cd6e0336f",
+    "semantic_hash": ""
+  },
+  "backend/uploads/ida-ayu-ika-pramesti-kesuma.webp": {
+    "mtime": 1788526422.0,
+    "ast_hash": "7af93b62ce9418b51d8100ddaa2aa61d",
+    "semantic_hash": ""
+  },
+  "backend/uploads/ida-bagus-gede-dharmayoga-iswara.webp": {
+    "mtime": 1788526424.0,
+    "ast_hash": "5b479262afda04aa34b6c9cab8950a4e",
+    "semantic_hash": ""
+  },
+  "backend/uploads/ida-bagus-windu-diwangkara.webp": {
+    "mtime": 1788526426.0,
+    "ast_hash": "9ccef602307661beac87eab58090a970",
+    "semantic_hash": ""
+  },
+  "backend/uploads/kadek-novan-suhaliem-chandra.webp": {
+    "mtime": 1788526426.0,
+    "ast_hash": "255437afc41544a719fb8f6a3d5c8dcb",
+    "semantic_hash": ""
+  },
+  "backend/uploads/kadek-yuni-dwiyantini-savitri.webp": {
+    "mtime": 1788526428.0,
+    "ast_hash": "cf56544ca10c0ccd39bcebaa96d03e4d",
+    "semantic_hash": ""
+  },
+  "backend/uploads/kevin_psdm.svg": {
+    "mtime": 1789318338.6585565,
+    "ast_hash": "6b920c2463b8a879c34b7638e7391798",
+    "semantic_hash": ""
+  },
+  "backend/uploads/luh-gede-manik-prascita-yoga.webp": {
+    "mtime": 1788526428.0,
+    "ast_hash": "b72ba3bc741e5057b4e540830c4c4a6a",
+    "semantic_hash": ""
+  },
+  "backend/uploads/nabila_wakahim.svg": {
+    "mtime": 1789318338.6455557,
+    "ast_hash": "584a3dad00a6e26436c6846c6fe816a3",
+    "semantic_hash": ""
+  },
+  "backend/uploads/ngurah-gde-rheino-darma-tenaya-perean.webp": {
+    "mtime": 1788526430.0,
+    "ast_hash": "3b465c5b6b54a5329c8c368a2f8a1d05",
+    "semantic_hash": ""
+  },
+  "backend/uploads/ni-kadek-ayu-dea-santika-dewi.webp": {
+    "mtime": 1788526430.0,
+    "ast_hash": "a2f0b9f3ff2b120778f8c3ee127abff9",
+    "semantic_hash": ""
+  },
+  "backend/uploads/ni-made-adinda-oktaviani.webp": {
+    "mtime": 1788526432.0,
+    "ast_hash": "6e47d4f5e74cad2aa736ec157a7f6232",
+    "semantic_hash": ""
+  },
+  "backend/uploads/ni-nyoman-putri-kirana.webp": {
+    "mtime": 1788526432.0,
+    "ast_hash": "5812a562934cb585c0758c9b1484a912",
+    "semantic_hash": ""
+  },
+  "backend/uploads/ni-putu-dewi-candra-wangi.webp": {
+    "mtime": 1788526434.0,
+    "ast_hash": "d2b615e27dbe9a7fe6c0ead5f15686e0",
+    "semantic_hash": ""
+  },
+  "backend/uploads/ni-wayan-ananda-oktavianti.webp": {
+    "mtime": 1788526434.0,
+    "ast_hash": "c0f0a7f75d7982bb581b1e673ba13349",
+    "semantic_hash": ""
+  },
+  "backend/uploads/putu-gde-adyatma-putra.webp": {
+    "mtime": 1788526436.0,
+    "ast_hash": "14c955e83268ebbe3a8a6737ea0898a4",
+    "semantic_hash": ""
+  },
+  "backend/uploads/putu-kencana-sridewi.webp": {
+    "mtime": 1788526436.0,
+    "ast_hash": "84bb272202f230b81afb38865d24acc7",
+    "semantic_hash": ""
+  },
+  "backend/uploads/putu-raditya-dharma-putra.webp": {
+    "mtime": 1788526438.0,
+    "ast_hash": "ea6848821926b000f1800cf18554a221",
+    "semantic_hash": ""
+  },
+  "backend/uploads/rizky_sekjen.svg": {
+    "mtime": 1789318338.648556,
+    "ast_hash": "738cb2953416bef4dc2feaf5877943ab",
+    "semantic_hash": ""
+  },
+  "backend/uploads/ton-klein-pandesolan.webp": {
+    "mtime": 1788526438.0,
+    "ast_hash": "1da716065f9ff8d9d1fcb4fb35af5fe6",
+    "semantic_hash": ""
+  },
+  "backend/uploads/zahra_medinfo.svg": {
+    "mtime": 1789318338.6565564,
+    "ast_hash": "d6990a73d6321e826944678026c01413",
+    "semantic_hash": ""
+  },
+  "frontend/public/favicon.svg": {
+    "mtime": 1789318285.9573936,
+    "ast_hash": "7e840862161341271697daa99a40d76b",
+    "semantic_hash": ""
+  },
+  "frontend/public/icons.svg": {
+    "mtime": 1789318285.9575443,
+    "ast_hash": "3b4fcfcf393eca4d264dca4a4663bc37",
+    "semantic_hash": ""
+  },
+  "frontend/src/assets/hero.png": {
+    "mtime": 1789318285.9579873,
+    "ast_hash": "aead493361b27e7510691c5d7072dfc1",
+    "semantic_hash": ""
+  },
+  "frontend/src/assets/react.svg": {
+    "mtime": 1789318285.9581306,
+    "ast_hash": "f0402b67b6ce880f65666bb49e841696",
+    "semantic_hash": ""
+  },
+  "frontend/src/assets/vite.svg": {
+    "mtime": 1789318285.9582613,
+    "ast_hash": "9960a24288958394ac50e57ff638b036",
+    "semantic_hash": ""
+  },
+  "frontend/src/components/game/AudioMixerModal.tsx": {
+    "mtime": 1789458189.016469,
+    "ast_hash": "ac3129dcd5a70648191f4b72eabaf394",
+    "semantic_hash": ""
+  }
+}

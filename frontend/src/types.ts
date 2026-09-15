@@ -45,6 +45,7 @@ export interface QuizConfig {
   animasiStyle: AnimationStyle;
   misiCapText: string;
   fotoFokus?: FotoFokus;
+  spillJawaban?: 'akhir' | 'langsung';
 }
 
 export interface Pengurus {

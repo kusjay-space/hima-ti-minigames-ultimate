@@ -181,8 +181,62 @@ function shuffleArray(arr) {
   return copy;
 }
 
-// Smart Depletion Pool & Cooldown Tracker to minimize question repetition across consecutive sessions
-let recentPengurusHistory = [];
+// Deteksi klaster divisi untuk stratified sampling
+function getDivisiCluster(divisi) {
+  const d = (divisi || '').toLowerCase();
+  if (d.includes('bph') || d.includes('ketua') || d.includes('sekretaris') || d.includes('bendahara')) return 'bph';
+  if (d.includes('minat') || d.includes('bakat')) return 'minat_bakat';
+  if (d.includes('media')) return 'media';
+  if (d.includes('humas')) return 'humas';
+  if (d.includes('penelitian')) return 'penelitian';
+  if (d.includes('pengabdian') || d.includes('pengmas')) return 'pengmas';
+  return 'umum';
+}
+
+// Deteksi gender nama pengurus untuk smart distractors yang natural
+function detectGender(nama) {
+  const n = (nama || '').toLowerCase();
+  if (
+    /^(ni |luh |dewa ayu|ida ayu|putu kencana|kadek yuni)/i.test(n) ||
+    /dewi|oktaviani|oktavianti|dwiyantini|prascita|candra wangi|pramesti|widiani/i.test(n)
+  ) {
+    return 'female';
+  }
+  return 'male';
+}
+
+// Generator kunci jawaban seimbang tanpa streak beruntun (Anti-Streak Uniform ABCD)
+function generateBalancedKeys(count) {
+  const baseKeys = ['A', 'B', 'C', 'D'];
+  const pool = [];
+  while (pool.length < count) {
+    pool.push(...shuffleArray(baseKeys));
+  }
+  const keys = pool.slice(0, count);
+
+  // Pencegahan streak: pastikan tidak ada keys[i] yang bernilai sama dengan keys[i-1]
+  for (let i = 1; i < keys.length; i++) {
+    if (keys[i] === keys[i - 1]) {
+      let swapped = false;
+      for (let j = i + 1; j < keys.length; j++) {
+        if (keys[j] !== keys[i - 1] && (j + 1 >= keys.length || keys[j] !== keys[j + 1])) {
+          [keys[i], keys[j]] = [keys[j], keys[i]];
+          swapped = true;
+          break;
+        }
+      }
+      if (!swapped) {
+        const diff = baseKeys.filter(k => k !== keys[i - 1]);
+        keys[i] = diff[Math.floor(Math.random() * diff.length)];
+      }
+    }
+  }
+  return keys;
+}
+
+// Global Usage Frequency & Cooldown Tracker lintas sesi kuis
+const pengurusUsageStats = new Map(); // id -> { count: number, lastSessionTurn: number }
+let sessionTurnCounter = 0;
 
 app.get('/api/quiz-session', (req, res) => {
   try {
@@ -194,6 +248,7 @@ app.get('/api/quiz-session', (req, res) => {
     const animasiStyle = settings.animasiStyle || 'combo';
     const misiCapText = settings.misiCapText || 'Follow IG HIMA TI & Sapa Pengurus Stand!';
     const fotoFokus = settings.fotoFokus || 'tengah_atas';
+    const spillJawaban = settings.spillJawaban || 'akhir';
 
     const allPengurus = db.prepare('SELECT * FROM pengurus WHERE is_active = 1').all();
 
@@ -204,39 +259,88 @@ app.get('/api/quiz-session', (req, res) => {
       });
     }
 
-    // Algoritma Smart Cooldown Randomizer:
-    // Pisahkan pengurus menjadi coldPool (belum muncul di sesi terakhir) dan warmPool (baru saja muncul)
-    const recentSet = new Set(recentPengurusHistory);
-    const coldPool = shuffleArray(allPengurus.filter(p => !recentSet.has(p.id)));
-    const warmPool = shuffleArray(allPengurus.filter(p => recentSet.has(p.id)));
+    sessionTurnCounter++;
+
+    // 1. STRATIFIED SAMPLING: Kelompokkan pengurus ke dalam klaster divisi
+    const clusters = {
+      bph: [],
+      media: [],
+      humas: [],
+      minat_bakat: [],
+      penelitian: [],
+      pengmas: [],
+      umum: []
+    };
+
+    for (const p of allPengurus) {
+      const c = getDivisiCluster(p.divisi);
+      if (clusters[c]) {
+        clusters[c].push(p);
+      } else {
+        clusters.umum.push(p);
+      }
+    }
+
+    // Hitung score prioritas berdasarkan frekuensi kemunculan & turn cooldown
+    const getCandidateScore = (p) => {
+      const stats = pengurusUsageStats.get(p.id) || { count: 0, lastSessionTurn: 0 };
+      // Semakin kecil count & semakin lama turn, skor semakin kecil (prioritas paling tinggi)
+      const turnsSince = sessionTurnCounter - stats.lastSessionTurn;
+      return (stats.count * 100) - Math.min(50, turnsSince) + (Math.random() * 2);
+    };
+
+    // Urutkan kandidat dalam masing-masing klaster
+    for (const key of Object.keys(clusters)) {
+      clusters[key].sort((a, b) => getCandidateScore(a) - getCandidateScore(b));
+    }
+
+    // Tentukan urutan klaster yang akan diambil untuk sesi ini
+    const availableClusterKeys = Object.keys(clusters).filter(k => clusters[k].length > 0);
+    const clusterOrder = shuffleArray(availableClusterKeys);
 
     let selectedQuestions = [];
-    if (coldPool.length >= soalPerSesi) {
-      // Prioritaskan 100% pengurus yang belum muncul di sesi-sesi sebelumnya
-      selectedQuestions = coldPool.slice(0, soalPerSesi);
-    } else {
-      // Jika coldPool tersisa kurang dari kebutuhan sesi (siklus hampir selesai),
-      // ambil sisa coldPool lalu tambahkan dari warmPool yang paling lama tidak muncul
-      selectedQuestions = [...coldPool];
-      const needed = soalPerSesi - selectedQuestions.length;
-      selectedQuestions = selectedQuestions.concat(warmPool.slice(0, needed));
+    const chosenIds = new Set();
+
+    // Ambil 1 perwakilan dari tiap klaster berbeda terlebih dahulu
+    for (const clusterKey of clusterOrder) {
+      if (selectedQuestions.length >= soalPerSesi) break;
+      const candidate = clusters[clusterKey].find(p => !chosenIds.has(p.id));
+      if (candidate) {
+        selectedQuestions.push(candidate);
+        chosenIds.add(candidate.id);
+      }
     }
 
-    // Catat ID terpilih ke antrean riwayat cooldown
+    // Jika soal per sesi lebih banyak dari jumlah klaster, ambil kandidat berikutnya dengan score terendah
+    if (selectedQuestions.length < soalPerSesi) {
+      const remainingPool = allPengurus
+        .filter(p => !chosenIds.has(p.id))
+        .sort((a, b) => getCandidateScore(a) - getCandidateScore(b));
+
+      for (const candidate of remainingPool) {
+        if (selectedQuestions.length >= soalPerSesi) break;
+        selectedQuestions.push(candidate);
+        chosenIds.add(candidate.id);
+      }
+    }
+
+    // Acak urutan tampil soal agar urutan divisi tidak tertebak
+    selectedQuestions = shuffleArray(selectedQuestions);
+
+    // Update usage stats untuk pengurus terpilih
     selectedQuestions.forEach(p => {
-      recentPengurusHistory = recentPengurusHistory.filter(id => id !== p.id);
-      recentPengurusHistory.push(p.id);
+      const cur = pengurusUsageStats.get(p.id) || { count: 0, lastSessionTurn: 0 };
+      pengurusUsageStats.set(p.id, {
+        count: cur.count + 1,
+        lastSessionTurn: sessionTurnCounter
+      });
     });
 
-    // Batasi riwayat cooldown (misal maksimal 24 dari 34 pengurus agar rotasi berulang secara sehat)
-    const maxTrack = Math.min(24, Math.max(5, allPengurus.length - soalPerSesi));
-    if (recentPengurusHistory.length > maxTrack) {
-      recentPengurusHistory = recentPengurusHistory.slice(recentPengurusHistory.length - maxTrack);
-    }
+    // 2. GENERATE BALANCED ANTI-STREAK ABCD KEYS
+    const balancedCorrectKeys = generateBalancedKeys(selectedQuestions.length);
 
-    // Siapkan soal dengan smart auto-distractor
+    // 3. SIAPKAN SOAL DENGAN SMART GENDER-AWARE DISTRACTOR
     const questions = selectedQuestions.map((target, idx) => {
-      // Tentukan tipe pertanyaan (nama / divisi)
       let questionType = modeKuis;
       if (modeKuis === 'campuran') {
         questionType = Math.random() > 0.5 ? 'tebak_nama' : 'tebak_divisi';
@@ -248,34 +352,81 @@ app.get('/api/quiz-session', (req, res) => {
         : 'Pengurus pada foto di atas memegang amanah/divisi apa?';
 
       const correctAnswer = isNameQuestion ? target.nama : target.divisi;
+      const targetGender = detectGender(target.nama);
 
-      // Ambil distractor dari pengurus lain
+      // Kumpulkan distractor unik & cerdas
       const otherPengurus = allPengurus.filter(p => p.id !== target.id);
-      const shuffledOthers = shuffleArray(otherPengurus);
-
-      // Kumpulkan distractor unik agar tidak ada opsi duplikat
       const distractorSet = new Set();
-      for (const p of shuffledOthers) {
-        const optionVal = isNameQuestion ? p.nama : p.divisi;
-        if (optionVal !== correctAnswer) {
-          distractorSet.add(optionVal);
+
+      if (isNameQuestion) {
+        // Tebak nama: prioritaskan distractor yang gender-nya sama agar tidak mudah ditebak
+        const sameGenderOthers = shuffleArray(otherPengurus.filter(p => detectGender(p.nama) === targetGender));
+        for (const p of sameGenderOthers) {
+          if (p.nama !== correctAnswer && !distractorSet.has(p.nama)) {
+            distractorSet.add(p.nama);
+          }
+          if (distractorSet.size >= 3) break;
         }
-        if (distractorSet.size >= 3) break;
+
+        // Jika opsi se-gender kurang dari 3, tambahkan dari sisa pengurus lainnya
+        if (distractorSet.size < 3) {
+          const diffGenderOthers = shuffleArray(otherPengurus.filter(p => detectGender(p.nama) !== targetGender));
+          for (const p of diffGenderOthers) {
+            if (p.nama !== correctAnswer && !distractorSet.has(p.nama)) {
+              distractorSet.add(p.nama);
+            }
+            if (distractorSet.size >= 3) break;
+          }
+        }
+      } else {
+        // Tebak divisi: prioritaskan divisi yang berbeda dari divisi jawaban yang benar
+        const shuffledOthers = shuffleArray(otherPengurus);
+        for (const p of shuffledOthers) {
+          if (p.divisi !== correctAnswer && !distractorSet.has(p.divisi)) {
+            distractorSet.add(p.divisi);
+          }
+          if (distractorSet.size >= 3) break;
+        }
       }
 
-      // Jika distractor kurang dari 3 (misal nama divisi ada yang sama), tambahkan opsi fallback
+      // Fallback cadangan jika divisi/nama unik masih kurang dari 3
       const distractors = Array.from(distractorSet);
+      const defaultDivisions = [
+        'Divisi Hubungan Masyarakat',
+        'Divisi Media & Informasi',
+        'Divisi Minat & Bakat',
+        'Divisi Penelitian & Pengembangan',
+        'Divisi Pengabdian Masyarakat',
+        'Badan Pengurus Harian (BPH)'
+      ];
+      let fallbackIdx = 0;
       while (distractors.length < 3) {
-        distractors.push(isNameQuestion ? `Pengurus Tambahan ${distractors.length + 1}` : `Divisi ${distractors.length + 1}`);
+        const fb = isNameQuestion
+          ? `Pengurus HIMA ${distractors.length + 1}`
+          : defaultDivisions[fallbackIdx % defaultDivisions.length];
+        fallbackIdx++;
+        if (fb !== correctAnswer && !distractors.includes(fb)) {
+          distractors.push(fb);
+        }
       }
 
-      // Gabungkan dan acak posisi ABCD
-      const allOptions = shuffleArray([
-        { text: correctAnswer, isCorrect: true },
-        { text: distractors[0], isCorrect: false },
-        { text: distractors[1], isCorrect: false },
-        { text: distractors[2], isCorrect: false },
-      ]);
+      // 4. SUSUN ABCD: Tempatkan kunci jawaban di posisi seimbang & acak posisi distractor
+      const targetCorrectKey = balancedCorrectKeys[idx];
+      const otherKeys = shuffleArray(['A', 'B', 'C', 'D'].filter(k => k !== targetCorrectKey));
+      const shuffledDistractors = shuffleArray(distractors.slice(0, 3));
+
+      const optionsMap = {
+        [targetCorrectKey]: { text: correctAnswer, isCorrect: true },
+        [otherKeys[0]]: { text: shuffledDistractors[0], isCorrect: false },
+        [otherKeys[1]]: { text: shuffledDistractors[1], isCorrect: false },
+        [otherKeys[2]]: { text: shuffledDistractors[2], isCorrect: false }
+      };
+
+      const options = ['A', 'B', 'C', 'D'].map(key => ({
+        key,
+        text: optionsMap[key].text,
+        isCorrect: optionsMap[key].isCorrect
+      }));
 
       return {
         id: target.id,
@@ -285,11 +436,7 @@ app.get('/api/quiz-session', (req, res) => {
         questionType,
         correctNama: target.nama,
         correctDivisi: target.divisi,
-        options: allOptions.map((opt, oIdx) => ({
-          key: ['A', 'B', 'C', 'D'][oIdx],
-          text: opt.text,
-          isCorrect: opt.isCorrect
-        }))
+        options
       };
     });
 
@@ -301,7 +448,8 @@ app.get('/api/quiz-session', (req, res) => {
         minBenarCap,
         animasiStyle,
         misiCapText,
-        fotoFokus
+        fotoFokus,
+        spillJawaban
       },
       questions
     });

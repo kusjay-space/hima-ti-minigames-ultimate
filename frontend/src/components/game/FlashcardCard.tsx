@@ -22,6 +22,8 @@ interface FlashcardCardProps {
   isBackgroundCard?: boolean;
   isFlippedControlled?: boolean;
   compactOnMobile?: boolean;
+  spillJawaban?: 'akhir' | 'langsung';
+  inspectMode?: boolean;
 }
 
 export const FlashcardCard: React.FC<FlashcardCardProps> = ({
@@ -41,7 +43,9 @@ export const FlashcardCard: React.FC<FlashcardCardProps> = ({
   onCardFlipped,
   isBackgroundCard = false,
   isFlippedControlled,
-  compactOnMobile = false
+  compactOnMobile = false,
+  spillJawaban = 'akhir',
+  inspectMode = false
 }) => {
   const cardRef = useRef<HTMLDivElement>(null);
   const [isFlipped, setIsFlipped] = useState(isFlippedControlled ?? false);
@@ -106,12 +110,17 @@ export const FlashcardCard: React.FC<FlashcardCardProps> = ({
   const springX = useSpring(mouseX, { stiffness: isElastic ? 450 : 320, damping: isElastic ? 16 : 22 });
   const springY = useSpring(mouseY, { stiffness: isElastic ? 450 : 320, damping: isElastic ? 16 : 22 });
 
-  // Spring for 3D flip angle (0 deg to 180 deg)
-  const flipSpring = useSpring(0, { stiffness: 220, damping: 24 });
+  // Motion value & physics-driven spring for 3D flip angle (0 deg to 180 deg)
+  const flipAngleSource = useMotionValue(isFlippedControlled ? 180 : (isFlipped ? 180 : 0));
+  const flipSpring = useSpring(flipAngleSource, {
+    stiffness: 170,
+    damping: 22,
+    mass: 0.8
+  });
 
   useEffect(() => {
-    flipSpring.set(isFlipped ? 180 : 0);
-  }, [isFlipped, flipSpring]);
+    flipAngleSource.set(isFlipped ? 180 : 0);
+  }, [isFlipped, flipAngleSource]);
 
   // Base isometric tilt angle: flat upright by default (0) so card is not crooked
   const baseTiltX = 0;
@@ -124,14 +133,14 @@ export const FlashcardCard: React.FC<FlashcardCardProps> = ({
   const combinedRotateY = useTransform([flipSpring, tiltY], ([flip, tilt]) => {
     const isPastHalf = (flip as number) > 90;
     const currentBaseY = isPastHalf ? -baseTiltY : baseTiltY;
-    return `${(flip as number) + currentBaseY + (tilt as number)}deg`;
+    return (flip as number) + currentBaseY + (tilt as number);
   });
 
   const combinedRotateX = useTransform([flipSpring, tiltX], ([flip, tilt]) => {
     const isPastHalf = (flip as number) > 90;
     const currentBaseX = isPastHalf ? -baseTiltX : baseTiltX;
     const currentTilt = tilt as number;
-    return `${currentBaseX + (isPastHalf ? -currentTilt : currentTilt)}deg`;
+    return currentBaseX + (isPastHalf ? -currentTilt : currentTilt);
   });
 
   const sheenX = useTransform(springX, [-0.5, 0.5], ['0%', '100%']);
@@ -175,20 +184,23 @@ export const FlashcardCard: React.FC<FlashcardCardProps> = ({
     });
   };
 
-  // Reset flip saat soal berganti dan picu soundscape (hanya untuk kartu aktif)
+  // Reset flip saat soal berganti dan picu soundscape (hanya untuk kartu aktif kuis, BUKAN di preview card homepage)
   useEffect(() => {
     if (isBackgroundCard) return;
     if (isFlippedControlled === undefined) {
       setIsFlipped(false);
     }
-    if (hasRadar) soundFx.playSonarPing();
-    if (hasShutter) soundFx.playShutter();
-    if (hasHolo) soundFx.playGlitch();
-  }, [question?.id, challengerIndex, isBackgroundCard, hasRadar, hasShutter, hasHolo, isFlippedControlled]);
+    // HANYA bunyikan soundscape dramatis (radar/shutter/holo glitch) saat game kuis bermain
+    if (!isChallengerCard) {
+      if (hasRadar) soundFx.playSonarPing();
+      if (hasShutter) soundFx.playShutter();
+      if (hasHolo) soundFx.playGlitch();
+    }
+  }, [question?.id, challengerIndex, isBackgroundCard, hasRadar, hasShutter, hasHolo, isFlippedControlled, isChallengerCard]);
 
-  // Otomatis balik kartu saat dijawab untuk menampilkan Identitas Resmi
+  // Otomatis balik kartu saat dijawab (di mode spillJawaban='akhir' menampilkan status terkunci yang disensor)
   useEffect(() => {
-    if (isAnswered && !isChallengerCard) {
+    if (isAnswered && !isChallengerCard && isFlippedControlled === undefined) {
       const flipTimer = setTimeout(() => {
         soundFx.playFlip();
         setIsFlipped(true);
@@ -203,12 +215,14 @@ export const FlashcardCard: React.FC<FlashcardCardProps> = ({
         clearTimeout(stampTimer);
       };
     }
-  }, [isAnswered, isChallengerCard]);
+  }, [isAnswered, isChallengerCard, isFlippedControlled]);
 
   return (
     <div className={`relative ${
       isBackgroundCard
         ? 'w-full h-full'
+        : inspectMode
+        ? 'w-full max-w-[240px] xs:max-w-[255px] sm:max-w-[270px] md:max-w-[285px]'
         : compactOnMobile 
         ? 'h-full max-h-[calc(100%-36px)] md:max-h-none w-auto aspect-[3/4.15] max-w-[min(325px,calc(100vw-64px))] md:h-auto md:w-full md:max-w-[360px] lg:max-w-[375px] md:aspect-auto' 
         : 'w-full max-w-[285px] xs:max-w-[310px] sm:max-w-[340px] md:max-w-[360px] lg:max-w-[375px]'
@@ -218,7 +232,7 @@ export const FlashcardCard: React.FC<FlashcardCardProps> = ({
       {/* 3D Physical Real Next Card in Stack (Real next card, never dummy boxes!) */}
       {!isBackgroundCard && nextQuestion && !isChallengerCard && currentNumber < totalQuestions && (
         <div 
-          className={`absolute inset-0 pointer-events-none z-0 select-none transition-all duration-300 ease-out ${
+          className={`absolute inset-0 pointer-events-none z-0 select-none transition-all duration-300 ease-out opacity-85 ${
             compactOnMobile
               ? 'translate-x-2.5 translate-y-3 scale-[0.94] rotate-[2.5deg] md:translate-x-5 md:translate-y-6 md:scale-[0.93] md:rotate-[3deg]'
               : 'translate-x-5 translate-y-6 scale-[0.93] rotate-[3deg]'
@@ -275,20 +289,11 @@ export const FlashcardCard: React.FC<FlashcardCardProps> = ({
           rotateY: combinedRotateY,
           transformStyle: 'preserve-3d'
         }}
-        initial={{ opacity: 0, scale: isElastic ? 0.88 : 0.94, y: 12 }}
+        initial={isBackgroundCard ? false : { opacity: 1 }}
         animate={{ 
           opacity: 1, 
-          scale: 1, 
-          y: 0,
-          rotateZ: isAnswered && !isFlipped ? (isCorrect ? [0, -2, 2, 0] : [0, -5, 5, -3, 3, 0]) : 0
+          rotateZ: isAnswered && !isFlipped && spillJawaban !== 'akhir' ? (isCorrect ? [0, -2, 2, 0] : [0, -5, 5, -3, 3, 0]) : 0
         }}
-        exit={hasStack ? {
-          x: isCorrect ? 400 : -400,
-          y: 30,
-          rotate: isCorrect ? 18 : -18,
-          opacity: 0,
-          transition: { duration: 0.35, ease: 'easeOut' }
-        } : { opacity: 0, scale: 0.92 }}
         transition={{ 
           type: 'spring', 
           stiffness: isElastic ? 380 : 280, 
@@ -301,20 +306,26 @@ export const FlashcardCard: React.FC<FlashcardCardProps> = ({
             ? `glass-3d-slab ${isHovered ? 'border-cyan-300' : 'border-white/25'}`
             : `card-3d-slab bg-[#101827] border-2 ${
                 isAnswered
-                  ? isCorrect
+                  ? spillJawaban === 'akhir'
+                    ? 'border-[#38bdf8] shadow-tactile-blue'
+                    : isCorrect
                     ? 'border-[#10b981] shadow-tactile-emerald'
                     : 'border-[#f43f5e] shadow-tactile-coral'
                   : isHovered
                   ? 'border-[#38bdf8]'
                   : 'border-[#1e2b46]'
               }`
-        } transition-colors duration-200 cursor-pointer ${
+        } transition-colors duration-200 ${
+          isBackgroundCard ? 'cursor-default' : 'cursor-pointer'
+        } ${
           hasVoltage ? 'animate-voltage-border' : ''
         } ${
           hasHyper ? 'animate-chromatic-border' : ''
         } ${
           hasGlass && isAnswered
-            ? isCorrect
+            ? spillJawaban === 'akhir'
+              ? 'border-[#38bdf8] !shadow-[0_0_18px_rgba(56,189,248,0.3)]'
+              : isCorrect
               ? 'border-[#10b981] !shadow-[0_0_18px_rgba(16,185,129,0.3)]'
               : 'border-[#f43f5e] !shadow-[0_0_18px_rgba(244,63,94,0.3)]'
             : ''
@@ -323,15 +334,19 @@ export const FlashcardCard: React.FC<FlashcardCardProps> = ({
         {/* ================= SISI DEPAN (FRONT: FOTO / CHALLENGER PASS) ================= */}
         <div 
           className={`w-full ${
-            compactOnMobile ? 'h-full md:h-auto flex flex-col justify-between md:block p-2 sm:p-2.5 md:p-3.5' : 'p-3 sm:p-3.5'
+            inspectMode
+              ? 'p-2 sm:p-2.5'
+              : compactOnMobile ? 'h-full md:h-auto flex flex-col justify-between md:block p-2 sm:p-2.5 md:p-3.5' : 'p-3 sm:p-3.5'
           } backface-hidden relative overflow-hidden rounded-[5px] ${
             hasGlass 
               ? 'frosted-glass-surface backdrop-blur-xl' 
               : 'idcard-security-bg'
           }`}
           style={{ 
-            transform: 'rotateY(0deg) translateZ(3px)',
-            transformStyle: 'preserve-3d'
+            transform: 'rotateY(0deg) translateZ(1px)',
+            transformStyle: 'preserve-3d',
+            backfaceVisibility: 'hidden',
+            WebkitBackfaceVisibility: 'hidden'
           }}
         >
           {/* Synchronized Themed Animations on Front Card (Edge-to-Edge Atmosphere) */}
@@ -452,6 +467,8 @@ export const FlashcardCard: React.FC<FlashcardCardProps> = ({
                   challengerIndex === 1 ? 'DOKUMEN KENDALI // CAP' :
                   challengerIndex === 2 ? 'HALL OF FAME // REWARDS' :
                   'CHALLENGER // MABA'
+                ) : isBackgroundCard ? (
+                  `ID CARD // NEXT (#${question?.nomor || currentNumber})`
                 ) : `ID CARD // #${question?.nomor || 1}`}
               </span>
             </div>
@@ -469,7 +486,9 @@ export const FlashcardCard: React.FC<FlashcardCardProps> = ({
 
           {/* Container Foto / Visual Utama (3:4 Aspect Ratio) - Pass-through to Card Drag */}
           <div className={`relative w-full ${
-            compactOnMobile
+            inspectMode
+              ? 'h-[200px] xs:h-[220px] sm:h-[240px] md:h-[295px] lg:h-[315px]'
+              : compactOnMobile
               ? 'flex-1 min-h-0 md:flex-none md:h-[385px] lg:h-[400px]'
               : 'h-[280px] xs:h-[315px] sm:h-[355px] md:h-[385px] lg:h-[400px]'
           } select-none pointer-events-none ${
@@ -567,8 +586,10 @@ export const FlashcardCard: React.FC<FlashcardCardProps> = ({
                 onDragStart={(e) => e.preventDefault()}
                 animate={hasZoomFocus && !isAnswered ? { scale: [1, 1.06, 1] } : { scale: 1 }}
                 transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-                className={`w-full h-full object-cover select-none pointer-events-none ${objectPositionClass} transition-all duration-200 ${
-                  isAnswered && !isCorrect ? 'grayscale contrast-125 brightness-75' : ''
+                className={`w-full h-full object-cover select-none pointer-events-none ${objectPositionClass} transition-all duration-300 ${
+                  isBackgroundCard ? 'blur-[22px] scale-110 filter brightness-95' : ''
+                } ${
+                  isAnswered && !isCorrect && spillJawaban !== 'akhir' ? 'grayscale contrast-125 brightness-75' : ''
                 } ${hasHolo ? 'animate-holo-smooth' : ''} ${
                   hasGlitch ? 'animate-cyber-glitch-subtle' : ''
                 }`}
@@ -727,14 +748,18 @@ export const FlashcardCard: React.FC<FlashcardCardProps> = ({
 
         {/* ================= SISI BELAKANG (BACK: OFFICIAL ID CARD / STAND RULES) ================= */}
         <div 
-          className={`absolute inset-0 ${compactOnMobile ? 'p-2 sm:p-2.5 md:p-3.5' : 'p-3 sm:p-3.5'} rounded-[5px] ${
+          className={`absolute inset-0 ${
+            inspectMode ? 'p-2 sm:p-2.5' : compactOnMobile ? 'p-2 sm:p-2.5 md:p-3.5' : 'p-3 sm:p-3.5'
+          } rounded-[5px] ${
             hasGlass 
               ? 'frosted-glass-surface backdrop-blur-xl' 
               : 'idcard-security-bg'
           } flex flex-col justify-between backface-hidden overflow-hidden`}
           style={{ 
-            transform: 'rotateY(180deg) translateZ(3px)',
-            transformStyle: 'preserve-3d'
+            transform: 'rotateY(180deg) translateZ(1px)',
+            transformStyle: 'preserve-3d',
+            backfaceVisibility: 'hidden',
+            WebkitBackfaceVisibility: 'hidden'
           }}
         >
           {/* Synchronized Themed Animations on the Back Card */}
@@ -877,7 +902,13 @@ export const FlashcardCard: React.FC<FlashcardCardProps> = ({
                   </div>
                 )
               ) : isAnswered ? (
-                isCorrect ? (
+                !interactivePreview && !isChallengerCard && spillJawaban === 'akhir' ? (
+                  /* Saat sesi kuis: Identitas & status benar/salah dirahasiakan hingga akhir sesi */
+                  <div className={`border-2 border-[#38bdf8] text-[#38bdf8] ${compactOnMobile ? 'px-2 py-0.5 text-[8.5px] sm:text-xs' : 'px-3.5 py-1 text-xs'} font-mono font-bold tracking-wider uppercase bg-[#0c1e3d]/80 shadow-tactile-blue flex items-center gap-1.5`}>
+                    <Lock className="w-3.5 h-3.5 text-[#38bdf8]" />
+                    JAWABAN TERKUNCI // RAHASIA STAND
+                  </div>
+                ) : isCorrect ? (
                   <motion.div 
                     initial={{ scale: 1.4, opacity: 0, rotate: -15 }}
                     animate={{ scale: 1, opacity: 1, rotate: -7 }}
@@ -941,31 +972,31 @@ export const FlashcardCard: React.FC<FlashcardCardProps> = ({
                     <ul className="space-y-1.5 mt-1.5 text-[11px] text-[#cbd5e1] font-sans">
                       <li className="flex items-start gap-1.5">
                         <span className="text-[#f59e0b] font-mono font-bold">1.</span>
-                        <span><strong>Bonus Kecepatan:</strong> Jawab dalam 3 detik pertama untuk poin multiplier streak.</span>
+                        <span>Jawab cepat untuk menghemat waktu dan naik di papan skor Leaderboard.</span>
                       </li>
                       <li className="flex items-start gap-1.5">
                         <span className="text-[#38bdf8] font-mono font-bold">2.</span>
-                        <span><strong>Kenali Divisi:</strong> BPH, Dept. Akademik, PSDM, Kominfo, Kastrat, dll.</span>
+                        <span>Perhatikan foto pengurus dengan teliti sebelum memilih opsi A, B, C, atau D.</span>
                       </li>
                       <li className="flex items-start gap-1.5">
                         <span className="text-[#10b981] font-mono font-bold">3.</span>
-                        <span><strong>Hadiah Stand:</strong> Top 10 skor berhak atas stiker hologram eksklusif HIMA TI!</span>
+                        <span><strong>Minimal 4 Benar</strong> (maksimal salah 1) untuk dapat <strong>Cap Stand HIMA TI</strong>.</span>
                       </li>
                     </ul>
                   </div>
                 ) : (
                   <div>
-                    <span className="text-[9px] font-mono text-[#f59e0b] block uppercase tracking-wider font-bold">
-                      PROTOKOL PERMAINAN STAND:
+                    <span className="text-[9px] font-mono text-[#38bdf8] block uppercase tracking-wider font-bold">
+                      MISI STAND HIMA TI 2026:
                     </span>
                     <ul className="space-y-1.5 mt-1.5 text-[11px] text-[#cbd5e1] font-sans">
                       <li className="flex items-start gap-1.5">
                         <span className="text-[#38bdf8] font-mono font-bold">1.</span>
-                        <span>Tebak foto & divisi 5 pengurus yang muncul di kartu flashcard.</span>
+                        <span>Kenali wajah & amanah kakak-kakak pengurus HIMA TI.</span>
                       </li>
                       <li className="flex items-start gap-1.5">
-                        <span className="text-[#38bdf8] font-mono font-bold">2.</span>
-                        <span>Timer countdown per soal dengan pilihan ganda A, B, C, D.</span>
+                        <span className="text-[#10b981] font-mono font-bold">2.</span>
+                        <span>Coba tantangan flashcard interaktif beranimasi cybernetic.</span>
                       </li>
                       <li className="flex items-start gap-1.5">
                         <span className="text-[#10b981] font-mono font-bold">3.</span>
@@ -983,32 +1014,34 @@ export const FlashcardCard: React.FC<FlashcardCardProps> = ({
                 </div>
               </div>
             ) : (
-              /* Kartu Identitas Resmi Pengurus with Sensor Saat Belum Dijawab */
+              /* Kartu Identitas Resmi Pengurus with Sensor Saat Belum Dijawab / Sesi Berjalan */
               <div className={`group ${
                 hasGlass 
                   ? 'bg-white/[0.06] backdrop-blur-md border border-white/15 shadow-inner' 
-                  : isAnswered 
+                  : isAnswered && (interactivePreview || isChallengerCard || spillJawaban === 'langsung')
                   ? 'bg-[#080c14]/90 border border-[#1e2b46] hover:border-[#2563eb]' 
+                  : isAnswered && spillJawaban === 'akhir'
+                  ? 'bg-[#080c14]/90 border border-[#38bdf8]/40 shadow-tactile-blue'
                   : 'bg-[#080c14]/90 border border-[#f43f5e]/50 shadow-tactile-coral'
               } ${compactOnMobile ? 'p-1.5 sm:p-2.5 md:p-3 space-y-1 sm:space-y-2' : 'p-3 space-y-2'} shadow-tactile-sm transition-all duration-200`}>
                 <div>
                   <span className={`${compactOnMobile ? 'text-[8px] sm:text-[9px]' : 'text-[9px]'} font-mono text-[#64748b] group-hover:text-[#38bdf8] block uppercase tracking-wider transition-colors`}>
                     NAMA LENGKAP PENGURUS:
                   </span>
-                  {isAnswered ? (
+                  {isAnswered && (interactivePreview || isChallengerCard || spillJawaban === 'langsung') ? (
                     <p className={`${compactOnMobile ? 'text-xs sm:text-sm md:text-base' : 'text-sm md:text-base'} font-extrabold text-[#f8fafc] leading-tight mt-0.5 group-hover:translate-x-0.5 transition-transform`}>
                       {question?.correctNama}
                     </p>
                   ) : (
-                    /* SENSOR NAMA: Muncul saat maba iseng balik kartu sebelum jawab */
-                    <div className={`mt-1 flex items-center justify-between bg-[#080d16] border border-[#f43f5e]/40 ${compactOnMobile ? 'p-1 sm:p-2' : 'p-2'} font-mono`}>
+                    /* SENSOR NAMA: Muncul saat maba membalik kartu sebelum akhir sesi */
+                    <div className={`mt-1 flex items-center justify-between bg-[#080d16] ${isAnswered ? 'border border-[#38bdf8]/40' : 'border border-[#f43f5e]/40'} ${compactOnMobile ? 'p-1 sm:p-2' : 'p-2'} font-mono`}>
                       <div className="flex items-center gap-1.5">
-                        <Lock className="w-3 h-3 text-[#f43f5e] shrink-0 animate-pulse" />
-                        <span className={`${compactOnMobile ? 'text-[9.5px] sm:text-xs' : 'text-xs'} font-bold text-[#f43f5e] tracking-wider uppercase`}>
+                        <Lock className={`w-3 h-3 ${isAnswered ? 'text-[#38bdf8]' : 'text-[#f43f5e]'} shrink-0 animate-pulse`} />
+                        <span className={`${compactOnMobile ? 'text-[9.5px] sm:text-xs' : 'text-xs'} font-bold ${isAnswered ? 'text-[#38bdf8]' : 'text-[#f43f5e]'} tracking-wider uppercase`}>
                           [TERKUNCI]
                         </span>
                       </div>
-                      <span className="text-[8px] sm:text-[9px] text-[#94a3b8] font-bold">JAWAB DAHULU</span>
+                      <span className="text-[8px] sm:text-[9px] text-[#94a3b8] font-bold">BUKA DI AKHIR SESI</span>
                     </div>
                   )}
                 </div>
@@ -1017,12 +1050,12 @@ export const FlashcardCard: React.FC<FlashcardCardProps> = ({
                   <span className={`${compactOnMobile ? 'text-[8px] sm:text-[9px]' : 'text-[9px]'} font-mono text-[#64748b] group-hover:text-[#38bdf8] block uppercase tracking-wider transition-colors`}>
                     DIVISI / AMANAH:
                   </span>
-                  {isAnswered ? (
+                  {isAnswered && (interactivePreview || isChallengerCard || spillJawaban === 'langsung') ? (
                     <p className={`${compactOnMobile ? 'text-[10px] sm:text-xs' : 'text-xs'} font-bold text-[#38bdf8] font-mono mt-0.5 group-hover:text-[#60a5fa] transition-colors`}>
                       {question?.correctDivisi}
                     </p>
                   ) : (
-                    /* SENSOR DIVISI: Muncul saat maba iseng balik kartu sebelum jawab */
+                    /* SENSOR DIVISI: Muncul saat maba membalik kartu sebelum akhir sesi */
                     <div className={`mt-1 flex items-center justify-between bg-[#080d16] border border-[#1e2b46] ${compactOnMobile ? 'p-1 sm:p-2' : 'p-2'} font-mono`}>
                       <span className={`${compactOnMobile ? 'text-[10px] sm:text-xs' : 'text-xs'} tracking-wider text-[#64748b] font-bold`}>
                         ████████████
@@ -1033,7 +1066,7 @@ export const FlashcardCard: React.FC<FlashcardCardProps> = ({
                 </div>
 
                 <div className={`pt-1 border-t border-[#1e2b46] flex items-center justify-between ${compactOnMobile ? 'text-[8px] sm:text-[9px]' : 'text-[9px]'} font-mono text-[#94a3b8]`}>
-                  {isAnswered ? (
+                  {isAnswered && (interactivePreview || isChallengerCard || spillJawaban === 'langsung') ? (
                     <>
                       <span className="flex items-center gap-1">
                         <span className="w-1.5 h-1.5 bg-[#10b981] rounded-full animate-ping" />
@@ -1045,11 +1078,11 @@ export const FlashcardCard: React.FC<FlashcardCardProps> = ({
                     </>
                   ) : (
                     <>
-                      <span className="flex items-center gap-1 text-[#f43f5e]">
+                      <span className={`flex items-center gap-1 ${isAnswered ? 'text-[#38bdf8]' : 'text-[#f43f5e]'}`}>
                         <Lock className="w-2.5 h-2.5" />
                         STATUS: TERKUNCI
                       </span>
-                      <span className="text-[#f43f5e] font-bold border border-[#f43f5e]/40 px-1 py-0.2 bg-[#4c0519]/40">
+                      <span className={`${isAnswered ? 'text-[#38bdf8] border-[#38bdf8]/40 bg-[#0c1e3d]/60' : 'text-[#f43f5e] border-[#f43f5e]/40 bg-[#4c0519]/40'} font-bold border px-1 py-0.2`}>
                         DIRAHASIAKAN
                       </span>
                     </>

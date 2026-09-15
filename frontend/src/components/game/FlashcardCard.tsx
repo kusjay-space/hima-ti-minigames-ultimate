@@ -210,8 +210,8 @@ export const FlashcardCard: React.FC<FlashcardCardProps> = ({
       isChallengerCard || isBackgroundCard
         ? 'w-full h-full'
         : compactOnMobile 
-        ? 'h-full max-h-[calc(100%-36px)] md:max-h-none w-auto aspect-[3/4.15] max-w-[min(325px,calc(100vw-64px))] md:h-auto md:w-full md:max-w-[360px] lg:max-w-[375px] md:aspect-auto' 
-        : 'w-full max-w-[285px] xs:max-w-[310px] sm:max-w-[340px] md:max-w-[360px] lg:max-w-[375px]'
+        ? 'h-full max-h-[calc(100%-20px)] md:max-h-none w-auto aspect-[3/4.15] max-w-[min(340px,calc(100vw-40px))] md:h-auto md:w-full md:max-w-[430px] lg:max-w-[480px] xl:max-w-[520px] md:aspect-auto' 
+        : 'w-full max-w-[300px] xs:max-w-[330px] sm:max-w-[380px] md:max-w-[430px] lg:max-w-[480px] xl:max-w-[520px]'
     } mx-auto perspective-1200 flex flex-col items-center justify-center select-none overflow-visible ${
       hasLiquid ? 'animate-liquid-levitate' : ''
     }`}>
@@ -470,8 +470,8 @@ export const FlashcardCard: React.FC<FlashcardCardProps> = ({
           {/* Container Foto / Visual Utama (3:4 Aspect Ratio) - Pass-through to Card Drag */}
           <div className={`relative w-full ${
             compactOnMobile
-              ? 'flex-1 min-h-0 md:flex-none md:h-[400px] lg:h-[430px]'
-              : 'h-[300px] xs:h-[335px] sm:h-[375px] md:h-[405px] lg:h-[430px]'
+              ? 'flex-1 min-h-0 md:flex-none md:h-[480px] lg:h-[530px] xl:h-[570px]'
+              : 'h-[320px] xs:h-[360px] sm:h-[410px] md:h-[480px] lg:h-[530px] xl:h-[570px]'
           } select-none pointer-events-none ${
             hasGlass 
               ? 'bg-canvas/40 border-2 border-default backdrop-blur-sm' 

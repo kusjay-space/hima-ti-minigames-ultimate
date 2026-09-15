@@ -60,12 +60,12 @@ export const OptionButton: React.FC<OptionButtonProps> = ({
         x: isAnswered && isSelected && !isCorrect ? [0, -6, 6, -4, 4, 0] : 0
       }}
       transition={{ delay: index * 0.04, type: 'spring', stiffness: 350, damping: 25 }}
-      className={`w-full min-h-[46px] xs:min-h-[50px] sm:min-h-[56px] md:min-h-[64px] p-2 xs:p-2.5 sm:p-3 md:p-3.5 flex items-center justify-between text-left transition-all duration-150 cursor-pointer ${btnClasses}`}
+      className={`w-full min-h-[52px] xs:min-h-[58px] sm:min-h-[70px] md:min-h-[82px] lg:min-h-[92px] p-2.5 xs:p-3 sm:p-3.5 md:p-4 lg:p-5 flex items-center justify-between text-left transition-all duration-150 cursor-pointer ${btnClasses}`}
     >
-      <div className="flex items-center space-x-2 xs:space-x-2.5 sm:space-x-3 w-full pr-1">
+      <div className="flex items-center space-x-2.5 xs:space-x-3 sm:space-x-4 w-full pr-1">
         {/* Letter Key Square A, B, C, D */}
         <span
-          className={`w-7 h-7 xs:w-8 xs:h-8 sm:w-8 sm:h-8 flex items-center justify-center font-mono font-bold text-xs xs:text-sm sm:text-sm shrink-0 border transition-colors ${
+          className={`w-8 h-8 xs:w-9 xs:h-9 sm:w-11 sm:h-11 md:w-12 md:h-12 lg:w-14 lg:h-14 flex items-center justify-center font-mono font-black text-sm xs:text-base sm:text-lg md:text-xl lg:text-2xl shrink-0 border-2 transition-colors ${
             isAnswered && isCorrect
               ? 'bg-success text-white border-success'
               : isAnswered && isSelected && !isCorrect
@@ -77,7 +77,7 @@ export const OptionButton: React.FC<OptionButtonProps> = ({
         </span>
 
         {/* Option Text */}
-        <span className="text-[11.5px] xs:text-[12.5px] sm:text-sm md:text-base font-bold sm:font-semibold leading-tight sm:leading-snug flex-1 line-clamp-2">
+        <span className="text-xs xs:text-sm sm:text-base md:text-lg lg:text-xl font-bold leading-tight sm:leading-snug flex-1 line-clamp-2">
           {hasMatrix && !isAnswered ? (
             <ScrambleText text={option.text} speed={20} />
           ) : (
@@ -88,15 +88,15 @@ export const OptionButton: React.FC<OptionButtonProps> = ({
 
       {/* Answer Status Icon */}
       {isAnswered && (
-        <div className="shrink-0 ml-1 sm:ml-2">
+        <div className="shrink-0 ml-1.5 sm:ml-2.5 md:ml-3">
           {isCorrect && (
-            <div className="w-5 h-5 sm:w-6 sm:h-6 bg-success text-white flex items-center justify-center">
-              <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[3]" />
+            <div className="w-6 h-6 sm:w-7 sm:h-7 md:w-9 md:h-9 bg-success text-white flex items-center justify-center">
+              <Check className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 stroke-[3]" />
             </div>
           )}
           {isSelected && !isCorrect && (
-            <div className="w-5 h-5 sm:w-6 sm:h-6 bg-error text-white flex items-center justify-center">
-              <X className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[3]" />
+            <div className="w-6 h-6 sm:w-7 sm:h-7 md:w-9 md:h-9 bg-error text-white flex items-center justify-center">
+              <X className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 stroke-[3]" />
             </div>
           )}
         </div>

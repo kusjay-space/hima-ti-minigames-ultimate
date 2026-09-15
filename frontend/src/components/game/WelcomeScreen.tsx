@@ -736,8 +736,8 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
                 <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
                 <span>STAND RESMI HIMA TI // GMTI 2026</span>
               </div>
-              <h1 className="text-3xl sm:text-4xl md:text-5xl xl:text-6xl font-extrabold tracking-tight text-default leading-[1.1]">
-                FLASHCARD <span className="text-primary">PENGURUS</span>
+              <h1 className="text-3xl sm:text-4xl md:text-5xl xl:text-6xl font-extrabold tracking-tight text-white leading-[1.1]">
+                FLASHCARD <span className="text-white">PENGURUS</span>
               </h1>
             </div>
 

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
-import { Check, X, RotateCcw, Trophy, Shield, Camera, MessageSquare, Eye, Sparkles, ChevronLeft, ChevronRight, RotateCw, Settings } from 'lucide-react';
+import { Check, X, RotateCcw, Trophy, Shield, Camera, Eye, Sparkles, ChevronLeft, ChevronRight, RotateCw, Settings } from 'lucide-react';
 import type { GameResult, QuizConfig } from '../../types';
 import { soundFx } from '../../lib/sound';
 import { FlashcardCard } from './FlashcardCard';
@@ -185,18 +185,9 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
                       <span className="text-[10px] font-bold text-[#f59e0b] uppercase font-mono block mb-1.5">
                         MISI KLAIM CAP STAND:
                       </span>
-                      <ul className="space-y-1.5 text-xs text-[#cbd5e1]">
-                        <li className="flex items-start gap-2">
-                          <Camera className="w-3.5 h-3.5 text-[#f43f5e] shrink-0 mt-0.5" />
-                          <span>Follow Instagram resmi HIMA TI (@himati_official).</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <MessageSquare className="w-3.5 h-3.5 text-[#38bdf8] shrink-0 mt-0.5" />
-                          <span>Sapa dan perkenalkan dirimu ke salah satu kakak pengurus di stand.</span>
-                        </li>
-                      </ul>
-                      <p className="text-[10px] text-[#64748b] mt-2 font-mono text-center border-t border-[#1e2b46] pt-1">
-                        Tunjukkan bukti follow dan sapa panitia untuk mendapatkan Cap Stand.
+                      <p className="flex items-start gap-2 text-xs text-[#cbd5e1] leading-relaxed">
+                        <Camera className="w-3.5 h-3.5 text-[#f43f5e] shrink-0 mt-0.5" />
+                        <span>{config.misiCapText}</span>
                       </p>
                     </div>
                   </>

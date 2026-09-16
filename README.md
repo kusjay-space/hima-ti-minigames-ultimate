@@ -9,6 +9,12 @@
 [![SQLite](https://img.shields.io/badge/SQLite-node:sqlite-003b57?style=for-the-badge&logo=sqlite&logoColor=white)](https://sqlite.org)
 [![GitHub Pages](https://img.shields.io/badge/GitHub_Pages-Automated_Actions-222222?style=for-the-badge&logo=github&logoColor=white)](https://pages.github.com)
 
+<p align="center">
+  <a href="https://minigames.jaydev.my.id">
+    <img src="docs/assets/homepage-preview.png" alt="Preview Minigames Flashcard HIMA TI" width="100%" />
+  </a>
+</p>
+
 Aplikasi kuis interaktif tebak nama dan divisi pengurus **Himpunan Mahasiswa Program Studi Teknik Informatika (HIMA TI)** yang dirancang khusus untuk **Stand Booth Ospek / Gelar Mahasiswa TI (GMTI) Mahasiswa Baru 2026**.
 
 Website ini menggabungkan antarmuka bertema **Cyber-Arcade Tech**, animasi kartu 3D berkecepatan tinggi, audio synthesizer mandiri (tanpa file audio eksternal), serta sistem validasi cap otomatis untuk buku kendali orientasi mahasiswa baru.
@@ -89,8 +95,15 @@ Aplikasi dirancang dengan arsitektur **Hybrid Plug-and-Play**:
 
 ## 💎 Fitur-Fitur Unggulan
 
-### 1. 3-Section Parallel Homepage
-Halaman utama dibagi menjadi 3 kolom sejajar pada layar laptop stand:
+### 1. 3-Section Parallel Homepage & Mobile Responsive
+Antarmuka visual modern dan adaptif, baik di layar monitor laptop stand maupun di layar smartphone peserta:
+
+<p align="center">
+  <img src="docs/assets/homepage-preview.png" alt="Desktop 3-Section Parallel View" width="68%" />
+  &nbsp;
+  <img src="docs/assets/mobile-preview.png" alt="Mobile Responsive View" width="28%" />
+</p>
+
 * **Kolom Kiri (3D Interactive Card Stack Preview):**  
   Simulasi tumpukan kartu pengurus 3D dengan gestur drag/swipe, rotasi bolak-balik (front/back flip), efek fanning tumpukan, serta auto-switch kartu berkala.
 * **Kolom Tengah (Registration & Cockpit Misi):**  

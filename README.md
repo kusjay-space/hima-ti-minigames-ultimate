@@ -11,7 +11,7 @@
 
 <p align="center">
   <a href="https://minigames.jaydev.my.id">
-    <img src="docs/assets/homepage-preview.png" alt="Preview Minigames Flashcard HIMA TI" width="100%" />
+    <img src="https://raw.githubusercontent.com/kusjay-space/hima-ti-minigames-ultimate/main/docs/assets/homepage-preview.png" alt="Preview Minigames Flashcard HIMA TI" width="100%" />
   </a>
 </p>
 
@@ -99,9 +99,9 @@ Aplikasi dirancang dengan arsitektur **Hybrid Plug-and-Play**:
 Antarmuka visual modern dan adaptif, baik di layar monitor laptop stand maupun di layar smartphone peserta:
 
 <p align="center">
-  <img src="docs/assets/homepage-preview.png" alt="Desktop 3-Section Parallel View" width="68%" />
+  <img src="https://raw.githubusercontent.com/kusjay-space/hima-ti-minigames-ultimate/main/docs/assets/homepage-preview.png" alt="Desktop 3-Section Parallel View" width="68%" />
   &nbsp;
-  <img src="docs/assets/mobile-preview.png" alt="Mobile Responsive View" width="28%" />
+  <img src="https://raw.githubusercontent.com/kusjay-space/hima-ti-minigames-ultimate/main/docs/assets/mobile-preview.png" alt="Mobile Responsive View" width="28%" />
 </p>
 
 * **Kolom Kiri (3D Interactive Card Stack Preview):**  

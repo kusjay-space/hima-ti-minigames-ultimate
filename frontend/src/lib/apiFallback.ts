@@ -1,13 +1,13 @@
 import { Pengurus, Question, LeaderboardEntry, QuizConfig } from '../types';
 
 export const officialStaticPengurus: Pengurus[] = [
-  { id: 1, nama: 'Ni Nyoman Putri Kirana', divisi: 'Ketua Umum (BPH)', foto_url: '/uploads/ni-nyoman-putri-kirana.webp', is_active: 1 },
-  { id: 2, nama: 'I Made Bintang Kartika Yasa', divisi: 'Wakil Ketua 1 (BPH)', foto_url: '/uploads/i-made-bintang-kartika-yasa.webp', is_active: 1 },
-  { id: 3, nama: 'I Gede Angga Yudistira', divisi: 'Wakil Ketua 2 (BPH)', foto_url: '/uploads/i-gede-angga-yudistira.webp', is_active: 1 },
-  { id: 4, nama: 'Putu Kencana Sridewi', divisi: 'Sekretaris 1 (BPH)', foto_url: '/uploads/putu-kencana-sridewi.webp', is_active: 1 },
-  { id: 5, nama: 'Dewa Ayu Dwicahya Dewanti', divisi: 'Sekretaris 2 (BPH)', foto_url: '/uploads/dewa-ayu-dwicahya-dewanti.webp', is_active: 1 },
-  { id: 6, nama: 'Ida Ayu Ika Pramesti Kesuma', divisi: 'Bendahara 1 (BPH)', foto_url: '/uploads/ida-ayu-ika-pramesti-kesuma.webp', is_active: 1 },
-  { id: 7, nama: 'Ida Ayu Gede Sri Widiani', divisi: 'Bendahara 2 (BPH)', foto_url: '/uploads/ida-ayu-gede-sri-widiani.webp', is_active: 1 },
+  { id: 1, nama: 'Ni Nyoman Putri Kirana', divisi: 'Ketua Umum', foto_url: '/uploads/ni-nyoman-putri-kirana.webp', is_active: 1 },
+  { id: 2, nama: 'I Made Bintang Kartika Yasa', divisi: 'Wakil Ketua 1', foto_url: '/uploads/i-made-bintang-kartika-yasa.webp', is_active: 1 },
+  { id: 3, nama: 'I Gede Angga Yudistira', divisi: 'Wakil Ketua 2', foto_url: '/uploads/i-gede-angga-yudistira.webp', is_active: 1 },
+  { id: 4, nama: 'Putu Kencana Sridewi', divisi: 'Sekretaris 1', foto_url: '/uploads/putu-kencana-sridewi.webp', is_active: 1 },
+  { id: 5, nama: 'Dewa Ayu Dwicahya Dewanti', divisi: 'Sekretaris 2', foto_url: '/uploads/dewa-ayu-dwicahya-dewanti.webp', is_active: 1 },
+  { id: 6, nama: 'Ida Ayu Ika Pramesti Kesuma', divisi: 'Bendahara 1', foto_url: '/uploads/ida-ayu-ika-pramesti-kesuma.webp', is_active: 1 },
+  { id: 7, nama: 'Ida Ayu Gede Sri Widiani', divisi: 'Bendahara 2', foto_url: '/uploads/ida-ayu-gede-sri-widiani.webp', is_active: 1 },
   { id: 8, nama: 'Kadek Yuni Dwiyantini Savitri', divisi: 'Kabid Minat dan Bakat', foto_url: '/uploads/kadek-yuni-dwiyantini-savitri.webp', is_active: 1 },
   { id: 9, nama: 'I Putu Adhiatman', divisi: 'Kabid Media dan Humas', foto_url: '/uploads/i-putu-adhiatman.webp', is_active: 1 },
   { id: 10, nama: 'Kadek Novan Suhaliem Chandra', divisi: 'Kabid Penelitian dan Pengabdian Masyarakat', foto_url: '/uploads/kadek-novan-suhaliem-chandra.webp', is_active: 1 },
@@ -72,7 +72,21 @@ function setLocalSettings(settings: Record<string, string>) {
 function getLocalPengurus(): Pengurus[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEYS.PENGURUS);
-    if (raw) return JSON.parse(raw);
+    if (raw) {
+      const parsed: Pengurus[] = JSON.parse(raw);
+      let hasBph = false;
+      const cleaned = parsed.map(p => {
+        if (p.divisi && p.divisi.includes('(BPH)')) {
+          hasBph = true;
+          return { ...p, divisi: p.divisi.replace(/\s*\(BPH\)/g, '').trim() };
+        }
+        return p;
+      });
+      if (hasBph) {
+        setLocalPengurus(cleaned);
+      }
+      return cleaned;
+    }
   } catch {
     // Ignore error
   }
@@ -159,7 +173,7 @@ function generateClientQuizSession(): { success: boolean; config: QuizConfig; qu
       }
     }
 
-    const defaultDivs = ['Divisi Media & Humas', 'Divisi Minat dan Bakat', 'Divisi Penelitian', 'Divisi Pengabdian Masyarakat', 'Badan Pengurus Harian (BPH)'];
+    const defaultDivs = ['Divisi Media & Humas', 'Divisi Minat dan Bakat', 'Divisi Penelitian', 'Divisi Pengabdian Masyarakat', 'Pengurus Inti'];
     let fallbackCounter = 0;
     while (distractors.length < 3) {
       const fb = isName ? `Pengurus HIMA ${fallbackCounter + 1}` : defaultDivs[fallbackCounter % defaultDivs.length];

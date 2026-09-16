@@ -30,7 +30,7 @@ function parseCsvLine(line) {
 }
 
 function formatJabatan(level, bidang, divisi, jabatan) {
-  if (level === 'inti') return `${jabatan} (BPH)`;
+  if (level === 'inti') return jabatan;
   if (level === 'bidang' && jabatan === 'Kepala Bidang') {
     return `Kabid ${bidang.replace('Bidang ', '')}`;
   }

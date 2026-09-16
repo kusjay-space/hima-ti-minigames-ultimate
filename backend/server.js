@@ -424,7 +424,7 @@ app.get('/api/quiz-session', (req, res) => {
         'Divisi Minat & Bakat',
         'Divisi Penelitian & Pengembangan',
         'Divisi Pengabdian Masyarakat',
-        'Badan Pengurus Harian (BPH)'
+        'Pengurus Inti'
       ];
       let fallbackIdx = 0;
       while (distractors.length < 3) {

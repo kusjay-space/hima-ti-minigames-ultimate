@@ -187,7 +187,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onRefre
   // Dynamic sample question for the interactive live preview in Admin
   const currentPreviewPengurus = pengurusList.length > 0 
     ? pengurusList[previewIdx % pengurusList.length] 
-    : { id: 1, nama: 'Ni Nyoman Putri Kirana', divisi: 'Ketua Umum (BPH)', foto_url: '/uploads/ni-nyoman-putri-kirana.webp', is_active: 1 };
+    : { id: 1, nama: 'Ni Nyoman Putri Kirana', divisi: 'Ketua Umum', foto_url: '/uploads/ni-nyoman-putri-kirana.webp', is_active: 1 };
 
   const previewQuestion = {
     id: 900 + (previewIdx % 100),
@@ -1065,7 +1065,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onRefre
                           <span className="text-[10px] font-mono text-zinc-400">Aktif: [{settings.animasiStyle}]</span>
                         </div>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-[320px] overflow-y-auto pr-1">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-[175px] overflow-y-auto pr-1">
                           {ANIMATION_CHOICES.map((item) => (
                             <label
                               key={item.id}

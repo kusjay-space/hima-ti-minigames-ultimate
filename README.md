@@ -147,13 +147,13 @@ Database bawaan telah memuat lengkap 34 pengurus HIMA TI beserta foto resmi:
 
 | No | Nama Pengurus | Divisi / Jabatan |
 |:---:|---|---|
-| 1 | Ni Nyoman Putri Kirana | Ketua Umum (BPH) |
-| 2 | I Made Bintang Kartika Yasa | Wakil Ketua 1 (BPH) |
-| 3 | I Gede Angga Yudistira | Wakil Ketua 2 (BPH) |
-| 4 | Putu Kencana Sridewi | Sekretaris 1 (BPH) |
-| 5 | Dewa Ayu Dwicahya Dewanti | Sekretaris 2 (BPH) |
-| 6 | Ida Ayu Ika Pramesti Kesuma | Bendahara 1 (BPH) |
-| 7 | Ida Ayu Gede Sri Widiani | Bendahara 2 (BPH) |
+| 1 | Ni Nyoman Putri Kirana | Ketua Umum |
+| 2 | I Made Bintang Kartika Yasa | Wakil Ketua 1 |
+| 3 | I Gede Angga Yudistira | Wakil Ketua 2 |
+| 4 | Putu Kencana Sridewi | Sekretaris 1 |
+| 5 | Dewa Ayu Dwicahya Dewanti | Sekretaris 2 |
+| 6 | Ida Ayu Ika Pramesti Kesuma | Bendahara 1 |
+| 7 | Ida Ayu Gede Sri Widiani | Bendahara 2 |
 | 8 | Kadek Yuni Dwiyantini Savitri | Kabid Minat dan Bakat |
 | 9 | I Putu Adhiatman | Kabid Media dan Humas |
 | 10 | Kadek Novan Suhaliem Chandra | Kabid Penelitian & Pengabdian Masyarakat |

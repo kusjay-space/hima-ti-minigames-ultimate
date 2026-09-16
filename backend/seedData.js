@@ -8,13 +8,13 @@ const __dirname = path.dirname(__filename);
 const uploadsDir = path.join(__dirname, 'uploads');
 
 const officialPengurusData = [
-  { nama: 'Ni Nyoman Putri Kirana', divisi: 'Ketua Umum (BPH)', foto_url: '/uploads/ni-nyoman-putri-kirana.webp' },
-  { nama: 'I Made Bintang Kartika Yasa', divisi: 'Wakil Ketua 1 (BPH)', foto_url: '/uploads/i-made-bintang-kartika-yasa.webp' },
-  { nama: 'I Gede Angga Yudistira', divisi: 'Wakil Ketua 2 (BPH)', foto_url: '/uploads/i-gede-angga-yudistira.webp' },
-  { nama: 'Putu Kencana Sridewi', divisi: 'Sekretaris 1 (BPH)', foto_url: '/uploads/putu-kencana-sridewi.webp' },
-  { nama: 'Dewa Ayu Dwicahya Dewanti', divisi: 'Sekretaris 2 (BPH)', foto_url: '/uploads/dewa-ayu-dwicahya-dewanti.webp' },
-  { nama: 'Ida Ayu Ika Pramesti Kesuma', divisi: 'Bendahara 1 (BPH)', foto_url: '/uploads/ida-ayu-ika-pramesti-kesuma.webp' },
-  { nama: 'Ida Ayu Gede Sri Widiani', divisi: 'Bendahara 2 (BPH)', foto_url: '/uploads/ida-ayu-gede-sri-widiani.webp' },
+  { nama: 'Ni Nyoman Putri Kirana', divisi: 'Ketua Umum', foto_url: '/uploads/ni-nyoman-putri-kirana.webp' },
+  { nama: 'I Made Bintang Kartika Yasa', divisi: 'Wakil Ketua 1', foto_url: '/uploads/i-made-bintang-kartika-yasa.webp' },
+  { nama: 'I Gede Angga Yudistira', divisi: 'Wakil Ketua 2', foto_url: '/uploads/i-gede-angga-yudistira.webp' },
+  { nama: 'Putu Kencana Sridewi', divisi: 'Sekretaris 1', foto_url: '/uploads/putu-kencana-sridewi.webp' },
+  { nama: 'Dewa Ayu Dwicahya Dewanti', divisi: 'Sekretaris 2', foto_url: '/uploads/dewa-ayu-dwicahya-dewanti.webp' },
+  { nama: 'Ida Ayu Ika Pramesti Kesuma', divisi: 'Bendahara 1', foto_url: '/uploads/ida-ayu-ika-pramesti-kesuma.webp' },
+  { nama: 'Ida Ayu Gede Sri Widiani', divisi: 'Bendahara 2', foto_url: '/uploads/ida-ayu-gede-sri-widiani.webp' },
   { nama: 'Kadek Yuni Dwiyantini Savitri', divisi: 'Kabid Minat dan Bakat', foto_url: '/uploads/kadek-yuni-dwiyantini-savitri.webp' },
   { nama: 'I Putu Adhiatman', divisi: 'Kabid Media dan Humas', foto_url: '/uploads/i-putu-adhiatman.webp' },
   { nama: 'Kadek Novan Suhaliem Chandra', divisi: 'Kabid Penelitian dan Pengabdian Masyarakat', foto_url: '/uploads/kadek-novan-suhaliem-chandra.webp' },

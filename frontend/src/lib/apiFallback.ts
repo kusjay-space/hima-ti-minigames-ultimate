@@ -234,7 +234,9 @@ export async function handleClientApiFallback(url: string, init?: RequestInit): 
       if (body.adminPin !== current.adminPin) {
         return jsonResponse({ success: false, message: 'PIN Admin salah!' }, 401);
       }
-      const updated = { ...current, ...(body.settings || {}) };
+      const { adminPin, settings: nestedSettings, ...directSettings } = body;
+      const payloadSettings = (nestedSettings && Object.keys(nestedSettings).length > 0) ? nestedSettings : directSettings;
+      const updated = { ...current, ...payloadSettings };
       setLocalSettings(updated);
       return jsonResponse({ success: true, message: 'Pengaturan berhasil diperbarui!' });
     } catch {

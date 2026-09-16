@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Users, Trophy, Download, Upload, Plus, Trash2, 
+  Users, Trophy, Download, Upload, Plus, Minus, Trash2, 
   Check, X, Shield, Lock, Sliders, RefreshCw, AlertCircle, Eye, EyeOff, 
   ArrowLeft, ArrowRight, CheckCircle, XCircle, Search, Focus, Sparkles, Pencil
 } from 'lucide-react';
@@ -152,6 +152,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onRefre
   });
   const [modeKuis, setModeKuis] = useState('tebak_nama');
 
+  // Dedicated string inputs to allow complete clearing / free-typing without snap-back
+  const [totalSoalInput, setTotalSoalInput] = useState('5');
+  const [timerDetikInput, setTimerDetikInput] = useState('10');
+  const [minBenarCapInput, setMinBenarCapInput] = useState('4');
+
   // Button Save Feedback States
   const [settingsBtnState, setSettingsBtnState] = useState<'idle' | 'saving' | 'saved'>('idle');
   const [addPengurusBtnState, setAddPengurusBtnState] = useState<'idle' | 'saving' | 'saved'>('idle');
@@ -225,15 +230,22 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onRefre
       const dataSettings = await resSettings.json();
       if (dataSettings.success) {
         const s = dataSettings.data;
+        const loadedTotalSoal = parseInt(s.soalPerSesi) || 5;
+        const loadedTimerDetik = parseInt(s.timerDetik) || 10;
+        const loadedMinBenar = parseInt(s.minBenarCap) || 4;
+
         setSettings({
-          totalSoal: parseInt(s.soalPerSesi) || 5,
-          timerDetik: parseInt(s.timerDetik) || 10,
-          minBenarCap: parseInt(s.minBenarCap) || 4,
+          totalSoal: loadedTotalSoal,
+          timerDetik: loadedTimerDetik,
+          minBenarCap: loadedMinBenar,
           animasiStyle: (s.animasiStyle as AnimationStyle) || 'combo',
           misiCapText: s.misiCapText || '',
           fotoFokus: (s.fotoFokus as FotoFokus) || 'tengah_atas',
           spillJawaban: (s.spillJawaban as 'akhir' | 'langsung') || 'akhir'
         });
+        setTotalSoalInput(String(loadedTotalSoal));
+        setTimerDetikInput(String(loadedTimerDetik));
+        setMinBenarCapInput(String(loadedMinBenar));
         setModeKuis(s.modeKuis || 'tebak_nama');
       }
 
@@ -275,18 +287,139 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onRefre
     }
   };
 
+  // Helper handlers for Sesi Stand Parameters (Total Soal, Timer, Min Benar Cap)
+  const maxAvailableSoal = Math.max(5, pengurusList.length > 0 ? pengurusList.length : 34);
+
+  const updateTotalSoal = (newVal: number) => {
+    const clamped = Math.max(3, Math.min(maxAvailableSoal, newVal));
+    setTotalSoalInput(String(clamped));
+    setSettings(prev => {
+      const newMin = prev.minBenarCap > clamped ? clamped : prev.minBenarCap;
+      if (prev.minBenarCap > clamped) {
+        setMinBenarCapInput(String(clamped));
+      }
+      return { ...prev, totalSoal: clamped, minBenarCap: newMin };
+    });
+  };
+
+  const updateTimerDetik = (newVal: number) => {
+    const clamped = Math.max(3, Math.min(60, newVal));
+    setTimerDetikInput(String(clamped));
+    setSettings(prev => ({ ...prev, timerDetik: clamped }));
+  };
+
+  const updateMinBenarCap = (newVal: number) => {
+    const currentTotal = parseInt(totalSoalInput, 10) || settings.totalSoal || 5;
+    const clamped = Math.max(1, Math.min(currentTotal, newVal));
+    setMinBenarCapInput(String(clamped));
+    setSettings(prev => ({ ...prev, minBenarCap: clamped }));
+  };
+
+  const handleTotalSoalChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    if (/^\d*$/.test(val)) {
+      setTotalSoalInput(val);
+      if (val !== '') {
+        const num = parseInt(val, 10);
+        setSettings(prev => {
+          const newMin = prev.minBenarCap > num ? num : prev.minBenarCap;
+          if (prev.minBenarCap > num) {
+            setMinBenarCapInput(String(num));
+          }
+          return { ...prev, totalSoal: num, minBenarCap: newMin };
+        });
+      }
+    }
+  };
+
+  const handleTotalSoalBlur = () => {
+    const num = parseInt(totalSoalInput, 10);
+    if (!num || isNaN(num) || num < 3) {
+      updateTotalSoal(3);
+    } else if (num > maxAvailableSoal) {
+      updateTotalSoal(maxAvailableSoal);
+    } else {
+      updateTotalSoal(num);
+    }
+  };
+
+  const handleTimerDetikChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    if (/^\d*$/.test(val)) {
+      setTimerDetikInput(val);
+      if (val !== '') {
+        const num = parseInt(val, 10);
+        setSettings(prev => ({ ...prev, timerDetik: num }));
+      }
+    }
+  };
+
+  const handleTimerDetikBlur = () => {
+    const num = parseInt(timerDetikInput, 10);
+    if (!num || isNaN(num) || num < 3) {
+      updateTimerDetik(5);
+    } else if (num > 60) {
+      updateTimerDetik(60);
+    } else {
+      updateTimerDetik(num);
+    }
+  };
+
+  const handleMinBenarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    // Allow deleting completely to empty string without snapping to 1!
+    if (/^\d*$/.test(val)) {
+      setMinBenarCapInput(val);
+      if (val !== '') {
+        const num = parseInt(val, 10);
+        setSettings(prev => ({ ...prev, minBenarCap: num }));
+      }
+    }
+  };
+
+  const handleMinBenarBlur = () => {
+    const num = parseInt(minBenarCapInput, 10);
+    const currentTotal = parseInt(totalSoalInput, 10) || settings.totalSoal || 5;
+    if (!num || isNaN(num) || num < 1) {
+      updateMinBenarCap(1);
+    } else if (num > currentTotal) {
+      updateMinBenarCap(currentTotal);
+    } else {
+      updateMinBenarCap(num);
+    }
+  };
+
   const handleSaveSettings = async (e: React.FormEvent) => {
     e.preventDefault();
     setSettingsBtnState('saving');
+    
+    // Resolve any empty/partial inputs safely
+    const resolvedTotalSoal = Math.max(3, Math.min(maxAvailableSoal, parseInt(totalSoalInput, 10) || settings.totalSoal || 5));
+    const resolvedTimerDetik = Math.max(3, Math.min(60, parseInt(timerDetikInput, 10) || settings.timerDetik || 10));
+    const resolvedMinBenar = Math.min(
+      resolvedTotalSoal,
+      Math.max(1, parseInt(minBenarCapInput, 10) || settings.minBenarCap || 1)
+    );
+
+    setTotalSoalInput(String(resolvedTotalSoal));
+    setTimerDetikInput(String(resolvedTimerDetik));
+    setMinBenarCapInput(String(resolvedMinBenar));
+    setSettings(prev => ({
+      ...prev,
+      totalSoal: resolvedTotalSoal,
+      timerDetik: resolvedTimerDetik,
+      minBenarCap: resolvedMinBenar
+    }));
+
     try {
       const res = await fetch('/api/settings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           adminPin: pinInput,
-          soalPerSesi: settings.totalSoal,
-          timerDetik: settings.timerDetik,
-          minBenarCap: settings.minBenarCap,
+          soalPerSesi: resolvedTotalSoal,
+          timerDetik: resolvedTimerDetik,
+          minBenarCap: resolvedMinBenar,
           modeKuis,
           animasiStyle: settings.animasiStyle,
           misiCapText: settings.misiCapText,
@@ -621,54 +754,211 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onRefre
                           1. Parameter Sesi Kuis di Stand
                         </h3>
 
+                        {/* 1. JUMLAH SOAL & TIMER (STEPPER CONTROLS, TANPA SLIDER) */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          <div>
-                            <label className="block text-xs font-mono text-zinc-300 mb-1">
-                              Jumlah Soal Per Sesi ({settings.totalSoal} Soal)
-                            </label>
-                            <input
-                              type="range"
-                              min={3}
-                              max={Math.max(5, Math.min(20, pengurusList.length))}
-                              value={settings.totalSoal}
-                              onChange={(e) => setSettings({ ...settings, totalSoal: parseInt(e.target.value) })}
-                              className="w-full accent-blue-600 cursor-pointer"
-                            />
-                            <p className="text-[10px] text-zinc-500 font-mono mt-0.5">Diambil acak dari bank {pengurusList.length} pengurus.</p>
+                          {/* Parameter 1: Jumlah Soal Per Sesi */}
+                          <div className="bg-[#0b1220] border border-[#1e2b46] p-3 rounded">
+                            <div className="flex items-center justify-between mb-1.5">
+                              <label className="text-xs font-mono font-bold text-zinc-200">
+                                Jumlah Soal Per Sesi
+                              </label>
+                              <span className="text-xs font-mono font-extrabold text-blue-400 bg-blue-950/80 px-2 py-0.5 rounded border border-blue-800">
+                                {settings.totalSoal} Soal
+                              </span>
+                            </div>
+
+                            {/* Stepper with direct editable number */}
+                            <div className="flex items-center gap-1.5">
+                              <button
+                                type="button"
+                                onClick={() => updateTotalSoal((parseInt(totalSoalInput, 10) || settings.totalSoal) - 1)}
+                                disabled={settings.totalSoal <= 3}
+                                className="w-10 h-10 flex items-center justify-center bg-[#131e33] hover:bg-blue-600/30 text-zinc-300 hover:text-white border border-[#273b5e] hover:border-blue-500 rounded transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed select-none active:scale-95"
+                                title="Kurangi 1 Soal"
+                              >
+                                <Minus className="w-4 h-4" />
+                              </button>
+                              <input
+                                type="text"
+                                inputMode="numeric"
+                                pattern="[0-9]*"
+                                value={totalSoalInput}
+                                onChange={handleTotalSoalChange}
+                                onBlur={handleTotalSoalBlur}
+                                className="flex-1 h-10 bg-[#0d1424] border border-[#273b5e] focus:border-blue-500 focus:outline-none text-white font-mono text-center text-base font-bold rounded"
+                                placeholder="5"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => updateTotalSoal((parseInt(totalSoalInput, 10) || settings.totalSoal) + 1)}
+                                disabled={settings.totalSoal >= maxAvailableSoal}
+                                className="w-10 h-10 flex items-center justify-center bg-[#131e33] hover:bg-blue-600/30 text-zinc-300 hover:text-white border border-[#273b5e] hover:border-blue-500 rounded transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed select-none active:scale-95"
+                                title="Tambah 1 Soal"
+                              >
+                                <Plus className="w-4 h-4" />
+                              </button>
+                            </div>
+
+                            {/* Quick Presets */}
+                            <div className="flex flex-wrap items-center gap-1 mt-2">
+                              {[3, 5, 7, 10].map((preset) => (
+                                <button
+                                  key={preset}
+                                  type="button"
+                                  onClick={() => updateTotalSoal(preset)}
+                                  className={`px-2 py-0.5 text-[10px] font-mono rounded border transition-all cursor-pointer ${
+                                    settings.totalSoal === preset
+                                      ? 'bg-blue-600 text-white border-blue-400 font-bold shadow-tactile-sm'
+                                      : 'bg-[#131e33] text-zinc-400 border-[#1e2b46] hover:text-zinc-200 hover:border-zinc-500'
+                                  }`}
+                                >
+                                  {preset} Soal
+                                </button>
+                              ))}
+                            </div>
+                            <p className="text-[10px] text-zinc-500 font-mono mt-1.5">
+                              Diambil acak dari bank {pengurusList.length} pengurus aktif.
+                            </p>
                           </div>
 
-                          <div>
-                            <label className="block text-xs font-mono text-zinc-300 mb-1">
-                              Timer Per Soal ({settings.timerDetik} Detik)
-                            </label>
-                            <input
-                              type="range"
-                              min={5}
-                              max={20}
-                              step={1}
-                              value={settings.timerDetik}
-                              onChange={(e) => setSettings({ ...settings, timerDetik: parseInt(e.target.value) })}
-                              className="w-full accent-blue-600 cursor-pointer"
-                            />
-                            <p className="text-[10px] text-zinc-500 font-mono mt-0.5">Waktu berpikir maba sebelum timeout.</p>
+                          {/* Parameter 2: Timer Per Soal */}
+                          <div className="bg-[#0b1220] border border-[#1e2b46] p-3 rounded">
+                            <div className="flex items-center justify-between mb-1.5">
+                              <label className="text-xs font-mono font-bold text-zinc-200">
+                                Timer Per Soal
+                              </label>
+                              <span className="text-xs font-mono font-extrabold text-amber-400 bg-amber-950/80 px-2 py-0.5 rounded border border-amber-800">
+                                {settings.timerDetik} Detik
+                              </span>
+                            </div>
+
+                            {/* Stepper with direct editable number */}
+                            <div className="flex items-center gap-1.5">
+                              <button
+                                type="button"
+                                onClick={() => updateTimerDetik((parseInt(timerDetikInput, 10) || settings.timerDetik) - 1)}
+                                disabled={settings.timerDetik <= 3}
+                                className="w-10 h-10 flex items-center justify-center bg-[#131e33] hover:bg-amber-600/30 text-zinc-300 hover:text-white border border-[#273b5e] hover:border-amber-500 rounded transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed select-none active:scale-95"
+                                title="Kurangi 1 Detik"
+                              >
+                                <Minus className="w-4 h-4" />
+                              </button>
+                              <input
+                                type="text"
+                                inputMode="numeric"
+                                pattern="[0-9]*"
+                                value={timerDetikInput}
+                                onChange={handleTimerDetikChange}
+                                onBlur={handleTimerDetikBlur}
+                                className="flex-1 h-10 bg-[#0d1424] border border-[#273b5e] focus:border-amber-500 focus:outline-none text-white font-mono text-center text-base font-bold rounded"
+                                placeholder="10"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => updateTimerDetik((parseInt(timerDetikInput, 10) || settings.timerDetik) + 1)}
+                                disabled={settings.timerDetik >= 60}
+                                className="w-10 h-10 flex items-center justify-center bg-[#131e33] hover:bg-amber-600/30 text-zinc-300 hover:text-white border border-[#273b5e] hover:border-amber-500 rounded transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed select-none active:scale-95"
+                                title="Tambah 1 Detik"
+                              >
+                                <Plus className="w-4 h-4" />
+                              </button>
+                            </div>
+
+                            {/* Quick Presets */}
+                            <div className="flex flex-wrap items-center gap-1 mt-2">
+                              {[5, 10, 15, 20].map((preset) => (
+                                <button
+                                  key={preset}
+                                  type="button"
+                                  onClick={() => updateTimerDetik(preset)}
+                                  className={`px-2 py-0.5 text-[10px] font-mono rounded border transition-all cursor-pointer ${
+                                    settings.timerDetik === preset
+                                      ? 'bg-amber-600 text-white border-amber-400 font-bold shadow-tactile-sm'
+                                      : 'bg-[#131e33] text-zinc-400 border-[#1e2b46] hover:text-zinc-200 hover:border-zinc-500'
+                                  }`}
+                                >
+                                  {preset}s {preset === 10 ? '(Standar)' : ''}
+                                </button>
+                              ))}
+                            </div>
+                            <p className="text-[10px] text-zinc-500 font-mono mt-1.5">
+                              Waktu berpikir peserta per soal sebelum timeout.
+                            </p>
                           </div>
                         </div>
 
+                        {/* 2. SYARAT BENAR & MODE PERTANYAAN */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-3 border-t border-[#1e2b46]">
-                          <div>
-                            <label className="block text-xs font-mono text-zinc-300 mb-1">
-                              Syarat Benar untuk Cap Stand
-                            </label>
-                            <input
-                              type="number"
-                              min={1}
-                              max={settings.totalSoal}
-                              value={settings.minBenarCap}
-                              onChange={(e) => setSettings({ ...settings, minBenarCap: parseInt(e.target.value) || 1 })}
-                              className="w-full px-3 py-2 bg-[#0d1424] border border-[#273b5e] text-white font-mono text-sm"
-                            />
-                            <p className="text-[10px] text-emerald-400 font-mono mt-1">
-                              Minimal {settings.minBenarCap} dari {settings.totalSoal} benar (maksimal salah {settings.totalSoal - settings.minBenarCap}).
+                          {/* Parameter 3: Syarat Benar untuk Cap Stand */}
+                          <div className="bg-[#0b1220] border border-[#1e2b46] p-3 rounded">
+                            <div className="flex items-center justify-between mb-1.5">
+                              <label className="text-xs font-mono font-bold text-zinc-200">
+                                Syarat Benar Cap Stand
+                              </label>
+                              <span className="text-xs font-mono font-extrabold text-emerald-400 bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-800">
+                                &ge; {settings.minBenarCap} Benar
+                              </span>
+                            </div>
+
+                            {/* Stepper with clearable input */}
+                            <div className="flex items-center gap-1.5">
+                              <button
+                                type="button"
+                                onClick={() => updateMinBenarCap((parseInt(minBenarCapInput, 10) || settings.minBenarCap) - 1)}
+                                disabled={settings.minBenarCap <= 1}
+                                className="w-10 h-10 flex items-center justify-center bg-[#131e33] hover:bg-emerald-600/30 text-zinc-300 hover:text-white border border-[#273b5e] hover:border-emerald-500 rounded transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed select-none active:scale-95"
+                                title="Kurangi 1 Syarat Benar"
+                              >
+                                <Minus className="w-4 h-4" />
+                              </button>
+                              <input
+                                type="text"
+                                inputMode="numeric"
+                                pattern="[0-9]*"
+                                value={minBenarCapInput}
+                                onChange={handleMinBenarChange}
+                                onBlur={handleMinBenarBlur}
+                                className="flex-1 h-10 bg-[#0d1424] border border-[#273b5e] focus:border-emerald-500 focus:outline-none text-white font-mono text-center text-base font-bold rounded"
+                                placeholder="4"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => updateMinBenarCap((parseInt(minBenarCapInput, 10) || settings.minBenarCap) + 1)}
+                                disabled={settings.minBenarCap >= settings.totalSoal}
+                                className="w-10 h-10 flex items-center justify-center bg-[#131e33] hover:bg-emerald-600/30 text-zinc-300 hover:text-white border border-[#273b5e] hover:border-emerald-500 rounded transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed select-none active:scale-95"
+                                title="Tambah 1 Syarat Benar"
+                              >
+                                <Plus className="w-4 h-4" />
+                              </button>
+                            </div>
+
+                            {/* Presets for Cap Threshold */}
+                            <div className="flex flex-wrap items-center gap-1 mt-2">
+                              {[
+                                { label: 'Semua Benar', val: settings.totalSoal },
+                                { label: 'Salah 1', val: Math.max(1, settings.totalSoal - 1) },
+                                { label: 'Salah 2', val: Math.max(1, settings.totalSoal - 2) },
+                                { label: '50%', val: Math.max(1, Math.ceil(settings.totalSoal * 0.5)) }
+                              ]
+                                .filter((p, idx, arr) => arr.findIndex(x => x.val === p.val) === idx)
+                                .map((p) => (
+                                  <button
+                                    key={p.label}
+                                    type="button"
+                                    onClick={() => updateMinBenarCap(p.val)}
+                                    className={`px-2 py-0.5 text-[10px] font-mono rounded border transition-all cursor-pointer ${
+                                      settings.minBenarCap === p.val
+                                        ? 'bg-emerald-600 text-white border-emerald-400 font-bold shadow-tactile-sm'
+                                        : 'bg-[#131e33] text-zinc-400 border-[#1e2b46] hover:text-zinc-200 hover:border-zinc-500'
+                                    }`}
+                                  >
+                                    {p.label} ({p.val})
+                                  </button>
+                                ))}
+                            </div>
+
+                            <p className="text-[10px] text-emerald-400 font-mono mt-1.5">
+                              Minimal {settings.minBenarCap} dari {settings.totalSoal} benar (maksimal salah {Math.max(0, settings.totalSoal - settings.minBenarCap)}).
                             </p>
                           </div>
 

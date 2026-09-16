@@ -7,7 +7,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const uploadsDir = path.join(__dirname, 'uploads');
 
-const csvPath = '/home/jay/Downloads/struktur-kepengurusan-web-version.csv';
+const defaultCsvPath = path.join(__dirname, 'struktur-kepengurusan-web-version.csv');
+const csvPath = process.env.CSV_PATH || (fs.existsSync(defaultCsvPath) ? defaultCsvPath : (fs.existsSync('/home/jay/Downloads/struktur-kepengurusan-web-version.csv') ? '/home/jay/Downloads/struktur-kepengurusan-web-version.csv' : null));
 
 function parseCsvLine(line) {
   const values = [];
@@ -84,5 +85,9 @@ export function importOfficialPengurus() {
   console.log(`\n🎉 Selesai! Berhasil mengimpor ${insertedCount} pengurus asli HIMA TI ke dalam SQLite!`);
 }
 
-// Jalankan import
-importOfficialPengurus();
+// Jalankan import jika file CSV ditemukan
+if (csvPath && fs.existsSync(csvPath)) {
+  importOfficialPengurus();
+} else {
+  console.log('ℹ️ Script importCsvPengurus: File CSV tidak ditemukan, melewati proses impor CSV.');
+}

@@ -1,4 +1,3 @@
-import { DatabaseSync } from 'node:sqlite';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import fs from 'node:fs';
@@ -13,7 +12,47 @@ if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
-export const db = new DatabaseSync(dbPath);
+// Inisialisasi Database SQLite dengan Fallback Driver
+let DatabaseClass = null;
+
+try {
+  const sqlite = await import('node:sqlite');
+  if (sqlite && sqlite.DatabaseSync) {
+    DatabaseClass = sqlite.DatabaseSync;
+  }
+} catch {
+  // node:sqlite tidak tersedia pada versi Node.js ini (< v22.5.0)
+}
+
+if (!DatabaseClass) {
+  try {
+    const betterSqlite = await import('better-sqlite3');
+    DatabaseClass = betterSqlite.default || betterSqlite;
+  } catch {
+    // better-sqlite3 belum terinstal
+  }
+}
+
+if (!DatabaseClass) {
+  console.error(`
+================================================================================
+❌ [DATABASE ERROR] Driver SQLite tidak ditemukan pada Node.js ${process.version}
+--------------------------------------------------------------------------------
+Fitur bawaan 'node:sqlite' memerlukan Node.js v22.5.0 ke atas.
+
+Solusi Mudah:
+1. Update Node.js Anda ke versi LTS terbaru (Node v22+):
+   👉 Unduh di: https://nodejs.org
+   👉 Atau dengan NVM: nvm install 22 && nvm use 22
+
+2. Atau instal driver 'better-sqlite3':
+   👉 npm install better-sqlite3
+================================================================================
+`);
+  process.exit(1);
+}
+
+export const db = new DatabaseClass(dbPath);
 
 // Inisialisasi Tabel
 db.exec(`

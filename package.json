@@ -1,24 +1,23 @@
 {
   "name": "minigames-hima-ti",
   "version": "1.0.0",
+  "private": true,
   "description": "Website Minigames Flashcard HIMA TI untuk Stand Ospek Mahasiswa Baru",
   "workspaces": [
     "backend",
     "frontend"
   ],
-  "scripts": {
-    "start": "npm run build --prefix frontend && node backend/server.js",
-    "build": "npm run build --prefix frontend",
-    "dev": "concurrently -k -p \"[{name}]\" -n \"BACKEND,FRONTEND\" -c \"cyan.bold,magenta.bold\" \"npm run dev:backend\" \"npm run dev:frontend\"",
-    "dev:backend": "node --watch backend/server.js",
-    "dev:frontend": "npm run dev --prefix frontend",
-    "install:all": "npm install && npm install --prefix backend && npm install --prefix frontend",
-    "postinstall": "npm install --prefix backend && npm install --prefix frontend"
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=8.0.0"
   },
-  "dependencies": {
-    "cors": "^2.8.5",
-    "express": "^4.21.2",
-    "multer": "^1.4.5-lts.1"
+  "scripts": {
+    "start": "npm run build --workspace=frontend && node backend/server.js",
+    "build": "npm run build --workspace=frontend",
+    "dev": "concurrently -k -n BACKEND,FRONTEND -c cyan.bold,magenta.bold npm:dev:backend npm:dev:frontend",
+    "dev:backend": "node --watch backend/server.js",
+    "dev:frontend": "npm run dev --workspace=frontend",
+    "lint": "npm run lint --workspace=frontend"
   },
   "devDependencies": {
     "concurrently": "^9.1.2"

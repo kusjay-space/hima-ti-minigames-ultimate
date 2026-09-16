@@ -31,8 +31,8 @@ Aplikasi berjalan **100% lokal, cepat, dan offline**, didukung database internal
 ## 🚀 Panduan Instalasi & Menjalankan
 
 ### Persyaratan Sistem
-- **Node.js**: Versi `v20.0.0` ke atas (Direkomendasikan Node `v22+` untuk dukungan bawaan `node:sqlite`).
-- **npm**: Versi `v8.0.0` ke atas.
+- **Node.js**: Versi `v20.0.0` ke atas (Direkomendasikan Node `v22+` untuk modul bawaan `node:sqlite`. Node v20 didukung via driver `better-sqlite3`).
+- **npm**: Versi `v8.0.0` ke atas (disertakan bersama instalasi Node.js).
 
 ---
 
@@ -45,32 +45,34 @@ cd minigames-hima-ti
 ---
 
 ### Langkah 2: Install Dependensi
-Repository ini telah dikonfigurasi menggunakan **npm workspaces**. Cukup jalankan satu perintah di folder utama (root):
+Repository ini menggunakan **npm workspaces**. Cukup jalankan satu perintah di folder utama (root):
 
 ```bash
 npm install
 ```
-*Perintah di atas akan secara otomatis mengunduh dan menginstal seluruh package untuk root, backend (Express, CORS, Multer), dan frontend (React, Framer Motion, Tailwind, Lucide).*
-
-> 💡 **Alternatif jika npm versi lama mengalami kendala:**
-> ```bash
-> npm run install:all
-> ```
+*Perintah ini akan langsung mengunduh dan menginstal seluruh dependensi backend dan frontend secara otomatis tanpa perlu masuk ke subfolder.*
 
 ---
 
-### Langkah 3: Menjalankan Aplikasi
+### Langkah 3: Konfigurasi Port & Lingkungan (Opsional)
+Jika port default `3000` sudah dipakai oleh aplikasi lain, salin file contoh konfigurasi:
+```bash
+cp .env.example .env
+```
+Lalu ubah `PORT=3000` menjadi port yang diinginkan (misal `PORT=3005`).
+
+---
+
+### Langkah 4: Menjalankan Aplikasi
 
 #### Opsi A: Mode Siap Pakai / Hari-H Stand (Rekomendasi)
-Mode ini mengompilasi frontend menjadi aset produksi berkecepatan tinggi dan melayani antarmuka serta API melalui 1 port server default:
+Mode ini mengompilasi frontend ke aset produksi dan melayani aplikasi via 1 port:
 
 ```bash
 npm start
 ```
 Buka browser di laptop stand:
-👉 **`http://localhost:3000`**
-
-*(Frontend dan API SQLite Express berjalan bersamaan pada port default **3000**).*
+👉 **`http://localhost:3000`** (atau port yang Anda atur).
 
 ---
 
@@ -80,9 +82,9 @@ Jika ingin mengedit antarmuka atau logika kode secara langsung:
 ```bash
 npm run dev
 ```
-Perintah ini akan menyalakan:
+Perintah ini menyalakan secara bersamaan:
 - **Backend Server** di `http://localhost:3000`
-- **Vite Dev Server** di `http://localhost:5173` (dengan proxy otomatis ke port 3000 untuk `/api` dan `/uploads`).
+- **Vite Dev Server** di `http://localhost:5173` (dengan proxy otomatis ke backend untuk `/api` dan `/uploads`).
 
 Buka browser di:
 👉 **`http://localhost:5173`**
@@ -94,10 +96,10 @@ Buka browser di:
 | Script | Deskripsi |
 |---|---|
 | `npm install` | Menginstal seluruh dependensi root, backend, dan frontend sekaligus via workspaces. |
-| `npm start` | Melakukan build frontend lalu menjalankan server backend di port 3000. |
-| `npm run dev` | Menjalankan backend dan frontend dev server secara paralel (`concurrently`). |
+| `npm start` | Melakukan build frontend lalu menjalankan server backend. |
+| `npm run dev` | Menjalankan backend dan frontend dev server secara paralel (cross-platform). |
 | `npm run build` | Melakukan build produksi Vite & TypeScript pada folder `frontend/`. |
-| `npm run install:all` | Script cadangan untuk menginstal paket per folder (`backend` dan `frontend`). |
+| `npm run lint` | Melakukan pemeriksaan kode frontend dengan oxlint. |
 
 ---
 
@@ -116,12 +118,14 @@ Jika terjadi antrean panjang di meja stand:
 
 ## 🛠️ Pemecahan Masalah (Troubleshooting)
 
-1. **Port 3000 Sudah Terpakai:**
-   - Ubah port melalui environment variable saat menjalankan:
-     ```bash
-     PORT=3005 npm start
-     ```
-2. **Error `node:sqlite` tidak ditemukan:**
-   - Pastikan versi Node.js yang terinstal adalah Node 22+ (`node -v`).
+1. **Port 3000 Sudah Terpakai (`EADDRINUSE`):**
+   - Atur port lain melalui environment variable:
+     - Linux / macOS: `PORT=3005 npm start`
+     - Windows (CMD): `set PORT=3005 && npm start`
+     - Windows (PowerShell): `$env:PORT=3005; npm start`
+     - Atau isi `PORT=3005` di file `.env`.
+2. **Versi Node.js:**
+   - Cek versi Node.js Anda dengan perintah `node -v`.
+   - Pastikan minimal versi Node v20.x atau v22+ LTS.
 3. **Database Reset ke Data Awal:**
-   - File database SQLite disimpan di [`backend/hima_games.sqlite`](backend/hima_games.sqlite). Jangan hapus file ini jika ingin mempertahankan data skor leaderboard dan daftar pengurus yang sudah diinput.
+   - Database SQLite otomatis diinisialisasi dan diisi 34 data pengurus resmi saat pertama kali server dijalankan. File disimpan di [`backend/hima_games.sqlite`](backend/hima_games.sqlite). Jangan hapus file ini jika ingin mempertahankan skor leaderboard yang sudah terekam.

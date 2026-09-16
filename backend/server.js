@@ -11,6 +11,33 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const uploadsDir = path.join(__dirname, 'uploads');
 
+// Muat environment variable dari .env jika tersedia
+function loadEnv() {
+  const rootEnv = path.join(__dirname, '..', '.env');
+  const backendEnv = path.join(__dirname, '.env');
+  const envPath = fs.existsSync(rootEnv) ? rootEnv : fs.existsSync(backendEnv) ? backendEnv : null;
+  if (envPath) {
+    try {
+      const content = fs.readFileSync(envPath, 'utf-8');
+      for (const line of content.split('\n')) {
+        const trimmed = line.trim();
+        if (!trimmed || trimmed.startsWith('#')) continue;
+        const eqIdx = trimmed.indexOf('=');
+        if (eqIdx !== -1) {
+          const key = trimmed.slice(0, eqIdx).trim();
+          const val = trimmed.slice(eqIdx + 1).trim().replace(/^["']|["']$/g, '');
+          if (!process.env[key]) {
+            process.env[key] = val;
+          }
+        }
+      }
+    } catch {
+      // Abaikan jika gagal membaca
+    }
+  }
+}
+loadEnv();
+
 // Jalankan seed data awal
 seedInitialData();
 
@@ -622,6 +649,29 @@ if (fs.existsSync(frontendDist)) {
   });
 }
 
-app.listen(PORT, '0.0.0.0', () => {
+const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Server Minigames HIMA TI berjalan di http://localhost:${PORT}`);
+});
+
+server.on('error', (err) => {
+  if (err.code === 'EADDRINUSE') {
+    console.error(`
+================================================================================
+❌ [PORT CONFLICT ERROR]
+Port ${PORT} sudah digunakan oleh proses / aplikasi lain di komputer Anda!
+
+Solusi:
+1. Jalankan aplikasi dengan port lain, contoh:
+   - Linux / macOS:  PORT=3001 npm start
+   - Windows (CMD):   set PORT=3001 && npm start
+   - Windows (PS):    $env:PORT=3001; npm start
+   - Atau atur PORT=3001 di file .env
+2. Atau hentikan proses yang sedang menggunakan port ${PORT}.
+================================================================================
+`);
+    process.exit(1);
+  } else {
+    console.error('❌ Server error:', err);
+    process.exit(1);
+  }
 });

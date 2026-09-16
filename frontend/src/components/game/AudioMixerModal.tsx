@@ -306,6 +306,34 @@ export const AudioMixerModal: React.FC<AudioMixerModalProps> = ({ isOpen, onClos
                 </button>
               </div>
 
+              {/* BGM Shortcuts 0, 50, 100 */}
+              <div className="flex items-center justify-between gap-1 mb-2 px-1">
+                <span className="text-[10px] text-[#64748b] font-mono">Shortcut:</span>
+                <div className="flex items-center gap-1">
+                  {[0, 50, 100].map((preset) => (
+                    <button
+                      key={preset}
+                      type="button"
+                      onClick={() => {
+                        setBgmVolume(preset);
+                        bgm.setVolume(preset / 100);
+                        if (preset > 0 && !isBgmEnabled) {
+                          bgm.toggle();
+                          setIsBgmEnabled(true);
+                        }
+                      }}
+                      className={`px-2 py-0.5 text-[10px] font-mono rounded border transition-all cursor-pointer ${
+                        (isBgmEnabled ? bgmVolume : 0) === preset
+                          ? 'bg-[#0c182c] border-[#38bdf8] text-[#38bdf8] font-bold shadow-tactile-sm'
+                          : 'bg-[#080c14] border-[#1e2b46] text-[#94a3b8] hover:text-white hover:border-[#38bdf8]/50'
+                      }`}
+                    >
+                      {preset}%
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               {/* BGM Track Mode Selector */}
               <div className="pt-2 border-t border-[#1e2b46]/70 mt-2">
                 <div className="flex items-center justify-between mb-1.5">
@@ -440,6 +468,37 @@ export const AudioMixerModal: React.FC<AudioMixerModalProps> = ({ isOpen, onClos
                 >
                   <Volume2 className="w-4 h-4" />
                 </button>
+              </div>
+
+              {/* SFX Shortcuts 0, 50, 100 */}
+              <div className="flex items-center justify-between gap-1 mb-2 px-1">
+                <span className="text-[10px] text-[#64748b] font-mono">Shortcut:</span>
+                <div className="flex items-center gap-1">
+                  {[0, 50, 100].map((preset) => (
+                    <button
+                      key={preset}
+                      type="button"
+                      onClick={() => {
+                        setSfxVolume(preset);
+                        soundFx.setVolume(preset / 100);
+                        if (preset === 0) {
+                          soundFx.setMuted(true);
+                          setIsSfxMuted(true);
+                        } else if (isSfxMuted) {
+                          soundFx.setMuted(false);
+                          setIsSfxMuted(false);
+                        }
+                      }}
+                      className={`px-2 py-0.5 text-[10px] font-mono rounded border transition-all cursor-pointer ${
+                        (!isSfxMuted ? sfxVolume : 0) === preset
+                          ? 'bg-[#062c19] border-[#10b981] text-[#10b981] font-bold shadow-tactile-sm'
+                          : 'bg-[#080c14] border-[#1e2b46] text-[#94a3b8] hover:text-white hover:border-[#10b981]/50'
+                      }`}
+                    >
+                      {preset}%
+                    </button>
+                  ))}
+                </div>
               </div>
 
               {/* Sound Profile Selector */}

@@ -79,6 +79,7 @@ class BgmEngine {
   private timerId: number | null = null;
   private transitionTimer: number | null = null;
   private isCrossfading = false;
+  private currentLoopCount = 0;
   private listeners: Set<(enabled: boolean, track: BgmTrackMode, themeName: string, volume: number) => void> = new Set();
   private noiseBuffer: AudioBuffer | null = null;
 
@@ -889,10 +890,31 @@ class BgmEngine {
   // LOOKAHEAD SCHEDULER & SMOOTH TRANSITION ENGINE
   // =========================================================================
 
+  /**
+   * Jumlah loop (putaran 8 bar) per tema sebelum berganti otomatis.
+   * Total durasi per lagu berkisar antara 65 - 78 detik (bukan cuma 15 detik lagi).
+   */
+  private getLoopsForTheme(theme: ActiveThemeId): number {
+    switch (theme) {
+      case 'lofi':
+        return 3; // 3 * 21.8s = ~65.5s (Tempo santai 88 BPM)
+      case 'cyber':
+        return 4; // 4 * 17.1s = ~68.5s (Tempo retro 112 BPM)
+      case 'blitz':
+        return 5; // 5 * 14.3s = ~71.6s (Tempo cepat 134 BPM)
+      case 'pixel':
+        return 5; // 5 * 13.9s = ~69.6s (Tempo arcade 138 BPM)
+      case 'funky':
+      default:
+        return 5; // 5 * 15.5s = ~77.4s (Tempo disko 124 BPM)
+    }
+  }
+
   private scheduler = () => {
-    if (!this.isRunning || !this.ctx) return;
+    if (!this.isRunning || !this.ctx || this.isCrossfading) return;
 
     while (this.nextStepTime < this.ctx.currentTime + this.SCHEDULE_AHEAD_TIME) {
+      if (this.isCrossfading) break;
       const activeTheme = this.getActiveThemeId();
       this.scheduleTheme(activeTheme, this.currentStep, this.nextStepTime);
 
@@ -900,25 +922,79 @@ class BgmEngine {
       this.nextStepTime += stepDuration;
 
       const nextStep = (this.currentStep + 1) % this.TOTAL_STEPS;
-      // Auto-Cycle: Saat 128 steps (8 bar) selesai, transisi halus ke lagu berikutnya
-      if (nextStep === 0 && this.trackMode === 'auto') {
-        this.transitionToNextTheme();
-        return;
+      // Saat 1 loop 8 bar (128 steps) selesai:
+      if (nextStep === 0) {
+        this.currentLoopCount++;
+        // Hanya ganti tema jika di mode 'auto' dan sudah mencapai durasi lagu yang memadai
+        if (this.trackMode === 'auto' && this.currentLoopCount >= this.getLoopsForTheme(activeTheme)) {
+          this.currentLoopCount = 0;
+          this.triggerSmoothAutoTransition();
+          return;
+        }
       }
       this.currentStep = nextStep;
     }
   };
 
   /**
-   * Transisi otomatis antar lagu di mode auto (Smooth Crossfade)
+   * Transisi otomatis antar lagu di mode auto (Smooth DJ Crossfade + Filter Sweep)
    */
-  private transitionToNextTheme() {
-    this.activeThemeIndex = (this.activeThemeIndex + 1) % 5;
-    this.currentStep = 0;
-    if (this.ctx) {
-      this.nextStepTime = this.ctx.currentTime + 0.05;
+  private triggerSmoothAutoTransition() {
+    if (!this.ctx || !this.masterGain || this.isCrossfading) return;
+
+    this.isCrossfading = true;
+    const now = this.ctx.currentTime;
+    const fadeOutDuration = 1.3; // Fade-out bertahap 1.3 detik
+    const fadeInDuration = 1.3;  // Fade-in bertahap 1.3 detik
+
+    try {
+      this.masterGain.gain.cancelScheduledValues(now);
+      this.masterGain.gain.setValueAtTime(this.masterGain.gain.value, now);
+      this.masterGain.gain.exponentialRampToValueAtTime(0.0001, now + fadeOutDuration);
+
+      if (this.warmFilter) {
+        this.warmFilter.frequency.cancelScheduledValues(now);
+        this.warmFilter.frequency.setValueAtTime(this.warmFilter.frequency.value, now);
+        this.warmFilter.frequency.exponentialRampToValueAtTime(700, now + fadeOutDuration);
+      }
+    } catch {
+      // Audio fallback
     }
-    this.notifyListeners();
+
+    if (this.transitionTimer !== null) {
+      window.clearTimeout(this.transitionTimer);
+    }
+
+    this.transitionTimer = window.setTimeout(() => {
+      if (!this.ctx || !this.masterGain || !this.isRunning) {
+        this.isCrossfading = false;
+        return;
+      }
+
+      // Pindah ke tema berikutnya secara mulus
+      this.activeThemeIndex = (this.activeThemeIndex + 1) % 5;
+      this.currentStep = 0;
+      this.currentLoopCount = 0;
+      this.nextStepTime = this.ctx.currentTime + 0.06;
+
+      const startIn = this.ctx.currentTime;
+      try {
+        this.masterGain.gain.cancelScheduledValues(startIn);
+        this.masterGain.gain.setValueAtTime(0.0001, startIn);
+        this.masterGain.gain.exponentialRampToValueAtTime(this.getEffectiveGain(), startIn + fadeInDuration);
+
+        if (this.warmFilter) {
+          this.warmFilter.frequency.cancelScheduledValues(startIn);
+          this.warmFilter.frequency.setValueAtTime(700, startIn);
+          this.warmFilter.frequency.exponentialRampToValueAtTime(11000, startIn + fadeInDuration);
+        }
+      } catch {
+        // Audio fallback
+      }
+
+      this.isCrossfading = false;
+      this.notifyListeners();
+    }, (fadeOutDuration + 0.05) * 1000);
   }
 
   public start() {
@@ -1038,13 +1114,22 @@ class BgmEngine {
     }
 
     // Smooth DJ Crossfade:
-    // 1. Fade out track sebelumnya (200ms)
+    // 1. Fade out track sebelumnya (800ms) + filter dip
     this.isCrossfading = true;
+    const now = this.ctx.currentTime;
+    const fadeOutDuration = 0.8;
+    const fadeInDuration = 0.9;
+
     try {
-      const now = this.ctx.currentTime;
       this.masterGain.gain.cancelScheduledValues(now);
       this.masterGain.gain.setValueAtTime(this.masterGain.gain.value, now);
-      this.masterGain.gain.linearRampToValueAtTime(0.0001, now + 0.20);
+      this.masterGain.gain.exponentialRampToValueAtTime(0.0001, now + fadeOutDuration);
+
+      if (this.warmFilter) {
+        this.warmFilter.frequency.cancelScheduledValues(now);
+        this.warmFilter.frequency.setValueAtTime(this.warmFilter.frequency.value, now);
+        this.warmFilter.frequency.exponentialRampToValueAtTime(800, now + fadeOutDuration);
+      }
     } catch {
       // Ignore
     }
@@ -1067,21 +1152,28 @@ class BgmEngine {
 
       // Mulai lagu baru dari step 0 (beat 1) dengan sinkronisasi tempo yang baru
       this.currentStep = 0;
+      this.currentLoopCount = 0;
       this.nextStepTime = this.ctx.currentTime + 0.05;
 
-      // 2. Fade in track baru (300ms)
+      // 2. Fade in track baru (900ms) + filter sweep up
       try {
         const rampStart = this.ctx.currentTime;
         this.masterGain.gain.cancelScheduledValues(rampStart);
         this.masterGain.gain.setValueAtTime(0.0001, rampStart);
-        this.masterGain.gain.linearRampToValueAtTime(this.getEffectiveGain(), rampStart + 0.30);
+        this.masterGain.gain.exponentialRampToValueAtTime(this.getEffectiveGain(), rampStart + fadeInDuration);
+
+        if (this.warmFilter) {
+          this.warmFilter.frequency.cancelScheduledValues(rampStart);
+          this.warmFilter.frequency.setValueAtTime(800, rampStart);
+          this.warmFilter.frequency.exponentialRampToValueAtTime(11000, rampStart + fadeInDuration);
+        }
       } catch {
         // Ignore
       }
 
       this.isCrossfading = false;
       this.notifyListeners();
-    }, 220);
+    }, (fadeOutDuration + 0.05) * 1000);
   }
 
   public cycleNextTrack(): BgmTrackMode {

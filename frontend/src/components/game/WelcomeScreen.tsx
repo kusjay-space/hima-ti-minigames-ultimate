@@ -1098,7 +1098,32 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
                           <Volume2 className="w-3.5 h-3.5 text-[#38bdf8]" />
                           <span>Volume Musik:</span>
                         </span>
-                        <span className="font-bold text-[#38bdf8]">{bgmVolume}%</span>
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-bold text-[#38bdf8] mr-1">{bgmVolume}%</span>
+                          <div className="flex items-center gap-1">
+                            {[0, 50, 100].map((preset) => (
+                              <button
+                                key={preset}
+                                type="button"
+                                onClick={() => {
+                                  setBgmVolume(preset);
+                                  bgm.setVolume(preset / 100);
+                                  if (preset > 0 && !isMusicEnabled) {
+                                    bgm.toggle();
+                                    setIsMusicEnabled(true);
+                                  }
+                                }}
+                                className={`px-1.5 py-0.5 text-[9px] font-mono rounded border transition-all cursor-pointer ${
+                                  bgmVolume === preset
+                                    ? 'bg-[#0c182c] border-[#38bdf8] text-[#38bdf8] font-bold shadow-tactile-sm'
+                                    : 'bg-[#080c14] border-[#1e2b46] text-[#64748b] hover:text-white hover:border-[#38bdf8]/50'
+                                }`}
+                              >
+                                {preset}%
+                              </button>
+                            ))}
+                          </div>
+                        </div>
                       </div>
                       <input
                         type="range"
@@ -1205,7 +1230,35 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
                           <Volume2 className="w-3.5 h-3.5 text-[#10b981]" />
                           <span>Volume SFX:</span>
                         </span>
-                        <span className="font-bold text-[#10b981]">{sfxVolume}%</span>
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-bold text-[#10b981] mr-1">{sfxVolume}%</span>
+                          <div className="flex items-center gap-1">
+                            {[0, 50, 100].map((preset) => (
+                              <button
+                                key={preset}
+                                type="button"
+                                onClick={() => {
+                                  setSfxVolume(preset);
+                                  soundFx.setVolume(preset / 100);
+                                  if (preset === 0) {
+                                    soundFx.setMuted(true);
+                                    setIsMuted(true);
+                                  } else if (isMuted) {
+                                    soundFx.setMuted(false);
+                                    setIsMuted(false);
+                                  }
+                                }}
+                                className={`px-1.5 py-0.5 text-[9px] font-mono rounded border transition-all cursor-pointer ${
+                                  sfxVolume === preset
+                                    ? 'bg-[#062c19] border-[#10b981] text-[#10b981] font-bold shadow-tactile-sm'
+                                    : 'bg-[#080c14] border-[#1e2b46] text-[#64748b] hover:text-white hover:border-[#10b981]/50'
+                                }`}
+                              >
+                                {preset}%
+                              </button>
+                            ))}
+                          </div>
+                        </div>
                       </div>
                       <input
                         type="range"

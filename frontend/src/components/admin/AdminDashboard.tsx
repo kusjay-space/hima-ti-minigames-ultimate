@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Users, Trophy, Download, Upload, Plus, Minus, Trash2, 
   Check, X, Shield, Lock, Sliders, RefreshCw, AlertCircle, Eye, EyeOff, 
-  ArrowLeft, ArrowRight, CheckCircle, XCircle, Search, Focus, Sparkles, Pencil
+  ArrowLeft, ArrowRight, CheckCircle, XCircle, Search, Focus, Sparkles, Pencil, Save
 } from 'lucide-react';
 import type { Pengurus, QuizConfig, AnimationStyle, FotoFokus } from '../../types';
 import { FlashcardCard } from '../game/FlashcardCard';
@@ -389,8 +389,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onRefre
     }
   };
 
-  const handleSaveSettings = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSaveSettings = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     setSettingsBtnState('saving');
     
     // Resolve any empty/partial inputs safely
@@ -697,53 +697,89 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onRefre
           </div>
         ) : (
           <div className="flex-1 flex flex-col overflow-hidden pt-3">
-            {/* Tabs Navigation (Neo-Brutalist Buttons) */}
-            <div className="flex items-center gap-2 border-b-2 border-[#1e2b46] pb-3 shrink-0 overflow-x-auto">
-              <button
-                type="button"
-                onClick={() => setActiveTab('settings')}
-                className={`px-4 py-2 text-xs font-mono font-bold flex items-center gap-2 transition-all cursor-pointer whitespace-nowrap border-2 ${
-                  activeTab === 'settings'
-                    ? 'bg-blue-600 text-white border-blue-500 shadow-tactile-sm'
-                    : 'bg-[#131e33] text-zinc-400 border-[#1e2b46] hover:text-white'
-                }`}
-              >
-                <Sliders className="w-3.5 h-3.5" />
-                PENGATURAN KUIS & ANIMASI ({ANIMATION_CHOICES.length} GAYA)
-              </button>
+            {/* Tabs Navigation (Neo-Brutalist Buttons) & Action Controls */}
+            <div className="flex items-center justify-between gap-3 border-b-2 border-[#1e2b46] pb-3 shrink-0">
+              <div className="flex items-center gap-2 overflow-x-auto min-w-0 pr-1">
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('settings')}
+                  className={`px-4 py-2 text-xs font-mono font-bold flex items-center gap-2 transition-all cursor-pointer whitespace-nowrap border-2 ${
+                    activeTab === 'settings'
+                      ? 'bg-blue-600 text-white border-blue-500 shadow-tactile-sm'
+                      : 'bg-[#131e33] text-zinc-400 border-[#1e2b46] hover:text-white'
+                  }`}
+                >
+                  <Sliders className="w-3.5 h-3.5" />
+                  PENGATURAN KUIS & ANIMASI ({ANIMATION_CHOICES.length} GAYA)
+                </button>
 
-              <button
-                type="button"
-                onClick={() => setActiveTab('pengurus')}
-                className={`px-4 py-2 text-xs font-mono font-bold flex items-center gap-2 transition-all cursor-pointer whitespace-nowrap border-2 ${
-                  activeTab === 'pengurus'
-                    ? 'bg-blue-600 text-white border-blue-500 shadow-tactile-sm'
-                    : 'bg-[#131e33] text-zinc-400 border-[#1e2b46] hover:text-white'
-                }`}
-              >
-                <Users className="w-3.5 h-3.5" />
-                KELOLA PENGURUS ({pengurusList.length})
-              </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('pengurus')}
+                  className={`px-4 py-2 text-xs font-mono font-bold flex items-center gap-2 transition-all cursor-pointer whitespace-nowrap border-2 ${
+                    activeTab === 'pengurus'
+                      ? 'bg-blue-600 text-white border-blue-500 shadow-tactile-sm'
+                      : 'bg-[#131e33] text-zinc-400 border-[#1e2b46] hover:text-white'
+                  }`}
+                >
+                  <Users className="w-3.5 h-3.5" />
+                  KELOLA PENGURUS ({pengurusList.length})
+                </button>
 
-              <button
-                type="button"
-                onClick={() => setActiveTab('leaderboard')}
-                className={`px-4 py-2 text-xs font-mono font-bold flex items-center gap-2 transition-all cursor-pointer whitespace-nowrap border-2 ${
-                  activeTab === 'leaderboard'
-                    ? 'bg-blue-600 text-white border-blue-500 shadow-tactile-sm'
-                    : 'bg-[#131e33] text-zinc-400 border-[#1e2b46] hover:text-white'
-                }`}
-              >
-                <Trophy className="w-3.5 h-3.5" />
-                REKAP SKOR & BACKUP
-              </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('leaderboard')}
+                  className={`px-4 py-2 text-xs font-mono font-bold flex items-center gap-2 transition-all cursor-pointer whitespace-nowrap border-2 ${
+                    activeTab === 'leaderboard'
+                      ? 'bg-blue-600 text-white border-blue-500 shadow-tactile-sm'
+                      : 'bg-[#131e33] text-zinc-400 border-[#1e2b46] hover:text-white'
+                  }`}
+                >
+                  <Trophy className="w-3.5 h-3.5" />
+                  REKAP SKOR & BACKUP
+                </button>
+              </div>
+
+              {/* Action Button di pojok kanan barisan tab */}
+              {activeTab === 'settings' && (
+                <button
+                  type="submit"
+                  form="settings-form"
+                  onClick={(e) => handleSaveSettings(e)}
+                  disabled={settingsBtnState === 'saving'}
+                  className={`px-4 py-2 text-xs font-mono font-bold flex items-center gap-2 transition-all cursor-pointer whitespace-nowrap border-2 shrink-0 ${
+                    settingsBtnState === 'saved'
+                      ? 'bg-emerald-500 text-zinc-950 border-emerald-400 shadow-tactile-emerald'
+                      : settingsBtnState === 'saving'
+                      ? 'bg-zinc-700 text-zinc-300 border-zinc-600 cursor-wait'
+                      : 'bg-blue-600 hover:bg-blue-500 text-white border-blue-500 shadow-tactile-sm hover:translate-x-[-1px] hover:translate-y-[-1px] active:translate-x-[1px] active:translate-y-[1px]'
+                  }`}
+                >
+                  {settingsBtnState === 'saved' ? (
+                    <>
+                      <Check className="w-4 h-4 stroke-[3]" />
+                      <span>PENGATURAN DISIMPAN!</span>
+                    </>
+                  ) : settingsBtnState === 'saving' ? (
+                    <>
+                      <RefreshCw className="w-4 h-4 animate-spin" />
+                      <span>Menyimpan...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Save className="w-4 h-4 stroke-[2.5]" />
+                      <span>SIMPAN SEMUA PENGATURAN</span>
+                    </>
+                  )}
+                </button>
+              )}
             </div>
 
             {/* Tab Contents: Spacious Viewport */}
             <div className="flex-1 overflow-y-auto py-3 pr-1">
               {/* TAB 1: SETTINGS & 12 ANIMATIONS + EXPANDED LIVE PREVIEW STUDIO */}
               {activeTab === 'settings' && (
-                <form onSubmit={handleSaveSettings} className="space-y-4">
+                <form id="settings-form" onSubmit={handleSaveSettings} className="space-y-4">
                   <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
                     {/* LEFT PANEL: CONFIGURATION CONTROLS (7 Cols) */}
                     <div className="lg:col-span-7 space-y-4">
@@ -1131,38 +1167,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onRefre
                         >
                           <Sliders className="w-4 h-4" />
                           <span>BUKA MIXER VOLUME AUDIO BROWSER</span>
-                        </button>
-                      </div>
-
-                      {/* Tombol Simpan dengan Status Berubah Jelas */}
-                      <div className="pt-2">
-                        <button
-                          type="submit"
-                          disabled={settingsBtnState === 'saving'}
-                          className={`w-full py-4 font-bold text-sm flex items-center justify-center gap-2 shadow-tactile transition-all cursor-pointer ${
-                            settingsBtnState === 'saved'
-                              ? 'bg-emerald-500 text-zinc-950 shadow-tactile-emerald'
-                              : settingsBtnState === 'saving'
-                              ? 'bg-zinc-700 text-zinc-300 cursor-wait'
-                              : 'bg-blue-600 hover:bg-blue-500 text-white shadow-tactile hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-tactile-blue active:translate-x-[1px] active:translate-y-[1px] active:shadow-none'
-                          }`}
-                        >
-                          {settingsBtnState === 'saved' ? (
-                            <>
-                              <Check className="w-5 h-5 stroke-[3]" />
-                              <span>PENGATURAN BERHASIL DISIMPAN!</span>
-                            </>
-                          ) : settingsBtnState === 'saving' ? (
-                            <>
-                              <RefreshCw className="w-5 h-5 animate-spin" />
-                              <span>Menyimpan ke SQLite...</span>
-                            </>
-                          ) : (
-                            <>
-                              <Check className="w-5 h-5 stroke-[3]" />
-                              <span>SIMPAN SEMUA PENGATURAN</span>
-                            </>
-                          )}
                         </button>
                       </div>
                     </div>

@@ -41,7 +41,7 @@ export const FlashcardGame: React.FC<FlashcardGameProps> = ({
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const [isAnswered, setIsAnswered] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
-  const [postAnswerCountdown, setPostAnswerCountdown] = useState(5);
+  const [postAnswerCountdown, setPostAnswerCountdown] = useState(config.cooldownDetik ?? 3);
   const [showAudioMixer, setShowAudioMixer] = useState(false);
 
   useEffect(() => {
@@ -146,8 +146,9 @@ export const FlashcardGame: React.FC<FlashcardGameProps> = ({
     if (nextTimerRef.current) clearTimeout(nextTimerRef.current);
     if (postAnswerTimerRef.current) clearInterval(postAnswerTimerRef.current);
 
-    const delayMs = 5000;
-    setPostAnswerCountdown(5);
+    const cooldownSec = Math.max(1, config.cooldownDetik ?? 3);
+    const delayMs = cooldownSec * 1000;
+    setPostAnswerCountdown(cooldownSec);
 
     postAnswerTimerRef.current = setInterval(() => {
       setPostAnswerCountdown((prev) => {
@@ -165,7 +166,7 @@ export const FlashcardGame: React.FC<FlashcardGameProps> = ({
     nextTimerRef.current = setTimeout(() => {
       goToNextQuestion();
     }, delayMs);
-  }, [isAnswered, isSecretMode, currentQuestion, goToNextQuestion]);
+  }, [isAnswered, isSecretMode, currentQuestion, goToNextQuestion, config.cooldownDetik]);
 
   const handleTimeoutRef = useRef(handleTimeout);
   useEffect(() => {
@@ -249,8 +250,9 @@ export const FlashcardGame: React.FC<FlashcardGameProps> = ({
     if (nextTimerRef.current) clearTimeout(nextTimerRef.current);
     if (postAnswerTimerRef.current) clearInterval(postAnswerTimerRef.current);
 
-    const delayMs = 5000;
-    setPostAnswerCountdown(5);
+    const cooldownSec = Math.max(1, config.cooldownDetik ?? 3);
+    const delayMs = cooldownSec * 1000;
+    setPostAnswerCountdown(cooldownSec);
 
     postAnswerTimerRef.current = setInterval(() => {
       setPostAnswerCountdown((prev) => {
@@ -268,7 +270,7 @@ export const FlashcardGame: React.FC<FlashcardGameProps> = ({
     nextTimerRef.current = setTimeout(() => {
       goToNextQuestion();
     }, delayMs);
-  }, [isAnswered, isSecretMode, currentQuestion, goToNextQuestion, currentIdx]);
+  }, [isAnswered, isSecretMode, currentQuestion, goToNextQuestion, currentIdx, config.cooldownDetik]);
 
   // Clean up all timers on unmount
   useEffect(() => {

@@ -271,6 +271,7 @@ app.get('/api/quiz-session', (req, res) => {
     const soalPerSesi = Math.max(1, parseInt(settings.soalPerSesi) || 5);
     const modeKuis = settings.modeKuis || 'tebak_nama';
     const timerDetik = parseInt(settings.timerDetik) || 10;
+    const cooldownDetik = Math.max(1, Math.min(10, parseInt(settings.cooldownDetik) || 3));
     const minBenarCap = parseInt(settings.minBenarCap) || 4;
     const animasiStyle = settings.animasiStyle || 'combo';
     const misiCapText = settings.misiCapText || 'Follow IG HIMA TI & Sapa Pengurus Stand!';
@@ -472,6 +473,7 @@ app.get('/api/quiz-session', (req, res) => {
       config: {
         totalSoal: questions.length,
         timerDetik,
+        cooldownDetik,
         minBenarCap,
         animasiStyle,
         misiCapText,

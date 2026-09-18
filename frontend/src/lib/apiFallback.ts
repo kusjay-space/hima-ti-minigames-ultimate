@@ -46,7 +46,8 @@ export const defaultStaticSettings: Record<string, string> = {
   misiCapText: 'Follow Instagram @himaprodi_ti & Spinwheel.',
   adminPin: '2026',
   fotoFokus: 'tengah_atas',
-  spillJawaban: 'akhir'
+  spillJawaban: 'akhir',
+  cooldownDetik: '3'
 };
 
 const STORAGE_KEYS = {
@@ -217,6 +218,7 @@ function generateClientQuizSession(): { success: boolean; config: QuizConfig; qu
   const config: QuizConfig = {
     totalSoal: questions.length,
     timerDetik: parseInt(settings.timerDetik) || 10,
+    cooldownDetik: parseInt(settings.cooldownDetik) || 3,
     minBenarCap: parseInt(settings.minBenarCap) || 4,
     animasiStyle: (settings.animasiStyle as QuizConfig['animasiStyle']) || 'combo',
     misiCapText: settings.misiCapText || 'Follow Instagram @himaprodi_ti & Spinwheel.',

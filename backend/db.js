@@ -90,7 +90,8 @@ const defaultSettings = [
   ['animasiStyle', 'combo'],  // 'combo' | 'biometric_laser' | 'tilt_3d' | 'card_stack' | 'matrix_decode' | 'standard_flip'
   ['misiCapText', 'Follow Instagram @himaprodi_ti & Spinwheel.'],
   ['adminPin', '2026'],
-  ['spillJawaban', 'akhir'] // 'akhir' (element of surprise) | 'langsung' (per-question review)
+  ['spillJawaban', 'akhir'], // 'akhir' (element of surprise) | 'langsung' (per-question review)
+  ['cooldownDetik', '3'] // Waktu jeda setelah jawab sebelum lanjut ke soal berikutnya
 ];
 
 const checkSetting = db.prepare('SELECT value FROM settings WHERE key = ?');

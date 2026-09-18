@@ -144,6 +144,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onRefre
   const [settings, setSettings] = useState<QuizConfig>({
     totalSoal: 5,
     timerDetik: 10,
+    cooldownDetik: 3,
     minBenarCap: 4,
     animasiStyle: 'combo',
     misiCapText: 'Follow Instagram @himaprodi_ti & Spinwheel.',
@@ -155,6 +156,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onRefre
   // Dedicated string inputs to allow complete clearing / free-typing without snap-back
   const [totalSoalInput, setTotalSoalInput] = useState('5');
   const [timerDetikInput, setTimerDetikInput] = useState('10');
+  const [cooldownDetikInput, setCooldownDetikInput] = useState('3');
   const [minBenarCapInput, setMinBenarCapInput] = useState('4');
 
   // Button Save Feedback States
@@ -232,11 +234,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onRefre
         const s = dataSettings.data;
         const loadedTotalSoal = parseInt(s.soalPerSesi) || 5;
         const loadedTimerDetik = parseInt(s.timerDetik) || 10;
+        const loadedCooldownDetik = parseInt(s.cooldownDetik) || 3;
         const loadedMinBenar = parseInt(s.minBenarCap) || 4;
 
         setSettings({
           totalSoal: loadedTotalSoal,
           timerDetik: loadedTimerDetik,
+          cooldownDetik: loadedCooldownDetik,
           minBenarCap: loadedMinBenar,
           animasiStyle: (s.animasiStyle as AnimationStyle) || 'combo',
           misiCapText: s.misiCapText || '',
@@ -245,6 +249,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onRefre
         });
         setTotalSoalInput(String(loadedTotalSoal));
         setTimerDetikInput(String(loadedTimerDetik));
+        setCooldownDetikInput(String(loadedCooldownDetik));
         setMinBenarCapInput(String(loadedMinBenar));
         setModeKuis(s.modeKuis || 'tebak_nama');
       }
@@ -389,6 +394,34 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onRefre
     }
   };
 
+  const updateCooldownDetik = (newVal: number) => {
+    const clamped = Math.max(1, Math.min(10, newVal));
+    setCooldownDetikInput(String(clamped));
+    setSettings(prev => ({ ...prev, cooldownDetik: clamped }));
+  };
+
+  const handleCooldownDetikChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    if (/^\d*$/.test(val)) {
+      setCooldownDetikInput(val);
+      if (val !== '') {
+        const num = parseInt(val, 10);
+        setSettings(prev => ({ ...prev, cooldownDetik: num }));
+      }
+    }
+  };
+
+  const handleCooldownDetikBlur = () => {
+    const num = parseInt(cooldownDetikInput, 10);
+    if (!num || isNaN(num) || num < 1) {
+      updateCooldownDetik(3);
+    } else if (num > 10) {
+      updateCooldownDetik(10);
+    } else {
+      updateCooldownDetik(num);
+    }
+  };
+
   const handleSaveSettings = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     setSettingsBtnState('saving');
@@ -396,6 +429,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onRefre
     // Resolve any empty/partial inputs safely
     const resolvedTotalSoal = Math.max(2, Math.min(maxAvailableSoal, parseInt(totalSoalInput, 10) || settings.totalSoal || 5));
     const resolvedTimerDetik = Math.max(3, Math.min(60, parseInt(timerDetikInput, 10) || settings.timerDetik || 10));
+    const resolvedCooldownDetik = Math.max(1, Math.min(10, parseInt(cooldownDetikInput, 10) || settings.cooldownDetik || 3));
     const resolvedMinBenar = Math.min(
       resolvedTotalSoal,
       Math.max(1, parseInt(minBenarCapInput, 10) || settings.minBenarCap || 1)
@@ -403,11 +437,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onRefre
 
     setTotalSoalInput(String(resolvedTotalSoal));
     setTimerDetikInput(String(resolvedTimerDetik));
+    setCooldownDetikInput(String(resolvedCooldownDetik));
     setMinBenarCapInput(String(resolvedMinBenar));
     setSettings(prev => ({
       ...prev,
       totalSoal: resolvedTotalSoal,
       timerDetik: resolvedTimerDetik,
+      cooldownDetik: resolvedCooldownDetik,
       minBenarCap: resolvedMinBenar
     }));
 
@@ -419,6 +455,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onRefre
           adminPin: pinInput,
           soalPerSesi: resolvedTotalSoal,
           timerDetik: resolvedTimerDetik,
+          cooldownDetik: resolvedCooldownDetik,
           minBenarCap: resolvedMinBenar,
           modeKuis,
           animasiStyle: settings.animasiStyle,
@@ -790,135 +827,206 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onRefre
                           1. Parameter Sesi Kuis di Stand
                         </h3>
 
-                        {/* 1. JUMLAH SOAL & TIMER (STEPPER CONTROLS, TANPA SLIDER) */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {/* 1. JUMLAH SOAL, TIMER, & COOLDOWN (STEPPER CONTROLS, TANPA SLIDER) */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                           {/* Parameter 1: Jumlah Soal Per Sesi */}
-                          <div className="bg-[#0b1220] border border-[#1e2b46] p-3 rounded">
-                            <div className="flex items-center justify-between mb-1.5">
-                              <label className="text-xs font-mono font-bold text-zinc-200">
-                                Jumlah Soal Per Sesi
-                              </label>
-                              <span className="text-xs font-mono font-extrabold text-blue-400 bg-blue-950/80 px-2 py-0.5 rounded border border-blue-800">
-                                {settings.totalSoal} Soal
-                              </span>
-                            </div>
+                          <div className="bg-[#0b1220] border border-[#1e2b46] p-3 rounded flex flex-col justify-between">
+                            <div>
+                              <div className="flex items-center justify-between mb-1.5">
+                                <label className="text-xs font-mono font-bold text-zinc-200">
+                                  Jumlah Soal Per Sesi
+                                </label>
+                                <span className="text-xs font-mono font-extrabold text-blue-400 bg-blue-950/80 px-2 py-0.5 rounded border border-blue-800">
+                                  {settings.totalSoal} Soal
+                                </span>
+                              </div>
 
-                            {/* Stepper with direct editable number */}
-                            <div className="flex items-center gap-1.5">
-                              <button
-                                type="button"
-                                onClick={() => updateTotalSoal((parseInt(totalSoalInput, 10) || settings.totalSoal) - 1)}
-                                disabled={settings.totalSoal <= 2}
-                                className="w-10 h-10 flex items-center justify-center bg-[#131e33] hover:bg-blue-600/30 text-zinc-300 hover:text-white border border-[#273b5e] hover:border-blue-500 rounded transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed select-none active:scale-95"
-                                title="Kurangi 1 Soal"
-                              >
-                                <Minus className="w-4 h-4" />
-                              </button>
-                              <input
-                                type="text"
-                                inputMode="numeric"
-                                pattern="[0-9]*"
-                                value={totalSoalInput}
-                                onChange={handleTotalSoalChange}
-                                onBlur={handleTotalSoalBlur}
-                                className="flex-1 h-10 bg-[#0d1424] border border-[#273b5e] focus:border-blue-500 focus:outline-none text-white font-mono text-center text-base font-bold rounded"
-                                placeholder="5"
-                              />
-                              <button
-                                type="button"
-                                onClick={() => updateTotalSoal((parseInt(totalSoalInput, 10) || settings.totalSoal) + 1)}
-                                disabled={settings.totalSoal >= maxAvailableSoal}
-                                className="w-10 h-10 flex items-center justify-center bg-[#131e33] hover:bg-blue-600/30 text-zinc-300 hover:text-white border border-[#273b5e] hover:border-blue-500 rounded transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed select-none active:scale-95"
-                                title="Tambah 1 Soal"
-                              >
-                                <Plus className="w-4 h-4" />
-                              </button>
-                            </div>
-
-                            {/* Quick Presets */}
-                            <div className="flex flex-wrap items-center gap-1 mt-2">
-                              {[2, 3, 5, 7, 10].map((preset) => (
+                              {/* Stepper with direct editable number */}
+                              <div className="flex items-center gap-1.5">
                                 <button
-                                  key={preset}
                                   type="button"
-                                  onClick={() => updateTotalSoal(preset)}
-                                  className={`px-2 py-0.5 text-[10px] font-mono rounded border transition-all cursor-pointer ${
-                                    settings.totalSoal === preset
-                                      ? 'bg-blue-600 text-white border-blue-400 font-bold shadow-tactile-sm'
-                                      : 'bg-[#131e33] text-zinc-400 border-[#1e2b46] hover:text-zinc-200 hover:border-zinc-500'
-                                  }`}
+                                  onClick={() => updateTotalSoal((parseInt(totalSoalInput, 10) || settings.totalSoal) - 1)}
+                                  disabled={settings.totalSoal <= 2}
+                                  className="w-9 h-9 flex items-center justify-center bg-[#131e33] hover:bg-blue-600/30 text-zinc-300 hover:text-white border border-[#273b5e] hover:border-blue-500 rounded transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed select-none active:scale-95"
+                                  title="Kurangi 1 Soal"
                                 >
-                                  {preset} Soal
+                                  <Minus className="w-4 h-4" />
                                 </button>
-                              ))}
+                                <input
+                                  type="text"
+                                  inputMode="numeric"
+                                  pattern="[0-9]*"
+                                  value={totalSoalInput}
+                                  onChange={handleTotalSoalChange}
+                                  onBlur={handleTotalSoalBlur}
+                                  className="flex-1 h-9 bg-[#0d1424] border border-[#273b5e] focus:border-blue-500 focus:outline-none text-white font-mono text-center text-sm font-bold rounded"
+                                  placeholder="5"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => updateTotalSoal((parseInt(totalSoalInput, 10) || settings.totalSoal) + 1)}
+                                  disabled={settings.totalSoal >= maxAvailableSoal}
+                                  className="w-9 h-9 flex items-center justify-center bg-[#131e33] hover:bg-blue-600/30 text-zinc-300 hover:text-white border border-[#273b5e] hover:border-blue-500 rounded transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed select-none active:scale-95"
+                                  title="Tambah 1 Soal"
+                                >
+                                  <Plus className="w-4 h-4" />
+                                </button>
+                              </div>
+
+                              {/* Quick Presets */}
+                              <div className="flex flex-wrap items-center gap-1 mt-2">
+                                {[2, 3, 5, 7, 10].map((preset) => (
+                                  <button
+                                    key={preset}
+                                    type="button"
+                                    onClick={() => updateTotalSoal(preset)}
+                                    className={`px-1.5 py-0.5 text-[10px] font-mono rounded border transition-all cursor-pointer ${
+                                      settings.totalSoal === preset
+                                        ? 'bg-blue-600 text-white border-blue-400 font-bold shadow-tactile-sm'
+                                        : 'bg-[#131e33] text-zinc-400 border-[#1e2b46] hover:text-zinc-200 hover:border-zinc-500'
+                                    }`}
+                                  >
+                                    {preset} Soal
+                                  </button>
+                                ))}
+                              </div>
                             </div>
                             <p className="text-[10px] text-zinc-500 font-mono mt-1.5">
-                              Diambil acak dari bank {pengurusList.length} pengurus aktif.
+                              Diambil acak dari bank {pengurusList.length} pengurus.
                             </p>
                           </div>
 
                           {/* Parameter 2: Timer Per Soal */}
-                          <div className="bg-[#0b1220] border border-[#1e2b46] p-3 rounded">
-                            <div className="flex items-center justify-between mb-1.5">
-                              <label className="text-xs font-mono font-bold text-zinc-200">
-                                Timer Per Soal
-                              </label>
-                              <span className="text-xs font-mono font-extrabold text-amber-400 bg-amber-950/80 px-2 py-0.5 rounded border border-amber-800">
-                                {settings.timerDetik} Detik
-                              </span>
-                            </div>
+                          <div className="bg-[#0b1220] border border-[#1e2b46] p-3 rounded flex flex-col justify-between">
+                            <div>
+                              <div className="flex items-center justify-between mb-1.5">
+                                <label className="text-xs font-mono font-bold text-zinc-200">
+                                  Timer Per Soal
+                                </label>
+                                <span className="text-xs font-mono font-extrabold text-amber-400 bg-amber-950/80 px-2 py-0.5 rounded border border-amber-800">
+                                  {settings.timerDetik} Detik
+                                </span>
+                              </div>
 
-                            {/* Stepper with direct editable number */}
-                            <div className="flex items-center gap-1.5">
-                              <button
-                                type="button"
-                                onClick={() => updateTimerDetik((parseInt(timerDetikInput, 10) || settings.timerDetik) - 1)}
-                                disabled={settings.timerDetik <= 3}
-                                className="w-10 h-10 flex items-center justify-center bg-[#131e33] hover:bg-amber-600/30 text-zinc-300 hover:text-white border border-[#273b5e] hover:border-amber-500 rounded transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed select-none active:scale-95"
-                                title="Kurangi 1 Detik"
-                              >
-                                <Minus className="w-4 h-4" />
-                              </button>
-                              <input
-                                type="text"
-                                inputMode="numeric"
-                                pattern="[0-9]*"
-                                value={timerDetikInput}
-                                onChange={handleTimerDetikChange}
-                                onBlur={handleTimerDetikBlur}
-                                className="flex-1 h-10 bg-[#0d1424] border border-[#273b5e] focus:border-amber-500 focus:outline-none text-white font-mono text-center text-base font-bold rounded"
-                                placeholder="10"
-                              />
-                              <button
-                                type="button"
-                                onClick={() => updateTimerDetik((parseInt(timerDetikInput, 10) || settings.timerDetik) + 1)}
-                                disabled={settings.timerDetik >= 60}
-                                className="w-10 h-10 flex items-center justify-center bg-[#131e33] hover:bg-amber-600/30 text-zinc-300 hover:text-white border border-[#273b5e] hover:border-amber-500 rounded transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed select-none active:scale-95"
-                                title="Tambah 1 Detik"
-                              >
-                                <Plus className="w-4 h-4" />
-                              </button>
-                            </div>
-
-                            {/* Quick Presets */}
-                            <div className="flex flex-wrap items-center gap-1 mt-2">
-                              {[5, 10, 15, 20].map((preset) => (
+                              {/* Stepper with direct editable number */}
+                              <div className="flex items-center gap-1.5">
                                 <button
-                                  key={preset}
                                   type="button"
-                                  onClick={() => updateTimerDetik(preset)}
-                                  className={`px-2 py-0.5 text-[10px] font-mono rounded border transition-all cursor-pointer ${
-                                    settings.timerDetik === preset
-                                      ? 'bg-amber-600 text-white border-amber-400 font-bold shadow-tactile-sm'
-                                      : 'bg-[#131e33] text-zinc-400 border-[#1e2b46] hover:text-zinc-200 hover:border-zinc-500'
-                                  }`}
+                                  onClick={() => updateTimerDetik((parseInt(timerDetikInput, 10) || settings.timerDetik) - 1)}
+                                  disabled={settings.timerDetik <= 3}
+                                  className="w-9 h-9 flex items-center justify-center bg-[#131e33] hover:bg-amber-600/30 text-zinc-300 hover:text-white border border-[#273b5e] hover:border-amber-500 rounded transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed select-none active:scale-95"
+                                  title="Kurangi 1 Detik"
                                 >
-                                  {preset}s {preset === 10 ? '(Standar)' : ''}
+                                  <Minus className="w-4 h-4" />
                                 </button>
-                              ))}
+                                <input
+                                  type="text"
+                                  inputMode="numeric"
+                                  pattern="[0-9]*"
+                                  value={timerDetikInput}
+                                  onChange={handleTimerDetikChange}
+                                  onBlur={handleTimerDetikBlur}
+                                  className="flex-1 h-9 bg-[#0d1424] border border-[#273b5e] focus:border-amber-500 focus:outline-none text-white font-mono text-center text-sm font-bold rounded"
+                                  placeholder="10"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => updateTimerDetik((parseInt(timerDetikInput, 10) || settings.timerDetik) + 1)}
+                                  disabled={settings.timerDetik >= 60}
+                                  className="w-9 h-9 flex items-center justify-center bg-[#131e33] hover:bg-amber-600/30 text-zinc-300 hover:text-white border border-[#273b5e] hover:border-amber-500 rounded transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed select-none active:scale-95"
+                                  title="Tambah 1 Detik"
+                                >
+                                  <Plus className="w-4 h-4" />
+                                </button>
+                              </div>
+
+                              {/* Quick Presets */}
+                              <div className="flex flex-wrap items-center gap-1 mt-2">
+                                {[5, 10, 15, 20].map((preset) => (
+                                  <button
+                                    key={preset}
+                                    type="button"
+                                    onClick={() => updateTimerDetik(preset)}
+                                    className={`px-1.5 py-0.5 text-[10px] font-mono rounded border transition-all cursor-pointer ${
+                                      settings.timerDetik === preset
+                                        ? 'bg-amber-600 text-white border-amber-400 font-bold shadow-tactile-sm'
+                                        : 'bg-[#131e33] text-zinc-400 border-[#1e2b46] hover:text-zinc-200 hover:border-zinc-500'
+                                    }`}
+                                  >
+                                    {preset}s {preset === 10 ? '(Standar)' : ''}
+                                  </button>
+                                ))}
+                              </div>
                             </div>
                             <p className="text-[10px] text-zinc-500 font-mono mt-1.5">
-                              Waktu berpikir peserta per soal sebelum timeout.
+                              Waktu berpikir peserta per nomor soal.
+                            </p>
+                          </div>
+
+                          {/* Parameter 3: Jeda / Cooldown Setelah Jawab */}
+                          <div className="bg-[#0b1220] border border-[#1e2b46] p-3 rounded flex flex-col justify-between">
+                            <div>
+                              <div className="flex items-center justify-between mb-1.5">
+                                <label className="text-xs font-mono font-bold text-zinc-200">
+                                  Jeda Setelah Jawab
+                                </label>
+                                <span className="text-xs font-mono font-extrabold text-cyan-400 bg-cyan-950/80 px-2 py-0.5 rounded border border-cyan-800">
+                                  {settings.cooldownDetik || 3} Detik
+                                </span>
+                              </div>
+
+                              {/* Stepper with direct editable number */}
+                              <div className="flex items-center gap-1.5">
+                                <button
+                                  type="button"
+                                  onClick={() => updateCooldownDetik((parseInt(cooldownDetikInput, 10) || settings.cooldownDetik || 3) - 1)}
+                                  disabled={(settings.cooldownDetik || 3) <= 1}
+                                  className="w-9 h-9 flex items-center justify-center bg-[#131e33] hover:bg-cyan-600/30 text-zinc-300 hover:text-white border border-[#273b5e] hover:border-cyan-500 rounded transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed select-none active:scale-95"
+                                  title="Kurangi 1 Detik"
+                                >
+                                  <Minus className="w-4 h-4" />
+                                </button>
+                                <input
+                                  type="text"
+                                  inputMode="numeric"
+                                  pattern="[0-9]*"
+                                  value={cooldownDetikInput}
+                                  onChange={handleCooldownDetikChange}
+                                  onBlur={handleCooldownDetikBlur}
+                                  className="flex-1 h-9 bg-[#0d1424] border border-[#273b5e] focus:border-cyan-500 focus:outline-none text-white font-mono text-center text-sm font-bold rounded"
+                                  placeholder="3"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => updateCooldownDetik((parseInt(cooldownDetikInput, 10) || settings.cooldownDetik || 3) + 1)}
+                                  disabled={(settings.cooldownDetik || 3) >= 10}
+                                  className="w-9 h-9 flex items-center justify-center bg-[#131e33] hover:bg-cyan-600/30 text-zinc-300 hover:text-white border border-[#273b5e] hover:border-cyan-500 rounded transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed select-none active:scale-95"
+                                  title="Tambah 1 Detik"
+                                >
+                                  <Plus className="w-4 h-4" />
+                                </button>
+                              </div>
+
+                              {/* Quick Presets */}
+                              <div className="flex flex-wrap items-center gap-1 mt-2">
+                                {[1, 2, 3, 5].map((preset) => (
+                                  <button
+                                    key={preset}
+                                    type="button"
+                                    onClick={() => updateCooldownDetik(preset)}
+                                    className={`px-1.5 py-0.5 text-[10px] font-mono rounded border transition-all cursor-pointer ${
+                                      (settings.cooldownDetik || 3) === preset
+                                        ? 'bg-cyan-600 text-white border-cyan-400 font-bold shadow-tactile-sm'
+                                        : 'bg-[#131e33] text-zinc-400 border-[#1e2b46] hover:text-zinc-200 hover:border-zinc-500'
+                                    }`}
+                                  >
+                                    {preset}s {preset === 3 ? '(Default)' : ''}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                            <p className="text-[10px] text-zinc-500 font-mono mt-1.5">
+                              Jeda review sebelum otomatis lanjut soal.
                             </p>
                           </div>
                         </div>

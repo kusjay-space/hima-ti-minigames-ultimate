@@ -41,6 +41,7 @@ export type FotoFokus = 'atas' | 'tengah_atas' | 'tengah';
 export interface QuizConfig {
   totalSoal: number;
   timerDetik: number;
+  cooldownDetik?: number;
   minBenarCap: number;
   animasiStyle: AnimationStyle;
   misiCapText: string;

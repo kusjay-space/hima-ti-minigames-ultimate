@@ -142,6 +142,7 @@ export function App() {
         const loaded: QuizConfig = {
           totalSoal: parseInt(s.soalPerSesi) || 5,
           timerDetik: parseInt(s.timerDetik) || 10,
+          cooldownDetik: parseInt(s.cooldownDetik) || 3,
           minBenarCap: parseInt(s.minBenarCap) || 4,
           animasiStyle: s.animasiStyle || 'combo',
           misiCapText: s.misiCapText || 'Follow Instagram @himaprodi_ti & Spinwheel.',

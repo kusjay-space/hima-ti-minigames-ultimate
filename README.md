@@ -43,7 +43,7 @@ flowchart TD
     E -->|Benar >= 4: Maksimal Salah 1| F[🟢 LOLOS CAP LANGSUNG]
     F --> G[Selebrasi Konfeti Emas & Panitia Memberi Cap Buku Ospek]
     E -->|Benar < 4: Salah >= 2| H[🟡 JALUR MISI STAND]
-    H --> I[Misi: Follow Instagram HIMA TI & Sapa Pengurus Stand]
+    H --> I[Misi: Follow Instagram @himaprodi_ti & Spinwheel]
     I --> J[Panitia Memvalidasi Misi & Memberi Cap Alternatif]
 ```
 
@@ -52,8 +52,7 @@ flowchart TD
    - Mendapatkan selebrasi konfeti meriah, kartu reputasi emas, dan instruksi langsung untuk panitia agar memberikan **Cap Stand HIMA TI**.
 2. **Jalur Misi Stand (Kesempatan Kedua):**
    - Peserta yang belum mencapai batas minimal benar diarahkan menyelesaikan misi interaktif:
-     - 📱 **Misi 1:** Follow akun Instagram resmi HIMA TI (`@himati_official`).
-     - 🤝 **Misi 2:** Sapa dan sebutkan nama serta divisi salah satu kakak pengurus yang sedang berjaga di meja stand.
+     - 📱 **Misi Stand:** Follow Instagram `@himaprodi_ti` & Spinwheel.
    - Panitia memverifikasi dan tetap memberikan cap stand, sehingga semua maba terdorong berinteraksi secara ramah.
 
 *(Catatan: Ambang batas minimal benar, timer, dan jumlah soal dapat diatur fleksibel melalui Dashboard Admin).*

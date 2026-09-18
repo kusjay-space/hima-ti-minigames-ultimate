@@ -181,13 +181,16 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
                       Kamu menjawab benar <strong>{benarCount} dari {result.totalSoal} soal</strong> (salah {salahCount}).
                     </p>
 
-                    <div className="mt-3 p-3 bg-[#080c14] border border-[#f59e0b]/50 text-left">
-                      <span className="text-[10px] font-bold text-[#f59e0b] uppercase font-mono block mb-1.5">
-                        MISI KLAIM CAP STAND:
-                      </span>
-                      <p className="flex items-start gap-2 text-xs text-[#cbd5e1] leading-relaxed">
-                        <Camera className="w-3.5 h-3.5 text-[#f43f5e] shrink-0 mt-0.5" />
-                        <span>{config.misiCapText}</span>
+                    <div className="mt-3.5 p-3.5 sm:p-4 bg-[#080c14] border-2 border-[#f59e0b] text-left shadow-tactile-sm">
+                      <div className="flex items-center gap-1.5 mb-2">
+                        <span className="w-2 h-2 rounded-full bg-[#f59e0b] animate-pulse" />
+                        <span className="text-xs font-extrabold text-[#f59e0b] uppercase font-mono tracking-wider">
+                          MISI KLAIM CAP STAND:
+                        </span>
+                      </div>
+                      <p className="flex items-start gap-2.5 text-sm sm:text-base font-bold text-white leading-relaxed">
+                        <Camera className="w-5 h-5 text-[#f43f5e] shrink-0 mt-0.5" />
+                        <span className="text-amber-200 font-sans">{config.misiCapText}</span>
                       </p>
                     </div>
                   </>

@@ -58,10 +58,9 @@ flowchart TD
    - **Kondisi:** Salah 2 soal atau lebih (Skor $\le 60$).
    - **Tampilan:**
      - Banner: ⚡ **"BELUM DAPAT CAP OTOMATIS! EITS, JANGAN KHAWATIR!"**
-     - Maba diarahkan menjalankan **Misi Tambahan Panitia**:
-       - 📱 **Misi 1:** Follow akun Instagram resmi HIMA TI (`@himati_...`).
-       - 🤝 **Misi 2:** Sebutkan nama & divisi salah satu kakak pengurus yang sedang berjaga di stand.
-     - Setelah panitia memverifikasi, maba tetap mendapatkan **Cap Stand HIMA TI**.
+      - Maba diarahkan menjalankan **Misi Stand**:
+        - 📱 **Misi Stand:** Follow Instagram `@himaprodi_ti` & Spinwheel.
+      - Setelah panitia memverifikasi, maba tetap mendapatkan **Cap Stand HIMA TI**.
 
 *(Catatan: Ambang batas minimal benar ini dapat diatur oleh admin melalui Dashboard Admin, default: 4 dari 5).*
 

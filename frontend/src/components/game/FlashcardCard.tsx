@@ -983,7 +983,7 @@ export const FlashcardCard: React.FC<FlashcardCardProps> = ({
                       </li>
                       <li className="flex items-start gap-1.5">
                         <span className="text-[#38bdf8] font-mono font-bold">2.</span>
-                        <span><strong>Jalur Cadangan (Salah &ge; {cadanganSalah}):</strong> Follow Instagram @himati_official & sapa kakak pengurus di stand.</span>
+                        <span><strong>Jalur Cadangan (Salah &ge; {cadanganSalah}):</strong> Follow Instagram @himaprodi_ti & Spinwheel.</span>
                       </li>
                       <li className="flex items-start gap-1.5">
                         <span className="text-[#f59e0b] font-mono font-bold">3.</span>

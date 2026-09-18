@@ -146,7 +146,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onRefre
     timerDetik: 10,
     minBenarCap: 4,
     animasiStyle: 'combo',
-    misiCapText: 'Follow Instagram @himati_official & Sapa 1 kakak pengurus di stand HIMA!',
+    misiCapText: 'Follow Instagram @himaprodi_ti & Spinwheel.',
     fotoFokus: 'tengah_atas',
     spillJawaban: 'akhir'
   });
@@ -291,7 +291,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onRefre
   const maxAvailableSoal = Math.max(5, pengurusList.length > 0 ? pengurusList.length : 34);
 
   const updateTotalSoal = (newVal: number) => {
-    const clamped = Math.max(3, Math.min(maxAvailableSoal, newVal));
+    const clamped = Math.max(2, Math.min(maxAvailableSoal, newVal));
     setTotalSoalInput(String(clamped));
     setSettings(prev => {
       const newMin = prev.minBenarCap > clamped ? clamped : prev.minBenarCap;
@@ -334,8 +334,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onRefre
 
   const handleTotalSoalBlur = () => {
     const num = parseInt(totalSoalInput, 10);
-    if (!num || isNaN(num) || num < 3) {
-      updateTotalSoal(3);
+    if (!num || isNaN(num) || num < 2) {
+      updateTotalSoal(2);
     } else if (num > maxAvailableSoal) {
       updateTotalSoal(maxAvailableSoal);
     } else {
@@ -394,7 +394,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onRefre
     setSettingsBtnState('saving');
     
     // Resolve any empty/partial inputs safely
-    const resolvedTotalSoal = Math.max(3, Math.min(maxAvailableSoal, parseInt(totalSoalInput, 10) || settings.totalSoal || 5));
+    const resolvedTotalSoal = Math.max(2, Math.min(maxAvailableSoal, parseInt(totalSoalInput, 10) || settings.totalSoal || 5));
     const resolvedTimerDetik = Math.max(3, Math.min(60, parseInt(timerDetikInput, 10) || settings.timerDetik || 10));
     const resolvedMinBenar = Math.min(
       resolvedTotalSoal,
@@ -808,7 +808,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onRefre
                               <button
                                 type="button"
                                 onClick={() => updateTotalSoal((parseInt(totalSoalInput, 10) || settings.totalSoal) - 1)}
-                                disabled={settings.totalSoal <= 3}
+                                disabled={settings.totalSoal <= 2}
                                 className="w-10 h-10 flex items-center justify-center bg-[#131e33] hover:bg-blue-600/30 text-zinc-300 hover:text-white border border-[#273b5e] hover:border-blue-500 rounded transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed select-none active:scale-95"
                                 title="Kurangi 1 Soal"
                               >
@@ -837,7 +837,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onRefre
 
                             {/* Quick Presets */}
                             <div className="flex flex-wrap items-center gap-1 mt-2">
-                              {[3, 5, 7, 10].map((preset) => (
+                              {[2, 3, 5, 7, 10].map((preset) => (
                                 <button
                                   key={preset}
                                   type="button"

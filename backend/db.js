@@ -88,7 +88,7 @@ const defaultSettings = [
   ['minBenarCap', '4'],
   ['modeKuis', 'tebak_nama'], // 'tebak_nama' | 'tebak_divisi' | 'campuran'
   ['animasiStyle', 'combo'],  // 'combo' | 'biometric_laser' | 'tilt_3d' | 'card_stack' | 'matrix_decode' | 'standard_flip'
-  ['misiCapText', 'Follow Instagram @himati_official & Sapa 1 kakak pengurus di stand HIMA!'],
+  ['misiCapText', 'Follow Instagram @himaprodi_ti & Spinwheel.'],
   ['adminPin', '2026'],
   ['spillJawaban', 'akhir'] // 'akhir' (element of surprise) | 'langsung' (per-question review)
 ];

@@ -144,7 +144,7 @@ export function App() {
           timerDetik: parseInt(s.timerDetik) || 10,
           minBenarCap: parseInt(s.minBenarCap) || 4,
           animasiStyle: s.animasiStyle || 'combo',
-          misiCapText: s.misiCapText || 'Follow IG @himati_official & Sapa 1 kakak pengurus di stand!',
+          misiCapText: s.misiCapText || 'Follow Instagram @himaprodi_ti & Spinwheel.',
           fotoFokus: s.fotoFokus || 'tengah_atas',
           spillJawaban: (s.spillJawaban as 'akhir' | 'langsung') || 'akhir'
         };

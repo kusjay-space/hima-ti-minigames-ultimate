@@ -43,7 +43,7 @@ export const defaultStaticSettings: Record<string, string> = {
   minBenarCap: '4',
   modeKuis: 'tebak_nama',
   animasiStyle: 'combo',
-  misiCapText: 'Follow Instagram @himati_official & Sapa 1 kakak pengurus di stand HIMA!',
+  misiCapText: 'Follow Instagram @himaprodi_ti & Spinwheel.',
   adminPin: '2026',
   fotoFokus: 'tengah_atas',
   spillJawaban: 'akhir'
@@ -58,7 +58,14 @@ const STORAGE_KEYS = {
 function getLocalSettings(): Record<string, string> {
   try {
     const raw = localStorage.getItem(STORAGE_KEYS.SETTINGS);
-    if (raw) return { ...defaultStaticSettings, ...JSON.parse(raw) };
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed.misiCapText && parsed.misiCapText.includes('@himati_official')) {
+        parsed.misiCapText = 'Follow Instagram @himaprodi_ti & Spinwheel.';
+        setLocalSettings(parsed);
+      }
+      return { ...defaultStaticSettings, ...parsed };
+    }
   } catch {
     // Ignore error
   }
@@ -212,7 +219,7 @@ function generateClientQuizSession(): { success: boolean; config: QuizConfig; qu
     timerDetik: parseInt(settings.timerDetik) || 10,
     minBenarCap: parseInt(settings.minBenarCap) || 4,
     animasiStyle: (settings.animasiStyle as QuizConfig['animasiStyle']) || 'combo',
-    misiCapText: settings.misiCapText || 'Follow IG @himati_official & Sapa 1 kakak pengurus di stand!',
+    misiCapText: settings.misiCapText || 'Follow Instagram @himaprodi_ti & Spinwheel.',
     fotoFokus: (settings.fotoFokus as QuizConfig['fotoFokus']) || 'tengah_atas',
     spillJawaban: (settings.spillJawaban as QuizConfig['spillJawaban']) || 'akhir'
   };

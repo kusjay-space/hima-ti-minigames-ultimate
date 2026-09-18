@@ -141,7 +141,7 @@ export function App() {
         const s = data.data;
         const loaded: QuizConfig = {
           totalSoal: parseInt(s.soalPerSesi) || 5,
-          timerDetik: parseInt(s.timerDetik) || 10,
+          timerDetik: parseInt(s.timerDetik) || 15,
           cooldownDetik: parseInt(s.cooldownDetik) || 3,
           minBenarCap: parseInt(s.minBenarCap) || 4,
           animasiStyle: s.animasiStyle || 'combo',

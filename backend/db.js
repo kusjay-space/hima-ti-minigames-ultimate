@@ -84,7 +84,7 @@ db.exec(`
 // Inisialisasi Pengaturan Default
 const defaultSettings = [
   ['soalPerSesi', '5'],
-  ['timerDetik', '10'],
+  ['timerDetik', '15'],
   ['minBenarCap', '4'],
   ['modeKuis', 'tebak_nama'], // 'tebak_nama' | 'tebak_divisi' | 'campuran'
   ['animasiStyle', 'combo'],  // 'combo' | 'biometric_laser' | 'tilt_3d' | 'card_stack' | 'matrix_decode' | 'standard_flip'

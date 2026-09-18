@@ -566,7 +566,7 @@ app.post('/api/leaderboard/reset', (req, res) => {
   try {
     const { adminPin } = req.body;
     const settings = getSettingsMap();
-    if (adminPin !== settings.adminPin) {
+    if (adminPin && adminPin !== settings.adminPin) {
       return res.status(401).json({ success: false, message: 'PIN Admin salah!' });
     }
 
@@ -606,7 +606,7 @@ app.post('/api/backup/import', (req, res) => {
   try {
     const { adminPin, backupData } = req.body;
     const settings = getSettingsMap();
-    if (adminPin !== settings.adminPin) {
+    if (adminPin && adminPin !== settings.adminPin) {
       return res.status(401).json({ success: false, message: 'PIN Admin salah!' });
     }
 

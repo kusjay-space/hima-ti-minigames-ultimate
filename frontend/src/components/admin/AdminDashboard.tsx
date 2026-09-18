@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Users, Trophy, Download, Upload, Plus, Minus, Trash2, 
-  Check, X, Shield, Lock, Sliders, RefreshCw, AlertCircle, Eye, EyeOff, 
+  Check, X, Shield, Sliders, RefreshCw, Eye, EyeOff, 
   ArrowLeft, ArrowRight, CheckCircle, XCircle, Search, Focus, Sparkles, Pencil, Save
 } from 'lucide-react';
 import type { Pengurus, QuizConfig, AnimationStyle, FotoFokus } from '../../types';
@@ -43,7 +43,7 @@ const ANIMATION_CHOICES: { id: AnimationStyle; title: string; desc: string; badg
     id: 'combo_surveillance_vhs',
     title: 'Analog Tape Surveillance',
     desc: 'Tekstur scanline tabung CRT halus + vertical frame drift stabil + HUD timestamp REC [00:14:26] + CRT flash.',
-    badge: 'RETRO SURVEILLANCE'
+    badge: 'ANALOG VHS'
   },
   {
     id: 'combo_aperture_spy',
@@ -132,10 +132,8 @@ const ANIMATION_CHOICES: { id: AnimationStyle; title: string; desc: string; badg
 ];
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onRefreshGameConfig }) => {
-  // Authentication State
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  // Password bypassed for easier stand management
   const [pinInput, setPinInput] = useState('');
-  const [pinError, setPinError] = useState('');
 
   // Tab Active
   const [activeTab, setActiveTab] = useState<'settings' | 'pengurus' | 'leaderboard'>('settings');
@@ -143,7 +141,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onRefre
   // Settings State
   const [settings, setSettings] = useState<QuizConfig>({
     totalSoal: 5,
-    timerDetik: 10,
+    timerDetik: 15,
     cooldownDetik: 3,
     minBenarCap: 4,
     animasiStyle: 'combo',
@@ -155,7 +153,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onRefre
 
   // Dedicated string inputs to allow complete clearing / free-typing without snap-back
   const [totalSoalInput, setTotalSoalInput] = useState('5');
-  const [timerDetikInput, setTimerDetikInput] = useState('10');
+  const [timerDetikInput, setTimerDetikInput] = useState('15');
   const [cooldownDetikInput, setCooldownDetikInput] = useState('3');
   const [minBenarCapInput, setMinBenarCapInput] = useState('4');
 
@@ -232,8 +230,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onRefre
       const dataSettings = await resSettings.json();
       if (dataSettings.success) {
         const s = dataSettings.data;
+        if (s.adminPin) {
+          setPinInput(s.adminPin);
+        }
         const loadedTotalSoal = parseInt(s.soalPerSesi) || 5;
-        const loadedTimerDetik = parseInt(s.timerDetik) || 10;
+        const loadedTimerDetik = parseInt(s.timerDetik) || 15;
         const loadedCooldownDetik = parseInt(s.cooldownDetik) || 3;
         const loadedMinBenar = parseInt(s.minBenarCap) || 4;
 
@@ -272,25 +273,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onRefre
     }
   };
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      const res = await fetch('/api/settings');
-      const data = await res.json();
-      if (data.success) {
-        const correctPin = data.data.adminPin || '2026';
-        if (pinInput === correctPin) {
-          setIsAuthenticated(true);
-          setPinError('');
-          loadData();
-        } else {
-          setPinError('PIN Admin salah!');
-        }
-      }
-    } catch (err) {
-      setPinError('Gagal memverifikasi ke server');
-    }
-  };
+  useEffect(() => {
+    loadData();
+  }, []);
 
   // Helper handlers for Sesi Stand Parameters (Total Soal, Timer, Min Benar Cap)
   const maxAvailableSoal = Math.max(5, pengurusList.length > 0 ? pengurusList.length : 34);
@@ -362,7 +347,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onRefre
   const handleTimerDetikBlur = () => {
     const num = parseInt(timerDetikInput, 10);
     if (!num || isNaN(num) || num < 3) {
-      updateTimerDetik(5);
+      updateTimerDetik(15);
     } else if (num > 60) {
       updateTimerDetik(60);
     } else {
@@ -694,46 +679,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onRefre
           </button>
         </div>
 
-        {/* Jika Belum Login PIN */}
-        {!isAuthenticated ? (
-          <div className="py-20 flex flex-col items-center justify-center max-w-sm mx-auto w-full text-center">
-            <div className="w-14 h-14 bg-[#131e33] border-2 border-[#273b5e] flex items-center justify-center text-blue-400 mb-4 shadow-tactile">
-              <Lock className="w-7 h-7 stroke-[2.5]" />
-            </div>
-            <h3 className="text-lg font-bold text-white mb-1">Otentikasi Panitia Stand</h3>
-            <p className="text-xs text-zinc-400 mb-6 font-mono">Masukkan PIN untuk mengelola parameter game dan bank soal.</p>
-
-            <form onSubmit={handleLogin} className="w-full space-y-4">
-              <input
-                type="password"
-                value={pinInput}
-                onChange={(e) => {
-                  setPinInput(e.target.value);
-                  setPinError('');
-                }}
-                placeholder="Default: 2026"
-                maxLength={10}
-                autoFocus
-                className="w-full px-4 py-3 bg-[#080c14] border-2 border-[#273b5e] text-center font-mono text-2xl tracking-widest text-white focus:outline-none focus:border-blue-500"
-              />
-
-              {pinError && (
-                <p className="text-xs text-rose-400 flex items-center justify-center gap-1 font-mono">
-                  <AlertCircle className="w-3.5 h-3.5" />
-                  {pinError}
-                </p>
-              )}
-
-              <button
-                type="submit"
-                className="w-full py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-bold transition-all shadow-tactile hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-tactile-blue active:translate-x-[1px] active:translate-y-[1px] active:shadow-none cursor-pointer"
-              >
-                MASUK KE COMMAND CONSOLE
-              </button>
-            </form>
-          </div>
-        ) : (
-          <div className="flex-1 flex flex-col overflow-hidden pt-3">
+        <div className="flex-1 flex flex-col overflow-hidden pt-3">
             {/* Tabs Navigation (Neo-Brutalist Buttons) & Action Controls */}
             <div className="flex items-center justify-between gap-3 border-b-2 border-[#1e2b46] pb-3 shrink-0">
               <div className="flex items-center gap-2 overflow-x-auto min-w-0 pr-1">
@@ -927,7 +873,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onRefre
                                   onChange={handleTimerDetikChange}
                                   onBlur={handleTimerDetikBlur}
                                   className="flex-1 h-9 bg-[#0d1424] border border-[#273b5e] focus:border-amber-500 focus:outline-none text-white font-mono text-center text-sm font-bold rounded"
-                                  placeholder="10"
+                                  placeholder="15"
                                 />
                                 <button
                                   type="button"
@@ -953,7 +899,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onRefre
                                         : 'bg-[#131e33] text-zinc-400 border-[#1e2b46] hover:text-zinc-200 hover:border-zinc-500'
                                     }`}
                                   >
-                                    {preset}s {preset === 10 ? '(Standar)' : ''}
+                                    {preset}s {preset === 15 ? '(Standar)' : ''}
                                   </button>
                                 ))}
                               </div>
@@ -1651,7 +1597,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onRefre
               )}
             </div>
           </div>
-        )}
       </motion.div>
 
       {/* Modal Edit Pengurus */}
